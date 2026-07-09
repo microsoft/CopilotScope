@@ -7,7 +7,7 @@ const lenses = defineCollection({
     id: z.string(),
     name: z.string(),
     tagline: z.string(),
-    status: z.enum(['available', 'coming-soon']),
+    status: z.enum(['installed', 'available', 'coming-soon']),
     color: z.string(),
     category: z.string(),
     icon: z.string().nullable(),

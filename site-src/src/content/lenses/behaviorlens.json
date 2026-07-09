@@ -1,7 +1,7 @@
 {
   "id": "behaviorlens",
   "name": "BehaviorLens",
-  "tagline": "Employee work-behaviour patterns mapped to the AI-activity taxonomy — the manual-vs-AI baseline.",
+  "tagline": "M365 work-behaviour baseline",
   "status": "coming-soon",
   "color": "lens-cyan",
   "category": "Behavior",

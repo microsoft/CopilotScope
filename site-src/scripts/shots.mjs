@@ -1,4 +1,5 @@
-// shots.mjs — capture full-page shell screenshots in light + dark themes.
+// shots.mjs — capture Home screenshots (light full-page, light viewport, dark
+// full-page) at 1440x900 for Phase 3.2b review.
 //
 // Assumes the site is already built (`npm run build` produces ./dist). Uses
 // Astro's programmatic preview server (honors base '/CopilotScope') + Playwright
@@ -15,15 +16,8 @@ import path from 'node:path';
 const OUT = path.join(
   'C:\\Users\\bmiddendorf\\OneDrive - Microsoft\\Documents',
   'Copilot Analytics Team\\Aggregated Copilot Analytics',
-  'CopilotScope\\_temp\\phase3.1b\\screenshots',
+  'CopilotScope\\_temp\\phase3.2e\\screenshots',
 );
-
-async function shoot(page, url, file) {
-  await page.goto(url, { waitUntil: 'networkidle' });
-  await page.waitForTimeout(250); // settle transitions / fonts
-  await page.screenshot({ path: path.join(OUT, file), fullPage: true });
-  console.log('  wrote', file);
-}
 
 async function main() {
   await mkdir(OUT, { recursive: true });
@@ -41,19 +35,31 @@ async function main() {
     });
     const page = await ctx.newPage();
 
-    // Home — light (default theme)
-    await shoot(page, `${baseUrl}/`, 'home-light.png');
+    // Home — light, full page (1440x900 overall review)
+    await page.goto(`${baseUrl}/`, { waitUntil: 'networkidle' });
+    await page.waitForTimeout(250); // settle transitions / fonts
+    await page.screenshot({ path: path.join(OUT, 'home-light.png'), fullPage: true });
+    console.log('  wrote home-light.png');
 
-    // Home — dark (persist theme, reload so the pre-paint script applies it)
+    // Home — dark, full page (persist theme, reload so pre-paint script applies)
     await page.evaluate(() => localStorage.setItem('csTheme', 'dark'));
     await page.reload({ waitUntil: 'networkidle' });
     await page.waitForTimeout(250);
     await page.screenshot({ path: path.join(OUT, 'home-dark.png'), fullPage: true });
     console.log('  wrote home-dark.png');
+    await ctx.close();
 
-    // ValueLens — light (reset theme first)
-    await page.evaluate(() => localStorage.setItem('csTheme', 'light'));
-    await shoot(page, `${baseUrl}/lenses/valuelens`, 'valuelens-light.png');
+    // Home — light, 390px responsive spot-check (fresh context = default light)
+    const ctxNarrow = await browser.newContext({
+      viewport: { width: 390, height: 900 },
+      deviceScaleFactor: 2,
+    });
+    const pageNarrow = await ctxNarrow.newPage();
+    await pageNarrow.goto(`${baseUrl}/`, { waitUntil: 'networkidle' });
+    await pageNarrow.waitForTimeout(250);
+    await pageNarrow.screenshot({ path: path.join(OUT, 'home-light-390.png'), fullPage: true });
+    console.log('  wrote home-light-390.png');
+    await ctxNarrow.close();
 
     console.log('DONE. screenshots ->', OUT);
   } finally {

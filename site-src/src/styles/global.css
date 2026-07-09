@@ -6,7 +6,7 @@
 
 :root {
   /* --- Surfaces --- */
-  --surface-page: #eef1f7;
+  --surface-page: #f6f8fc;
   --surface-card: #ffffff;
   --surface-raised: #ffffff;
 
@@ -35,6 +35,10 @@
   --lens-slate: #5b6b7e;
 
   /* --- Status --- */
+  --status-installed: color-mix(in srgb, var(--lens-green) 18%, transparent);
+  --status-installed-ink: #1c6b45;
+  --status-available: var(--accent-subtle);
+  --status-available-ink: var(--accent);
   --status-comingsoon: #cfe4fb;
   --status-comingsoon-ink: #1c4e80;
 
@@ -100,6 +104,10 @@ html[data-theme="dark"] {
   --lens-slate: #8b9bad;
 
   /* --- Status --- */
+  --status-installed: color-mix(in srgb, var(--lens-green) 22%, transparent);
+  --status-installed-ink: #6fe0a8;
+  --status-available: var(--accent-subtle);
+  --status-available-ink: var(--accent);
   --status-comingsoon: #1c3a57;
   --status-comingsoon-ink: #a9d1f5;
 

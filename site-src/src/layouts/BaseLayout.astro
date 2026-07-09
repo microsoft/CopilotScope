@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
+import { getCollection } from 'astro:content';
 import Icon from '../components/Icon.astro';
 
 interface Props {
@@ -11,8 +12,9 @@ const { title = 'CopilotScope' } = Astro.props;
 const rawBase = import.meta.env.BASE_URL;
 const base = rawBase.replace(/\/+$/, ''); // '/CopilotScope'
 const home = base + '/';
-const faviconHref = `${base}/logo-mark.png`;
+const faviconHref = `${base}/favicon-mark.png`;
 const markHref = `${base}/logo-mark.png`;
+const markDarkHref = `${base}/logo-mark-dark.png`;
 const repoUrl = 'https://github.com/microsoft/CopilotScope';
 
 const strip = (p: string): string => p.replace(/\/+$/, '') || '/';
@@ -31,20 +33,49 @@ type NavEntry = NavLink | NavDivider;
 
 const isDivider = (e: NavEntry): e is NavDivider => 'divider' in e;
 
+const lensData = (await getCollection('lenses')).map((e) => e.data);
+const LENS_ICON: Record<string, string> = {
+  valuelens: 'trending-up',
+  adoptionlens: 'people',
+  readinesslens: 'clipboard-check',
+  maturitylens: 'bar-chart',
+  leaderlens: 'trophy',
+  studiolens: 'bot',
+  behaviorlens: 'brain',
+  governancelens: 'shield',
+};
+const LENS_CANON = [
+  'valuelens',
+  'adoptionlens',
+  'readinesslens',
+  'maturitylens',
+  'leaderlens',
+  'studiolens',
+  'behaviorlens',
+  'governancelens',
+];
+const STATUS_RANK: Record<string, number> = { installed: 0, available: 1, 'coming-soon': 2 };
+const lensNav: NavLink[] = [...lensData]
+  .sort(
+    (a, b) =>
+      STATUS_RANK[a.status] - STATUS_RANK[b.status] ||
+      LENS_CANON.indexOf(a.id) - LENS_CANON.indexOf(b.id),
+  )
+  .map((d) => ({
+    label: d.name,
+    href: `${base}/lenses/${d.id}`,
+    icon: LENS_ICON[d.id],
+    tint: d.color,
+    indent: true,
+  }));
+
 const nav: NavEntry[] = [
   { label: 'Home', href: home, icon: 'home' },
   { label: 'Getting Started', href: base + '/getting-started', icon: 'rocket' },
   { label: 'Data Sources', href: base + '/data-sources', icon: 'database' },
   { divider: true },
   { label: 'Lenses', href: base + '/lenses', icon: 'grid' },
-  { label: 'ValueLens', href: base + '/lenses/valuelens', icon: 'trending-up', tint: 'lens-green', indent: true },
-  { label: 'AdoptionLens', href: base + '/lenses/adoptionlens', icon: 'people', tint: 'lens-blue', indent: true },
-  { label: 'ReadinessLens', href: base + '/lenses/readinesslens', icon: 'clipboard-check', tint: 'lens-amber', indent: true },
-  { label: 'MaturityLens', href: base + '/lenses/maturitylens', icon: 'bar-chart', tint: 'lens-purple', indent: true },
-  { label: 'LeaderLens', href: base + '/lenses/leaderlens', icon: 'trophy', tint: 'lens-magenta', indent: true },
-  { label: 'StudioLens', href: base + '/lenses/studiolens', icon: 'bot', tint: 'lens-orange', indent: true },
-  { label: 'BehaviorLens', href: base + '/lenses/behaviorlens', icon: 'brain', tint: 'lens-cyan', indent: true },
-  { label: 'GovernanceLens', href: base + '/lenses/governancelens', icon: 'shield', tint: 'lens-slate', indent: true },
+  ...lensNav,
   { divider: true },
   { label: 'Lens Finder', href: base + '/lens-finder', icon: 'target' },
   { label: 'FAQ', href: base + '/faq', icon: 'help' },
@@ -98,12 +129,12 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
           </svg>
         </button>
         <a class="brand" href={home} aria-label="CopilotScope home">
-          <img class="brand-mark" src={markHref} alt="" width="28" height="28" />
+          <img class="brand-mark brand-mark-light" src={markHref} alt="" height="30" />
+          <img class="brand-mark brand-mark-dark" src={markDarkHref} alt="" height="30" />
           <span class="brand-name">CopilotScope</span>
         </a>
       </div>
       <div class="topbar-right">
-        <a class="ghlink" href={repoUrl} target="_blank" rel="noopener">GitHub</a>
         <button
           id="theme-toggle"
           class="theme-toggle"
@@ -137,7 +168,9 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
                     aria-current={isActive(item) ? 'page' : undefined}
                     style={item.tint ? `--row-tint: var(--${item.tint});` : undefined}
                   >
-                    <span class="rail-icon"><Icon name={item.icon} /></span>
+                    <span class="rail-icon">
+                      <Icon name={item.icon} />
+                    </span>
                     <span class="rail-label">{item.label}</span>
                     {item.external && <span class="ext" aria-hidden="true">↗</span>}
                   </a>
@@ -273,14 +306,23 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
       .brand {
         display: inline-flex;
         align-items: center;
-        gap: 10px;
+        gap: 13px;
       }
       .brand:hover {
         text-decoration: none;
       }
       .brand-mark {
-        height: 28px;
-        width: 28px;
+        height: 30px;
+        width: auto;
+        display: block;
+      }
+      .brand-mark-dark {
+        display: none;
+      }
+      html[data-theme='dark'] .brand-mark-light {
+        display: none;
+      }
+      html[data-theme='dark'] .brand-mark-dark {
         display: block;
       }
       .brand-name {
@@ -310,19 +352,6 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
       }
       .hamburger:hover {
         background: var(--accent-subtle);
-      }
-
-      .ghlink {
-        color: var(--muted);
-        font-size: 14px;
-        font-weight: 600;
-        padding: var(--sp-1) var(--sp-2);
-        border-radius: var(--radius-sm);
-      }
-      .ghlink:hover {
-        color: var(--ink);
-        background: var(--surface-raised);
-        text-decoration: none;
       }
 
       .theme-toggle {

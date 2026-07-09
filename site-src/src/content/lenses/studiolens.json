@@ -1,7 +1,7 @@
 {
   "id": "studiolens",
   "name": "StudioLens",
-  "tagline": "Deep Copilot Studio agent evaluation — quality, topics, transcripts, errors, feedback, and credits.",
+  "tagline": "Deep Copilot Studio agent evaluation",
   "status": "available",
   "color": "lens-orange",
   "category": "Agents",

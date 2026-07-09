@@ -1,12 +1,14 @@
 {
   "files": [
-    "_astro/BaseLayout.BH14JYDJ.css",
+    "_astro/BaseLayout.DW5BsmAh.css",
     "_astro/ClientRouter.astro_astro_type_script_index_0_lang.XvdBj9Ef.js",
+    "_astro/index.DF6GmVzm.css",
     "_astro/page.BNgT0lHs.js",
     "_astro/prefetch.-fXNEVrh.js",
     "about/index.html",
     "data-sources/index.html",
     "faq/index.html",
+    "favicon-mark.png",
     "favicon.ico",
     "favicon.svg",
     "getting-started/index.html",
@@ -22,8 +24,9 @@
     "lenses/studiolens/index.html",
     "lenses/valuelens/index.html",
     "logo-lockup.png",
+    "logo-mark-dark.png",
     "logo-mark.png",
     "whats-new/index.html"
   ],
-  "count": 24
+  "count": 27
 }
