@@ -1,0 +1,36 @@
+# Dev-Trio scaffolded files
+# Remove entries below if your team wants to share
+# these configurations across the repo.
+
+# Agent role definitions (GitHub Copilot)
+copilot-instructions.md
+.github/agents/
+.github/instructions/
+.github/prompts/
+constraints.instructions.md
+dev-trio.prompt.md
+
+# Agent role definitions (Claude Code)
+.claude/agents/
+.claude/commands/dt-upgrade.md
+.claude/
+CLAUDE.md
+
+# Agent role definitions (Codex)
+.codex/agents/
+.codex/
+AGENTS.md
+
+# Per-developer project memory (always keep ignored)
+memory/MEMORY.md
+memory/ROADMAP.md
+memory/PROMPT_EXAMPLES.md
+memory/
+
+# Dev-Trio internal state
+.dev-trio/
+
+# Dev Resources
+_backup/
+_temp/
+.vscode/
