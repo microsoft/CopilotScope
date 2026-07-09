@@ -6,7 +6,7 @@
 
 :root {
   /* --- Surfaces --- */
-  --surface-page: #f3f5f8;
+  --surface-page: #eef1f7;
   --surface-card: #ffffff;
   --surface-raised: #ffffff;
 
@@ -64,10 +64,9 @@
   --dur: 200ms;
   --ease: cubic-bezier(0.2, 0, 0, 1);
 
-  /* --- Ambient page background (light) --- */
+  /* --- Ambient content background (light) — subtle upper-right glow --- */
   --ambient:
-    radial-gradient(60rem 60rem at 12% -10%, rgba(0, 120, 212, 0.08), transparent 60%),
-    radial-gradient(48rem 48rem at 108% 8%, rgba(124, 92, 191, 0.06), transparent 55%);
+    radial-gradient(1200px 600px at 100% 0%, rgba(0, 120, 212, 0.06), transparent 60%);
 }
 
 html[data-theme="dark"] {
@@ -108,10 +107,9 @@ html[data-theme="dark"] {
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.5);
   --shadow-2: 0 8px 20px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.45);
 
-  /* --- Ambient page background (dark) --- */
+  /* --- Ambient content background (dark) — subtle upper-right glow --- */
   --ambient:
-    radial-gradient(60rem 60rem at 12% -10%, rgba(58, 160, 240, 0.12), transparent 60%),
-    radial-gradient(48rem 48rem at 108% 8%, rgba(161, 134, 224, 0.10), transparent 55%);
+    radial-gradient(1200px 600px at 100% 0%, rgba(58, 160, 240, 0.10), transparent 60%);
 }
 
 /* =========================================================================

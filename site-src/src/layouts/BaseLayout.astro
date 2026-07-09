@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
+import Icon from '../components/Icon.astro';
 
 interface Props {
   title?: string;
@@ -11,40 +12,49 @@ const rawBase = import.meta.env.BASE_URL;
 const base = rawBase.replace(/\/+$/, ''); // '/CopilotScope'
 const home = base + '/';
 const faviconHref = `${base}/logo-mark.png`;
-const lockupHref = `${base}/logo-lockup.png`;
+const markHref = `${base}/logo-mark.png`;
 const repoUrl = 'https://github.com/microsoft/CopilotScope';
 
 const strip = (p: string): string => p.replace(/\/+$/, '') || '/';
 const current = strip(Astro.url.pathname);
 
-type NavItem = {
+type NavLink = {
   label: string;
   href: string;
-  dot?: string;
+  icon: string;
+  tint?: string;
+  indent?: boolean;
   external?: boolean;
 };
+type NavDivider = { divider: true; push?: boolean };
+type NavEntry = NavLink | NavDivider;
 
-const nav: NavItem[] = [
-  { label: 'Home', href: home },
-  { label: 'Getting Started', href: base + '/getting-started' },
-  { label: 'Data Sources', href: base + '/data-sources' },
-  { label: 'Lenses', href: base + '/lenses' },
-  { label: 'ValueLens', href: base + '/lenses/valuelens', dot: 'lens-green' },
-  { label: 'AdoptionLens', href: base + '/lenses/adoptionlens', dot: 'lens-blue' },
-  { label: 'ReadinessLens', href: base + '/lenses/readinesslens', dot: 'lens-amber' },
-  { label: 'MaturityLens', href: base + '/lenses/maturitylens', dot: 'lens-purple' },
-  { label: 'LeaderLens', href: base + '/lenses/leaderlens', dot: 'lens-magenta' },
-  { label: 'StudioLens', href: base + '/lenses/studiolens', dot: 'lens-orange' },
-  { label: 'BehaviorLens', href: base + '/lenses/behaviorlens', dot: 'lens-cyan' },
-  { label: 'GovernanceLens', href: base + '/lenses/governancelens', dot: 'lens-slate' },
-  { label: 'Lens Finder', href: base + '/lens-finder' },
-  { label: 'FAQ', href: base + '/faq' },
-  { label: "What's New", href: base + '/whats-new' },
-  { label: 'About', href: base + '/about' },
-  { label: 'GitHub', href: repoUrl, external: true },
+const isDivider = (e: NavEntry): e is NavDivider => 'divider' in e;
+
+const nav: NavEntry[] = [
+  { label: 'Home', href: home, icon: 'home' },
+  { label: 'Getting Started', href: base + '/getting-started', icon: 'rocket' },
+  { label: 'Data Sources', href: base + '/data-sources', icon: 'database' },
+  { divider: true },
+  { label: 'Lenses', href: base + '/lenses', icon: 'grid' },
+  { label: 'ValueLens', href: base + '/lenses/valuelens', icon: 'trending-up', tint: 'lens-green', indent: true },
+  { label: 'AdoptionLens', href: base + '/lenses/adoptionlens', icon: 'people', tint: 'lens-blue', indent: true },
+  { label: 'ReadinessLens', href: base + '/lenses/readinesslens', icon: 'clipboard-check', tint: 'lens-amber', indent: true },
+  { label: 'MaturityLens', href: base + '/lenses/maturitylens', icon: 'bar-chart', tint: 'lens-purple', indent: true },
+  { label: 'LeaderLens', href: base + '/lenses/leaderlens', icon: 'trophy', tint: 'lens-magenta', indent: true },
+  { label: 'StudioLens', href: base + '/lenses/studiolens', icon: 'bot', tint: 'lens-orange', indent: true },
+  { label: 'BehaviorLens', href: base + '/lenses/behaviorlens', icon: 'brain', tint: 'lens-cyan', indent: true },
+  { label: 'GovernanceLens', href: base + '/lenses/governancelens', icon: 'shield', tint: 'lens-slate', indent: true },
+  { divider: true },
+  { label: 'Lens Finder', href: base + '/lens-finder', icon: 'target' },
+  { label: 'FAQ', href: base + '/faq', icon: 'help' },
+  { label: "What's New", href: base + '/whats-new', icon: 'sparkle' },
+  { divider: true, push: true },
+  { label: 'About', href: base + '/about', icon: 'info' },
+  { label: 'GitHub', href: repoUrl, icon: 'github', external: true },
 ];
 
-const isActive = (item: NavItem): boolean => !item.external && strip(item.href) === current;
+const isActive = (item: NavLink): boolean => !item.external && strip(item.href) === current;
 ---
 
 <!doctype html>
@@ -88,7 +98,8 @@ const isActive = (item: NavItem): boolean => !item.external && strip(item.href) 
           </svg>
         </button>
         <a class="brand" href={home} aria-label="CopilotScope home">
-          <img src={lockupHref} alt="CopilotScope" width="176" height="28" />
+          <img class="brand-mark" src={markHref} alt="" width="28" height="28" />
+          <span class="brand-name">CopilotScope</span>
         </a>
       </div>
       <div class="topbar-right">
@@ -101,8 +112,9 @@ const isActive = (item: NavItem): boolean => !item.external && strip(item.href) 
           aria-checked="false"
           aria-label="Toggle dark mode"
         >
-          <span class="tt-icon sun" aria-hidden="true">☀</span>
-          <span class="tt-icon moon" aria-hidden="true">☾</span>
+          <span class="tt-glyph tt-sun" aria-hidden="true"><Icon name="sun" size={14} /></span>
+          <span class="tt-glyph tt-moon" aria-hidden="true"><Icon name="moon" size={14} /></span>
+          <span class="tt-thumb" aria-hidden="true"></span>
         </button>
       </div>
     </header>
@@ -111,22 +123,27 @@ const isActive = (item: NavItem): boolean => !item.external && strip(item.href) 
       <nav id="rail" class="rail" aria-label="Primary" transition:persist>
         <ul>
           {
-            nav.map((item) => (
-              <li>
-                <a
-                  href={item.href}
-                  class:list={['rail-link', { active: isActive(item) }]}
-                  data-path={item.external ? undefined : strip(item.href)}
-                  target={item.external ? '_blank' : undefined}
-                  rel={item.external ? 'noopener' : undefined}
-                  aria-current={isActive(item) ? 'page' : undefined}
-                >
-                  {item.dot && <span class="dot" style={`background: var(--${item.dot})`} aria-hidden="true" />}
-                  <span class="rail-label">{item.label}</span>
-                  {item.external && <span class="ext" aria-hidden="true">↗</span>}
-                </a>
-              </li>
-            ))
+            nav.map((item) =>
+              isDivider(item) ? (
+                <li class:list={['rail-divider', { push: item.push }]} aria-hidden="true" />
+              ) : (
+                <li>
+                  <a
+                    href={item.href}
+                    class:list={['rail-link', { active: isActive(item), indent: item.indent }]}
+                    data-path={item.external ? undefined : strip(item.href)}
+                    target={item.external ? '_blank' : undefined}
+                    rel={item.external ? 'noopener' : undefined}
+                    aria-current={isActive(item) ? 'page' : undefined}
+                    style={item.tint ? `--row-tint: var(--${item.tint});` : undefined}
+                  >
+                    <span class="rail-icon"><Icon name={item.icon} /></span>
+                    <span class="rail-label">{item.label}</span>
+                    {item.external && <span class="ext" aria-hidden="true">↗</span>}
+                  </a>
+                </li>
+              )
+            )
           }
         </ul>
       </nav>
@@ -256,14 +273,22 @@ const isActive = (item: NavItem): boolean => !item.external && strip(item.href) 
       .brand {
         display: inline-flex;
         align-items: center;
+        gap: 10px;
       }
       .brand:hover {
         text-decoration: none;
       }
-      .brand img {
+      .brand-mark {
         height: 28px;
-        width: auto;
+        width: 28px;
         display: block;
+      }
+      .brand-name {
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--ink);
+        white-space: nowrap;
       }
 
       .hamburger {
@@ -301,40 +326,58 @@ const isActive = (item: NavItem): boolean => !item.external && strip(item.href) 
       }
 
       .theme-toggle {
+        position: relative;
         display: inline-flex;
         align-items: center;
-        gap: 2px;
-        width: 62px;
-        height: 30px;
-        padding: 3px;
+        width: 56px;
+        height: 28px;
+        padding: 0;
         background: var(--surface-raised);
         border: 1px solid var(--border-strong);
         border-radius: 999px;
         cursor: pointer;
       }
-      .theme-toggle .tt-icon {
-        flex: 1;
-        display: grid;
-        place-items: center;
-        height: 100%;
-        font-size: 14px;
-        line-height: 1;
+      .theme-toggle .tt-glyph {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        display: inline-flex;
+        z-index: 2;
         color: var(--subtle);
-        border-radius: 999px;
-        transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+        pointer-events: none;
       }
-      html[data-theme='light'] .theme-toggle .sun {
-        background: var(--accent-subtle);
+      .theme-toggle .tt-sun {
+        left: 6px;
+      }
+      .theme-toggle .tt-moon {
+        right: 6px;
+      }
+      .theme-toggle .tt-thumb {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        z-index: 1;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--surface-card);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-1);
+        transition: transform var(--dur) var(--ease);
+      }
+      html[data-theme='dark'] .theme-toggle .tt-thumb {
+        transform: translateX(28px);
+      }
+      html[data-theme='light'] .theme-toggle .tt-sun {
         color: var(--accent);
       }
-      html[data-theme='dark'] .theme-toggle .moon {
-        background: var(--accent-subtle);
+      html[data-theme='dark'] .theme-toggle .tt-moon {
         color: var(--accent);
       }
 
       .shell {
         display: grid;
-        grid-template-columns: 240px minmax(0, 1fr);
+        grid-template-columns: 248px minmax(0, 1fr);
         align-items: start;
       }
 
@@ -343,7 +386,7 @@ const isActive = (item: NavItem): boolean => !item.external && strip(item.href) 
         top: 56px;
         height: calc(100vh - 56px);
         overflow-y: auto;
-        padding: var(--sp-4) var(--sp-3);
+        padding: var(--sp-3) var(--sp-2);
         background: var(--surface-card);
         border-right: 1px solid var(--border);
       }
@@ -351,36 +394,64 @@ const isActive = (item: NavItem): boolean => !item.external && strip(item.href) 
         list-style: none;
         margin: 0;
         padding: 0;
+        min-height: 100%;
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: 1px;
+      }
+      .rail-divider {
+        height: 1px;
+        margin: var(--sp-2) var(--sp-2);
+        background: var(--border);
+      }
+      .rail-divider.push {
+        margin-top: auto;
       }
       .rail-link {
+        position: relative;
         display: flex;
         align-items: center;
-        gap: var(--sp-2);
-        padding: var(--sp-2) var(--sp-3);
-        color: var(--muted);
-        font-size: 14px;
+        gap: var(--sp-3);
+        height: 42px;
+        padding: 0 var(--sp-3) 0 14px;
+        color: var(--ink);
+        font-size: 15px;
         font-weight: 500;
         border-radius: var(--radius-sm);
         transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
       }
+      .rail-link.indent {
+        padding-left: 26px;
+      }
       .rail-link:hover {
-        background: var(--surface-raised);
-        color: var(--ink);
+        background: color-mix(in srgb, var(--ink) 5%, transparent);
         text-decoration: none;
       }
       .rail-link.active {
-        background: var(--accent-subtle);
+        background: color-mix(in srgb, var(--accent) 12%, transparent);
         color: var(--accent);
         font-weight: 600;
       }
-      .rail-link .dot {
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
+      .rail-link.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 4px;
+        bottom: 4px;
+        width: 3px;
+        border-radius: 0 3px 3px 0;
+        background: var(--accent);
+      }
+      .rail-icon {
+        display: inline-flex;
         flex: 0 0 auto;
+        color: var(--row-tint, var(--muted));
+      }
+      .rail-link.active .rail-icon {
+        color: var(--accent);
+      }
+      .rail-label {
+        min-width: 0;
       }
       .rail-link .ext {
         margin-left: auto;
@@ -390,8 +461,8 @@ const isActive = (item: NavItem): boolean => !item.external && strip(item.href) 
 
       .content {
         min-width: 0;
-        max-width: 1080px;
-        padding: var(--sp-6) var(--sp-6) var(--sp-8);
+        max-width: 1100px;
+        padding: 40px 40px 64px;
       }
 
       .backdrop {
@@ -437,7 +508,7 @@ const isActive = (item: NavItem): boolean => !item.external && strip(item.href) 
 
       @media (prefers-reduced-motion: reduce) {
         .rail,
-        .theme-toggle .tt-icon,
+        .theme-toggle .tt-thumb,
         .rail-link {
           transition: none;
         }
