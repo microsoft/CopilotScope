@@ -1,0 +1,447 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+
+interface Props {
+  title?: string;
+}
+const { title = 'CopilotScope' } = Astro.props;
+
+const rawBase = import.meta.env.BASE_URL;
+const base = rawBase.replace(/\/+$/, ''); // '/CopilotScope'
+const home = base + '/';
+const faviconHref = `${base}/logo-mark.png`;
+const lockupHref = `${base}/logo-lockup.png`;
+const repoUrl = 'https://github.com/microsoft/CopilotScope';
+
+const strip = (p: string): string => p.replace(/\/+$/, '') || '/';
+const current = strip(Astro.url.pathname);
+
+type NavItem = {
+  label: string;
+  href: string;
+  dot?: string;
+  external?: boolean;
+};
+
+const nav: NavItem[] = [
+  { label: 'Home', href: home },
+  { label: 'Getting Started', href: base + '/getting-started' },
+  { label: 'Data Sources', href: base + '/data-sources' },
+  { label: 'Lenses', href: base + '/lenses' },
+  { label: 'ValueLens', href: base + '/lenses/valuelens', dot: 'lens-green' },
+  { label: 'AdoptionLens', href: base + '/lenses/adoptionlens', dot: 'lens-blue' },
+  { label: 'ReadinessLens', href: base + '/lenses/readinesslens', dot: 'lens-amber' },
+  { label: 'MaturityLens', href: base + '/lenses/maturitylens', dot: 'lens-purple' },
+  { label: 'LeaderLens', href: base + '/lenses/leaderlens', dot: 'lens-magenta' },
+  { label: 'StudioLens', href: base + '/lenses/studiolens', dot: 'lens-orange' },
+  { label: 'BehaviorLens', href: base + '/lenses/behaviorlens', dot: 'lens-cyan' },
+  { label: 'GovernanceLens', href: base + '/lenses/governancelens', dot: 'lens-slate' },
+  { label: 'Lens Finder', href: base + '/lens-finder' },
+  { label: 'FAQ', href: base + '/faq' },
+  { label: "What's New", href: base + '/whats-new' },
+  { label: 'About', href: base + '/about' },
+  { label: 'GitHub', href: repoUrl, external: true },
+];
+
+const isActive = (item: NavItem): boolean => !item.external && strip(item.href) === current;
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href={faviconHref} />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <script is:inline>
+      (function () {
+        try {
+          var t = localStorage.getItem('csTheme');
+          if (t !== 'light' && t !== 'dark') t = 'light';
+          document.documentElement.dataset.theme = t;
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
+    <ClientRouter />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <button
+          id="hamburger"
+          class="hamburger"
+          type="button"
+          aria-label="Toggle navigation"
+          aria-controls="rail"
+          aria-expanded="false"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <a class="brand" href={home} aria-label="CopilotScope home">
+          <img src={lockupHref} alt="CopilotScope" width="176" height="28" />
+        </a>
+      </div>
+      <div class="topbar-right">
+        <a class="ghlink" href={repoUrl} target="_blank" rel="noopener">GitHub</a>
+        <button
+          id="theme-toggle"
+          class="theme-toggle"
+          type="button"
+          role="switch"
+          aria-checked="false"
+          aria-label="Toggle dark mode"
+        >
+          <span class="tt-icon sun" aria-hidden="true">☀</span>
+          <span class="tt-icon moon" aria-hidden="true">☾</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="shell">
+      <nav id="rail" class="rail" aria-label="Primary" transition:persist>
+        <ul>
+          {
+            nav.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  class:list={['rail-link', { active: isActive(item) }]}
+                  data-path={item.external ? undefined : strip(item.href)}
+                  target={item.external ? '_blank' : undefined}
+                  rel={item.external ? 'noopener' : undefined}
+                  aria-current={isActive(item) ? 'page' : undefined}
+                >
+                  {item.dot && <span class="dot" style={`background: var(--${item.dot})`} aria-hidden="true" />}
+                  <span class="rail-label">{item.label}</span>
+                  {item.external && <span class="ext" aria-hidden="true">↗</span>}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div class="backdrop" id="nav-backdrop" aria-hidden="true"></div>
+
+      <main id="main" class="content" tabindex="-1">
+        <slot />
+      </main>
+    </div>
+
+    <script>
+      const KEY = 'csTheme';
+
+      function currentTheme(): 'light' | 'dark' {
+        return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+      }
+      function applyTheme(t: 'light' | 'dark'): void {
+        document.documentElement.dataset.theme = t;
+      }
+      function syncToggle(): void {
+        const btn = document.getElementById('theme-toggle');
+        if (btn) btn.setAttribute('aria-checked', String(currentTheme() === 'dark'));
+      }
+      function toggleTheme(): void {
+        const next = currentTheme() === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+        try {
+          localStorage.setItem(KEY, next);
+        } catch (e) {
+          /* storage unavailable — theme still applies for this session */
+        }
+        syncToggle();
+      }
+      function setupToggle(): void {
+        const btn = document.getElementById('theme-toggle');
+        if (!btn) return;
+        syncToggle();
+        btn.addEventListener('click', toggleTheme);
+        btn.addEventListener('keydown', (e: KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+            e.preventDefault();
+            toggleTheme();
+          }
+        });
+      }
+      function setupNav(): void {
+        const burger = document.getElementById('hamburger');
+        const backdrop = document.getElementById('nav-backdrop');
+        if (burger) {
+          burger.addEventListener('click', () => {
+            const open = document.body.classList.toggle('nav-open');
+            burger.setAttribute('aria-expanded', String(open));
+          });
+        }
+        if (backdrop) {
+          backdrop.addEventListener('click', () => {
+            document.body.classList.remove('nav-open');
+            if (burger) burger.setAttribute('aria-expanded', 'false');
+          });
+        }
+      }
+      function updateActive(): void {
+        const cur = location.pathname.replace(/\/+$/, '') || '/';
+        document.querySelectorAll<HTMLAnchorElement>('.rail-link[data-path]').forEach((a) => {
+          const active = a.getAttribute('data-path') === cur;
+          a.classList.toggle('active', active);
+          if (active) a.setAttribute('aria-current', 'page');
+          else a.removeAttribute('aria-current');
+        });
+      }
+
+      // astro:page-load fires on the initial load and after every client-side
+      // navigation, so it re-binds the (re-rendered) top bar controls and
+      // re-computes the active rail item for the persisted rail.
+      document.addEventListener('astro:page-load', () => {
+        setupToggle();
+        setupNav();
+        updateActive();
+      });
+
+      // The <html> element persists across a view-transition swap; re-assert
+      // the stored theme so it never regresses to the default.
+      document.addEventListener('astro:after-swap', () => {
+        const t = localStorage.getItem(KEY);
+        document.documentElement.dataset.theme = t === 'dark' ? 'dark' : 'light';
+      });
+    </script>
+
+    <style>
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        z-index: 100;
+        padding: var(--sp-2) var(--sp-4);
+        background: var(--surface-card);
+        color: var(--ink);
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-2);
+      }
+      .skip-link:focus {
+        left: var(--sp-3);
+        top: var(--sp-3);
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--sp-4);
+        height: 56px;
+        padding: 0 var(--sp-4);
+        background: var(--surface-card);
+        border-bottom: 1px solid var(--border);
+      }
+      .topbar-left,
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-3);
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+      }
+      .brand:hover {
+        text-decoration: none;
+      }
+      .brand img {
+        height: 28px;
+        width: auto;
+        display: block;
+      }
+
+      .hamburger {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        color: var(--ink);
+        background: var(--surface-raised);
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+      }
+      .hamburger svg {
+        width: 18px;
+        height: 18px;
+      }
+      .hamburger:hover {
+        background: var(--accent-subtle);
+      }
+
+      .ghlink {
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 600;
+        padding: var(--sp-1) var(--sp-2);
+        border-radius: var(--radius-sm);
+      }
+      .ghlink:hover {
+        color: var(--ink);
+        background: var(--surface-raised);
+        text-decoration: none;
+      }
+
+      .theme-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        width: 62px;
+        height: 30px;
+        padding: 3px;
+        background: var(--surface-raised);
+        border: 1px solid var(--border-strong);
+        border-radius: 999px;
+        cursor: pointer;
+      }
+      .theme-toggle .tt-icon {
+        flex: 1;
+        display: grid;
+        place-items: center;
+        height: 100%;
+        font-size: 14px;
+        line-height: 1;
+        color: var(--subtle);
+        border-radius: 999px;
+        transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+      }
+      html[data-theme='light'] .theme-toggle .sun {
+        background: var(--accent-subtle);
+        color: var(--accent);
+      }
+      html[data-theme='dark'] .theme-toggle .moon {
+        background: var(--accent-subtle);
+        color: var(--accent);
+      }
+
+      .shell {
+        display: grid;
+        grid-template-columns: 240px minmax(0, 1fr);
+        align-items: start;
+      }
+
+      .rail {
+        position: sticky;
+        top: 56px;
+        height: calc(100vh - 56px);
+        overflow-y: auto;
+        padding: var(--sp-4) var(--sp-3);
+        background: var(--surface-card);
+        border-right: 1px solid var(--border);
+      }
+      .rail ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .rail-link {
+        display: flex;
+        align-items: center;
+        gap: var(--sp-2);
+        padding: var(--sp-2) var(--sp-3);
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 500;
+        border-radius: var(--radius-sm);
+        transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+      }
+      .rail-link:hover {
+        background: var(--surface-raised);
+        color: var(--ink);
+        text-decoration: none;
+      }
+      .rail-link.active {
+        background: var(--accent-subtle);
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .rail-link .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        flex: 0 0 auto;
+      }
+      .rail-link .ext {
+        margin-left: auto;
+        font-size: 12px;
+        color: var(--subtle);
+      }
+
+      .content {
+        min-width: 0;
+        max-width: 1080px;
+        padding: var(--sp-6) var(--sp-6) var(--sp-8);
+      }
+
+      .backdrop {
+        display: none;
+      }
+
+      @media (max-width: 860px) {
+        .shell {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .hamburger {
+          display: inline-flex;
+        }
+        .rail {
+          position: fixed;
+          top: 56px;
+          left: 0;
+          z-index: 45;
+          width: 264px;
+          max-width: 82vw;
+          height: calc(100vh - 56px);
+          transform: translateX(-100%);
+          transition: transform var(--dur) var(--ease);
+          box-shadow: var(--shadow-2);
+        }
+        body.nav-open .rail {
+          transform: translateX(0);
+        }
+        .backdrop {
+          display: none;
+          position: fixed;
+          inset: 56px 0 0 0;
+          z-index: 44;
+          background: rgba(0, 0, 0, 0.42);
+        }
+        body.nav-open .backdrop {
+          display: block;
+        }
+        .content {
+          padding: var(--sp-5) var(--sp-4) var(--sp-7);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .rail,
+        .theme-toggle .tt-icon,
+        .rail-link {
+          transition: none;
+        }
+      }
+    </style>
+  </body>
+</html>

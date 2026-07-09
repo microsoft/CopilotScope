@@ -1,0 +1,7 @@
+node_modules/
+site-src/node_modules/
+site-src/dist/
+.astro/
+site-src/.astro/
+Thumbs.db
+.DS_Store

@@ -1,0 +1,29 @@
+{
+  "files": [
+    "_astro/BaseLayout.C0GegGk7.css",
+    "_astro/ClientRouter.astro_astro_type_script_index_0_lang.XvdBj9Ef.js",
+    "_astro/page.BNgT0lHs.js",
+    "_astro/prefetch.-fXNEVrh.js",
+    "about/index.html",
+    "data-sources/index.html",
+    "faq/index.html",
+    "favicon.ico",
+    "favicon.svg",
+    "getting-started/index.html",
+    "index.html",
+    "lens-finder/index.html",
+    "lenses/adoptionlens/index.html",
+    "lenses/behaviorlens/index.html",
+    "lenses/governancelens/index.html",
+    "lenses/index.html",
+    "lenses/leaderlens/index.html",
+    "lenses/maturitylens/index.html",
+    "lenses/readinesslens/index.html",
+    "lenses/studiolens/index.html",
+    "lenses/valuelens/index.html",
+    "logo-lockup.png",
+    "logo-mark.png",
+    "whats-new/index.html"
+  ],
+  "count": 24
+}

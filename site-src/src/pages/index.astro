@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="CopilotScope — Copilot analytics lenses">
+  <section class="home">
+    <p class="eyebrow">CopilotScope</p>
+    <h1>Measure the value, adoption, and impact of Microsoft&nbsp;365&nbsp;Copilot.</h1>
+    <p class="lede">
+      A family of Power BI lenses for Copilot reporting. In build — full content
+      coming soon.
+    </p>
+  </section>
+
+  <style>
+    .home {
+      max-width: 44ch;
+    }
+    .eyebrow {
+      margin: 0 0 var(--sp-3);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .home h1 {
+      font-size: clamp(1.9rem, 4vw, 2.6rem);
+      font-weight: 680;
+      line-height: 1.12;
+      margin: 0 0 var(--sp-4);
+    }
+    .lede {
+      font-size: 1.1rem;
+      color: var(--muted);
+      margin: 0;
+    }
+  </style>
+</BaseLayout>

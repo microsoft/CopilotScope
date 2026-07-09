@@ -1,0 +1,12 @@
+{
+  "id": "valuelens",
+  "name": "ValueLens",
+  "tagline": "The FinOps view of Copilot — cost vs. value, ROI, and time & tasks saved.",
+  "status": "available",
+  "color": "lens-green",
+  "category": "Value & ROI",
+  "icon": null,
+  "downloadUrl": null,
+  "docsUrl": null,
+  "summary": "The FinOps view of Copilot — cost vs. value, ROI, and time & tasks saved."
+}

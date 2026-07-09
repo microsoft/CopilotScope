@@ -1,0 +1,12 @@
+{
+  "id": "readinesslens",
+  "name": "ReadinessLens",
+  "tagline": "Pre-adoption readiness — who is licensed, enabled, and ready, plus provisioning and reclamation.",
+  "status": "coming-soon",
+  "color": "lens-amber",
+  "category": "Adoption",
+  "icon": null,
+  "downloadUrl": null,
+  "docsUrl": null,
+  "summary": "Pre-adoption readiness — who is licensed, enabled, and ready, plus provisioning and reclamation."
+}

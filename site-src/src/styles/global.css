@@ -1,0 +1,176 @@
+/* =========================================================================
+   CopilotScope — design tokens + base theme
+   Light theme lives on :root. Dark theme overrides on html[data-theme="dark"].
+   Every surface / text / border token has a dark counterpart below.
+   ========================================================================= */
+
+:root {
+  /* --- Surfaces --- */
+  --surface-page: #f3f5f8;
+  --surface-card: #ffffff;
+  --surface-raised: #ffffff;
+
+  /* --- Text --- */
+  --ink: #1b1f24;
+  --muted: #5a6470;
+  --subtle: #8b95a1;
+
+  /* --- Borders --- */
+  --border: #e2e6ec;
+  --border-strong: #c7cdd6;
+
+  /* --- Accent (Microsoft blue family) --- */
+  --accent: #0078d4;
+  --accent-hover: #106ebe;
+  --accent-subtle: #e5f1fb;
+
+  /* --- Lens brand colors (8) --- */
+  --lens-green: #2f9e6f;
+  --lens-blue: #2b6cb0;
+  --lens-amber: #d9860b;
+  --lens-purple: #7c5cbf;
+  --lens-magenta: #c2298a;
+  --lens-orange: #e2662c;
+  --lens-cyan: #0b8ca8;
+  --lens-slate: #5b6b7e;
+
+  /* --- Status --- */
+  --status-comingsoon: #cfe4fb;
+  --status-comingsoon-ink: #1c4e80;
+
+  /* --- Radii --- */
+  --radius-sm: 8px;
+  --radius: 12px;
+
+  /* --- Shadow tiers --- */
+  --shadow-1: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+  --shadow-2: 0 6px 16px rgba(16, 24, 40, 0.10), 0 2px 6px rgba(16, 24, 40, 0.08);
+
+  /* --- Typography --- */
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  /* --- Spacing scale --- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+
+  /* --- Motion --- */
+  --dur-fast: 120ms;
+  --dur: 200ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* --- Ambient page background (light) --- */
+  --ambient:
+    radial-gradient(60rem 60rem at 12% -10%, rgba(0, 120, 212, 0.08), transparent 60%),
+    radial-gradient(48rem 48rem at 108% 8%, rgba(124, 92, 191, 0.06), transparent 55%);
+}
+
+html[data-theme="dark"] {
+  /* --- Surfaces --- */
+  --surface-page: #0f141a;
+  --surface-card: #171d25;
+  --surface-raised: #1e2530;
+
+  /* --- Text --- */
+  --ink: #e9edf2;
+  --muted: #a3adba;
+  --subtle: #74808d;
+
+  /* --- Borders --- */
+  --border: #29323d;
+  --border-strong: #3a4552;
+
+  /* --- Accent --- */
+  --accent: #3aa0f0;
+  --accent-hover: #5fb4f5;
+  --accent-subtle: #17324a;
+
+  /* --- Lens brand colors (brightened for dark) --- */
+  --lens-green: #45c58c;
+  --lens-blue: #5b9bd8;
+  --lens-amber: #ecab3f;
+  --lens-purple: #a186e0;
+  --lens-magenta: #e05bb0;
+  --lens-orange: #f08a55;
+  --lens-cyan: #34b6d1;
+  --lens-slate: #8b9bad;
+
+  /* --- Status --- */
+  --status-comingsoon: #1c3a57;
+  --status-comingsoon-ink: #a9d1f5;
+
+  /* --- Shadow tiers (deeper for dark) --- */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-2: 0 8px 20px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.45);
+
+  /* --- Ambient page background (dark) --- */
+  --ambient:
+    radial-gradient(60rem 60rem at 12% -10%, rgba(58, 160, 240, 0.12), transparent 60%),
+    radial-gradient(48rem 48rem at 108% 8%, rgba(161, 134, 224, 0.10), transparent 55%);
+}
+
+/* =========================================================================
+   Base / reset
+   ========================================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font);
+  color: var(--ink);
+  background-color: var(--surface-page);
+  background-image: var(--ambient);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  line-height: 1.55;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--ink);
+  line-height: 1.2;
+  margin: 0 0 var(--sp-3);
+}
+
+p {
+  color: var(--muted);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}

@@ -1,0 +1,12 @@
+{
+  "id": "governancelens",
+  "name": "GovernanceLens",
+  "tagline": "Agent health, governance, and feedback — a first-class governance view for admins and CoE teams.",
+  "status": "coming-soon",
+  "color": "lens-slate",
+  "category": "Governance",
+  "icon": null,
+  "downloadUrl": null,
+  "docsUrl": null,
+  "summary": "Agent health, governance, and feedback — a first-class governance view for admins and CoE teams."
+}

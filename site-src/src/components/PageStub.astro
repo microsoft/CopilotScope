@@ -1,0 +1,38 @@
+---
+interface Props {
+  heading: string;
+  eyebrow?: string;
+}
+const { heading, eyebrow } = Astro.props;
+---
+
+<section class="stub">
+  {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+  <h1>{heading}</h1>
+  <p class="lede">In build — full content coming soon.</p>
+  <slot />
+</section>
+
+<style>
+  .stub {
+    max-width: 62ch;
+  }
+  .eyebrow {
+    margin: 0 0 var(--sp-2);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .stub h1 {
+    font-size: 2rem;
+    font-weight: 650;
+    margin: 0 0 var(--sp-3);
+  }
+  .lede {
+    font-size: 1.05rem;
+    color: var(--muted);
+    margin: 0;
+  }
+</style>

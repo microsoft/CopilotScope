@@ -1,0 +1,12 @@
+{
+  "id": "behaviorlens",
+  "name": "BehaviorLens",
+  "tagline": "Employee work-behaviour patterns mapped to the AI-activity taxonomy — the manual-vs-AI baseline.",
+  "status": "coming-soon",
+  "color": "lens-cyan",
+  "category": "Behavior",
+  "icon": null,
+  "downloadUrl": null,
+  "docsUrl": null,
+  "summary": "Employee work-behaviour patterns mapped to the AI-activity taxonomy — the manual-vs-AI baseline."
+}
