@@ -80,10 +80,17 @@ const orderedLenses = ORDER.map((id) => {
               <stop offset="0" stop-color="var(--accent)" stop-opacity="0.28" />
               <stop offset="1" stop-color="var(--accent)" stop-opacity="0" />
             </linearGradient>
+            <linearGradient id="csRingFade" gradientUnits="userSpaceOnUse" x1="0" y1="236" x2="0" y2="306">
+              <stop offset="0" stop-color="#fff" />
+              <stop offset="1" stop-color="#000" />
+            </linearGradient>
+            <mask id="csRingMask" maskUnits="userSpaceOnUse" x="-120" y="-60" width="720" height="440">
+              <rect x="-120" y="-60" width="720" height="440" fill="url(#csRingFade)" />
+            </mask>
           </defs>
 
           <!-- Halo + orbit rings (the real logo mark is the centerpiece, layered over these) -->
-          <g class="ring" aria-hidden="true">
+          <g class="ring" aria-hidden="true" mask="url(#csRingMask)">
             <circle class="halo" cx="248" cy="186" r="128" fill="var(--accent)" opacity="0.06" />
             <circle class="orbit" cx="248" cy="186" r="164" />
             <circle class="orbit" cx="248" cy="186" r="190" />
@@ -452,12 +459,12 @@ const orderedLenses = ORDER.map((id) => {
       position: absolute;
       top: 10px;
       right: 10px;
-      padding: 3px 8px;
+      padding: 2px 8px;
       border-radius: 999px;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
       letter-spacing: 0.02em;
-      line-height: 1.2;
+      line-height: 1.05;
       white-space: nowrap;
     }
     .pill--installed {

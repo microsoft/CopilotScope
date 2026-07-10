@@ -16,7 +16,7 @@ import path from 'node:path';
 const OUT = path.join(
   'C:\\Users\\bmiddendorf\\OneDrive - Microsoft\\Documents',
   'Copilot Analytics Team\\Aggregated Copilot Analytics',
-  'CopilotScope\\_temp\\phase3.2g',
+  'CopilotScope\\_temp\\phase3.2h',
 );
 mkdirSync(OUT, { recursive: true });
 const DBG = path.join(OUT, 'assert-debug.txt');
@@ -290,10 +290,10 @@ async function runPills(page, label, lines, counter) {
   const sp = chSpread(tok['coming-soon']);
   const grayOK = sp <= 25; if (!grayOK) counter.fail++;
   lines.push(`   coming-soon is NEUTRAL GRAY (channel spread=${sp} <=25, not blue): ${grayOK ? 'PASS' : 'FAIL'}`);
-  lines.push(`   -- 2.4 per-card pill bbox HEIGHT <=20px --`);
+  lines.push(`   -- 3.2h per-card pill bbox HEIGHT <=16px (small chip, shorter than name) --`);
   for (const p of pills) {
-    const hOK = p.h <= 20; if (!hOK) counter.fail++;
-    lines.push(`   [${p.id}] pill bbox=${p.w.toFixed(1)}x${p.h.toFixed(1)} height<=20 ${hOK ? 'PASS' : 'FAIL'}`);
+    const hOK = p.h <= 16; if (!hOK) counter.fail++;
+    lines.push(`   [${p.id}] pill bbox=${p.w.toFixed(1)}x${p.h.toFixed(1)} height<=16 ${hOK ? 'PASS' : 'FAIL'}`);
   }
 }
 
@@ -438,6 +438,8 @@ async function heroLayer(page) {
   return page.evaluate(() => {
     const ring = document.querySelector('.hero-art .ring');
     const rcs = getComputedStyle(ring);
+    const ringMask = ring.getAttribute('mask') || '';
+    const hasFadeDefs = !!document.querySelector('#csRingMask') && !!document.querySelector('#csRingFade');
     const header = document.querySelector('header.topbar');
     const hcs = getComputedStyle(header);
     const orbits = Array.from(document.querySelectorAll('.hero-art .orbit')).map((o) => o.getBoundingClientRect());
@@ -450,6 +452,7 @@ async function heroLayer(page) {
       scrollW: document.scrollingElement.scrollWidth,
       clientW: document.scrollingElement.clientWidth,
       ringPE: rcs.pointerEvents, ringPos: rcs.position, ringZ: rcs.zIndex,
+      ringMask, hasFadeDefs,
       headerZ: hcs.zIndex,
       orbitTop: outer.top, orbitBottom: outer.bottom,
       wrapTop: wrap.top, wrapBottom: wrap.bottom,
@@ -473,6 +476,8 @@ async function runLayer(page, label, lines, counter) {
   lines.push(`   header z-index=${d.headerZ} (>=1) occludes rings ${hdrOK ? 'PASS' : 'FAIL'}`);
   const extOK = d.orbitBottom > d.wrapBottom + 1 || d.orbitTop < d.wrapTop - 1; if (!extOK) counter.fail++;
   lines.push(`   rings extend BEYOND container: orbitTop=${d.orbitTop.toFixed(1)}<wrapTop=${d.wrapTop.toFixed(1)} OR orbitBottom=${d.orbitBottom.toFixed(1)}>wrapBottom=${d.wrapBottom.toFixed(1)} ${extOK ? 'PASS' : 'FAIL'}`);
+  const maskOK = d.ringMask.includes('csRingMask') && d.hasFadeDefs; if (!maskOK) counter.fail++;
+  lines.push(`   3.2h ring lower-arc fade mask applied (mask='${d.ringMask}', fade defs=${d.hasFadeDefs}) -> no floating arc in hero->cards gap ${maskOK ? 'PASS' : 'FAIL'}`);
   lines.push(`   (context) header.bottom=${d.headerBottom.toFixed(1)} orbitTop=${d.orbitTop.toFixed(1)} ; cat.top=${d.catTop.toFixed(1)} orbitBottom=${d.orbitBottom.toFixed(1)}`);
 }
 async function main() {
