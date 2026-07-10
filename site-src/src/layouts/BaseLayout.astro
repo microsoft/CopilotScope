@@ -178,6 +178,20 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
               )
             )
           }
+          <li class="rail-divider" aria-hidden="true"></li>
+          <li class="rail-badge-li">
+            <a
+              class="rail-badge"
+              href="https://opensource.microsoft.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Microsoft Open Source (opens in new tab)"
+            >
+              <img class="ms-oss ms-oss-light" src={`${base}/ms-opensource-light.png`} alt="Microsoft Open Source" />
+              <img class="ms-oss ms-oss-dark" src={`${base}/ms-opensource-dark.png`} alt="Microsoft Open Source" />
+              <span class="ext" aria-hidden="true">&#8599;</span>
+            </a>
+          </li>
         </ul>
       </nav>
 
@@ -485,6 +499,51 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
       .rail-link .ext {
         margin-left: auto;
         font-size: 12px;
+        color: var(--subtle);
+      }
+
+      .rail-badge-li {
+        display: block;
+      }
+      .rail-badge {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1px 12px 1px;
+        border-radius: var(--radius-sm);
+      }
+      .rail-badge:hover {
+        background: color-mix(in srgb, var(--ink) 5%, transparent);
+        text-decoration: none;
+      }
+      .rail-badge:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .ms-oss {
+        display: block;
+        width: 140px;
+        height: auto;
+        opacity: 0.9;
+      }
+      .rail-badge:hover .ms-oss {
+        opacity: 1;
+      }
+      .ms-oss-dark {
+        display: none;
+      }
+      html[data-theme='dark'] .ms-oss-light {
+        display: none;
+      }
+      html[data-theme='dark'] .ms-oss-dark {
+        display: block;
+      }
+      .rail-badge .ext {
+        position: absolute;
+        top: 3px;
+        right: 8px;
+        font-size: 11px;
         color: var(--subtle);
       }
 

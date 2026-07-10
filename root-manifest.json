@@ -1,6 +1,6 @@
 {
   "files": [
-    "_astro/BaseLayout.y084Gj_Q.css",
+    "_astro/BaseLayout.Ct0hhe6N.css",
     "_astro/ClientRouter.astro_astro_type_script_index_0_lang.XvdBj9Ef.js",
     "_astro/index.rIe7xDcw.css",
     "_astro/page.BNgT0lHs.js",
@@ -25,7 +25,9 @@
     "lenses/valuelens/index.html",
     "logo-mark-dark.png",
     "logo-mark.png",
+    "ms-opensource-dark.png",
+    "ms-opensource-light.png",
     "whats-new/index.html"
   ],
-  "count": 26
+  "count": 28
 }
