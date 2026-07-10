@@ -63,6 +63,9 @@ const orderedLenses = ORDER.map((id) => {
         <p class="hero-sub">The Frontier Copilot Reporting Kit &#8212; Power BI lenses to measure the value, adoption, maturity, behaviour and impact of Microsoft 365 Copilot.</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href={base + '/getting-started'}>Get started</a>
+          <a class="hero-stamp" href={base + '/whats-new'} aria-label="Work in progress - see What's New">
+            <img src={`${base}/work-in-progress-stamp.png`} alt="Work in progress" />
+          </a>
         </div>
       </div>
 
@@ -208,7 +211,29 @@ const orderedLenses = ORDER.map((id) => {
     .hero-actions {
       display: flex;
       flex-wrap: wrap;
+      align-items: center;
       gap: var(--sp-3);
+    }
+    .hero-stamp {
+      display: inline-flex;
+      align-items: center;
+      transform: rotate(-8deg);
+      transition: transform var(--dur) var(--ease);
+    }
+    .hero-stamp img {
+      display: block;
+      height: 68px;
+      width: auto;
+      pointer-events: none;
+      filter: drop-shadow(0 3px 6px rgba(16, 24, 40, 0.18));
+    }
+    .hero-stamp:hover {
+      transform: rotate(-4deg) scale(1.04);
+    }
+    .hero-stamp:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+      border-radius: 8px;
     }
 
     /* ---------- Buttons ---------- */
@@ -498,6 +523,7 @@ const orderedLenses = ORDER.map((id) => {
     @media (max-width: 560px) {
       .lens-grid { grid-template-columns: 1fr; }
       .hero-text h1 { font-size: clamp(2rem, 9vw, 2.6rem); }
+      .hero-stamp img { height: 54px; }
     }
 
     @media (prefers-reduced-motion: reduce) {

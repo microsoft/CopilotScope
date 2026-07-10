@@ -1,8 +1,8 @@
 {
   "files": [
-    "_astro/BaseLayout.Ct0hhe6N.css",
+    "_astro/BaseLayout.CA3sZHud.css",
     "_astro/ClientRouter.astro_astro_type_script_index_0_lang.XvdBj9Ef.js",
-    "_astro/index.rIe7xDcw.css",
+    "_astro/index.Bj1NuOjK.css",
     "_astro/page.BNgT0lHs.js",
     "_astro/prefetch.-fXNEVrh.js",
     "about/index.html",
@@ -27,7 +27,8 @@
     "logo-mark.png",
     "ms-opensource-dark.png",
     "ms-opensource-light.png",
-    "whats-new/index.html"
+    "whats-new/index.html",
+    "work-in-progress-stamp.png"
   ],
-  "count": 28
+  "count": 29
 }

@@ -189,7 +189,6 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
             >
               <img class="ms-oss ms-oss-light" src={`${base}/ms-opensource-light.png`} alt="Microsoft Open Source" />
               <img class="ms-oss ms-oss-dark" src={`${base}/ms-opensource-dark.png`} alt="Microsoft Open Source" />
-              <span class="ext" aria-hidden="true">&#8599;</span>
             </a>
           </li>
         </ul>
@@ -510,7 +509,7 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 1px 12px 1px;
+        padding: 8px 12px 0px;
         border-radius: var(--radius-sm);
       }
       .rail-badge:hover {
@@ -523,7 +522,7 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
       }
       .ms-oss {
         display: block;
-        width: 140px;
+        width: 93px;
         height: auto;
         opacity: 0.9;
       }
@@ -539,14 +538,6 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
       html[data-theme='dark'] .ms-oss-dark {
         display: block;
       }
-      .rail-badge .ext {
-        position: absolute;
-        top: 3px;
-        right: 8px;
-        font-size: 11px;
-        color: var(--subtle);
-      }
-
       .content {
         min-width: 0;
         max-width: 1100px;

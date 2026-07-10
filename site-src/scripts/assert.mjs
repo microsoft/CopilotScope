@@ -341,9 +341,17 @@ async function pageChrome(page) {
     const topbarGithub = Array.from(document.querySelectorAll('header.topbar a')).filter((a) =>
       /github\.com/i.test(a.getAttribute('href') || ''),
     ).length;
-    const ctas = Array.from(document.querySelectorAll('.hero-actions a')).map((a) =>
+    const ctas = Array.from(document.querySelectorAll('.hero-actions a.btn')).map((a) =>
       (a.textContent || '').trim(),
     );
+    const stampEl = document.querySelector('.hero-stamp');
+    const stamp = { present: !!stampEl, href: stampEl ? stampEl.getAttribute('href') : null, isAnchor: stampEl ? stampEl.tagName === 'A' : false };
+    const ossBadge = document.querySelector('.rail-badge');
+    const ossArrow = ossBadge ? ossBadge.querySelectorAll('.ext').length : -1;
+    const ghLink = Array.from(document.querySelectorAll('.rail-link')).find((a) => /github/i.test(a.getAttribute('href') || ''));
+    const ghArrow = ghLink ? ghLink.querySelectorAll('.ext').length : -1;
+    const ossImg = document.querySelector('.rail-badge img.ms-oss-light, .rail-badge img.ms-oss-dark');
+    const ossImgW = ossImg ? +ossImg.getBoundingClientRect().width.toFixed(1) : -1;
     const wrap = document.querySelector('.hero-art-wrap');
     const wrapH = wrap ? wrap.getBoundingClientRect().height : 0;
     let markInfo = null;
@@ -357,7 +365,7 @@ async function pageChrome(page) {
         break;
       }
     }
-    return { gridIds, railIds, h1Lines, topbarGithub, ctas, wrapH, markInfo };
+    return { gridIds, railIds, h1Lines, topbarGithub, ctas, wrapH, markInfo, stamp, ossArrow, ghArrow, ossImgW };
   });
 }
 
@@ -374,7 +382,15 @@ async function runChrome(page, lines, counter) {
   const ghOK = c.topbarGithub === 0; if (!ghOK) counter.fail++;
   lines.push(`   no top-bar GitHub link: matches=${c.topbarGithub} ${ghOK ? 'PASS' : 'FAIL'}`);
   const ctaOK = c.ctas.length === 1 && c.ctas[0] === 'Get started'; if (!ctaOK) counter.fail++;
-  lines.push(`   single hero CTA "Get started": [${c.ctas.join(' | ')}] ${ctaOK ? 'PASS' : 'FAIL'}`);
+  lines.push(`   single hero CTA button "Get started": [${c.ctas.join(' | ')}] ${ctaOK ? 'PASS' : 'FAIL'}`);
+  const stampOK = c.stamp.present && c.stamp.isAnchor && /whats-new/.test(c.stamp.href || ''); if (!stampOK) counter.fail++;
+  lines.push(`   WIP stamp secondary link -> whats-new: present=${c.stamp.present} href=${c.stamp.href} ${stampOK ? 'PASS' : 'FAIL'}`);
+  const ossArrowOK = c.ossArrow === 0; if (!ossArrowOK) counter.fail++;
+  lines.push(`   Open Source badge arrow ABSENT: .ext count=${c.ossArrow} ${ossArrowOK ? 'PASS' : 'FAIL'}`);
+  const ghArrowOK = c.ghArrow >= 1; if (!ghArrowOK) counter.fail++;
+  lines.push(`   GitHub entry arrow PRESENT: .ext count=${c.ghArrow} ${ghArrowOK ? 'PASS' : 'FAIL'}`);
+  const ossSizeOK = c.ossImgW >= 88 && c.ossImgW <= 98; if (!ossSizeOK) counter.fail++;
+  lines.push(`   Open Source badge resized ~93px: imgW=${c.ossImgW} (88..98) ${ossSizeOK ? 'PASS' : 'FAIL'}`);
   if (c.markInfo) {
     const upOK = c.markInfo.renderW <= c.markInfo.natW + 0.5 && c.markInfo.renderW <= 325; if (!upOK) counter.fail++;
     lines.push(`   logo mark NOT upscaled: render=${c.markInfo.renderW.toFixed(1)}x${c.markInfo.renderH.toFixed(1)} native=${c.markInfo.natW}x${c.markInfo.natH} (<=native & <=325px) ${upOK ? 'PASS' : 'FAIL'} [${c.markInfo.cls}]`);
