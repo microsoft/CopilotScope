@@ -311,8 +311,8 @@ async function runHero(page, label, lines, counter, checkGap) {
   const contOK = h.contained; if (!contOK) counter.fail++;
   lines.push(`   3.2 mark fully contained in .hero-art-wrap: ${contOK ? 'PASS' : 'FAIL'}`);
   if (checkGap) {
-    const gOK = h.gap >= 10 && h.gap <= 18; if (!gOK) counter.fail++;
-    lines.push(`   1.3 hero-art-wrap.bottom -> cat-cards.top gap = ${h.gap.toFixed(1)}px (10..18, lifted): ${gOK ? 'PASS' : 'FAIL'}`);
+    const gOK = Math.abs(h.gap - h.gapCatsH2) <= 2; if (!gOK) counter.fail++;
+    lines.push(`   1.3 hero->cards gap = ${h.gap.toFixed(1)}px EQUALS cards->lens h2 gap = ${h.gapCatsH2.toFixed(1)}px within 2px: ${gOK ? 'PASS' : 'FAIL'}`);
     const g2OK = h.gapCatsH2 >= 46 && h.gapCatsH2 <= 58; if (!g2OK) counter.fail++;
     lines.push(`   1.3 cat-cards.bottom -> lens h2.top gap = ${h.gapCatsH2.toFixed(1)}px (46..58, extra space): ${g2OK ? 'PASS' : 'FAIL'}`);
   }
