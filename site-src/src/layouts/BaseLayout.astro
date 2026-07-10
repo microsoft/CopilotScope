@@ -27,11 +27,15 @@ type NavLink = {
   tint?: string;
   indent?: boolean;
   external?: boolean;
+  rel?: string;
+  ariaLabel?: string;
 };
 type NavDivider = { divider: true; push?: boolean };
-type NavEntry = NavLink | NavDivider;
+type NavGroup = { group: string; icon: string; children: NavLink[] };
+type NavEntry = NavLink | NavDivider | NavGroup;
 
 const isDivider = (e: NavEntry): e is NavDivider => 'divider' in e;
+const isGroup = (e: NavEntry): e is NavGroup => 'group' in e;
 
 const lensData = (await getCollection('lenses')).map((e) => e.data);
 const LENS_ICON: Record<string, string> = {
@@ -74,14 +78,12 @@ const nav: NavEntry[] = [
   { label: 'Getting Started', href: base + '/getting-started', icon: 'rocket' },
   { label: 'Data Sources', href: base + '/data-sources', icon: 'database' },
   { divider: true },
-  { label: 'Lenses', href: base + '/lenses', icon: 'grid' },
-  ...lensNav,
-  { divider: true },
   { label: 'Lens Finder', href: base + '/lens-finder', icon: 'target' },
-  { label: 'FAQ', href: base + '/faq', icon: 'help' },
-  { label: "What's New", href: base + '/whats-new', icon: 'sparkle' },
+  { group: 'Lenses', icon: 'aperture', children: lensNav },
   { divider: true, push: true },
-  { label: 'About', href: base + '/about', icon: 'info' },
+  { label: "What's New", href: base + '/whats-new', icon: 'sparkle' },
+  { label: 'FAQ & Support', href: base + '/about', icon: 'info' },
+  { label: 'Copilot Analytics Lab', href: 'https://microsoft.github.io/CopilotAnalyticsLabs', icon: 'scatter', external: true, rel: 'noopener noreferrer', ariaLabel: 'Copilot Analytics Lab (opens in new tab)' },
   { label: 'GitHub', href: repoUrl, icon: 'github', external: true },
 ];
 
@@ -160,6 +162,41 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
             nav.map((item) =>
               isDivider(item) ? (
                 <li class:list={['rail-divider', { push: item.push }]} aria-hidden="true" />
+              ) : isGroup(item) ? (
+                <li class="rail-group open">
+                  <button
+                    type="button"
+                    class="rail-link rail-toggle"
+                    aria-expanded="true"
+                    aria-controls={`railsub-${item.group}`}
+                  >
+                    <span class="rail-icon">
+                      <Icon name={item.icon} />
+                    </span>
+                    <span class="rail-label">{item.group}</span>
+                    <span class="rail-chevron" aria-hidden="true">
+                      <Icon name="chevron" size={16} />
+                    </span>
+                  </button>
+                  <ul class="rail-sub" id={`railsub-${item.group}`}>
+                    {item.children.map((child) => (
+                      <li>
+                        <a
+                          href={child.href}
+                          class:list={['rail-link', 'indent', { active: isActive(child) }]}
+                          data-path={strip(child.href)}
+                          aria-current={isActive(child) ? 'page' : undefined}
+                          style={child.tint ? `--row-tint: var(--${child.tint});` : undefined}
+                        >
+                          <span class="rail-icon">
+                            <Icon name={child.icon} />
+                          </span>
+                          <span class="rail-label">{child.label}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
               ) : (
                 <li>
                   <a
@@ -167,7 +204,8 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
                     class:list={['rail-link', { active: isActive(item), indent: item.indent }]}
                     data-path={item.external ? undefined : strip(item.href)}
                     target={item.external ? '_blank' : undefined}
-                    rel={item.external ? 'noopener' : undefined}
+                    rel={item.external ? (item.rel ?? 'noopener') : undefined}
+                    aria-label={item.ariaLabel}
                     aria-current={isActive(item) ? 'page' : undefined}
                     style={item.tint ? `--row-tint: var(--${item.tint});` : undefined}
                   >
@@ -264,6 +302,20 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
           else a.removeAttribute('aria-current');
         });
       }
+      function setupLensGroup(): void {
+        const group = document.querySelector<HTMLElement>('.rail-group');
+        if (!group) return;
+        const btn = group.querySelector<HTMLButtonElement>('.rail-toggle');
+        if (!btn) return;
+        btn.setAttribute('aria-expanded', String(group.classList.contains('open')));
+        if (!btn.dataset.bound) {
+          btn.addEventListener('click', () => {
+            const open = group.classList.toggle('open');
+            btn.setAttribute('aria-expanded', String(open));
+          });
+          btn.dataset.bound = '1';
+        }
+      }
 
       // astro:page-load fires on the initial load and after every client-side
       // navigation, so it re-binds the (re-rendered) top bar controls and
@@ -272,6 +324,7 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
         setupToggle();
         setupNav();
         updateActive();
+        setupLensGroup();
       });
 
       // The <html> element persists across a view-transition swap; re-assert
@@ -477,7 +530,7 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
         display: flex;
         align-items: center;
         gap: var(--sp-3);
-        height: 42px;
+        height: 36px;
         padding: 0 var(--sp-3) 0 14px;
         color: var(--ink);
         font-size: 15px;
@@ -522,6 +575,43 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
         margin-left: auto;
         font-size: 12px;
         color: var(--subtle);
+      }
+
+      .rail-group {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+      }
+      .rail-toggle {
+        width: 100%;
+        background: none;
+        border: 0;
+        cursor: pointer;
+        font-family: inherit;
+        color: inherit;
+      }
+      .rail-chevron {
+        margin-left: auto;
+        display: inline-flex;
+        color: var(--subtle);
+        transition: transform var(--dur) var(--ease);
+      }
+      .rail-group.open .rail-chevron {
+        transform: rotate(90deg);
+      }
+      .rail-sub {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height var(--dur) var(--ease);
+      }
+      .rail-group.open .rail-sub {
+        max-height: 420px;
       }
 
       .rail-badge-li {
