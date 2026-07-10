@@ -127,21 +127,30 @@ const orderedLenses = ORDER.map((id) => {
     <!-- ======================= Category cards ======================= -->
     <section class="cat-cards" aria-label="Explore lenses by category">
       <a class="cat-card" href={base + '/lenses'}>
-        <span class="cat-art"><img src={`${base}/hero-card-value-roi.png`} alt="" loading="lazy" /></span>
+        <span class="cat-art">
+          <img class="cat-art-light" src={`${base}/hero-card-value-roi-light.png`} alt="" />
+          <img class="cat-art-dark" src={`${base}/hero-card-value-roi-dark.png`} alt="" />
+        </span>
         <span class="cat-body">
           <span class="cat-title">Value &amp; ROI</span>
           <span class="cat-text">Measure financial impact and productivity gains.</span>
         </span>
       </a>
       <a class="cat-card" href={base + '/lenses'}>
-        <span class="cat-art"><img src={`${base}/hero-card-agents-studio.png`} alt="" loading="lazy" /></span>
+        <span class="cat-art">
+          <img class="cat-art-light" src={`${base}/hero-card-agents-studio-light.png`} alt="" />
+          <img class="cat-art-dark" src={`${base}/hero-card-agents-studio-dark.png`} alt="" />
+        </span>
         <span class="cat-body">
           <span class="cat-title">Agents &amp; Studio</span>
           <span class="cat-text">Evaluate and optimize agent performance.</span>
         </span>
       </a>
       <a class="cat-card" href={base + '/lenses'}>
-        <span class="cat-art"><img src={`${base}/hero-card-adoption-readiness.png`} alt="" loading="lazy" /></span>
+        <span class="cat-art">
+          <img class="cat-art-light" src={`${base}/hero-card-adoption-readiness-light.png`} alt="" />
+          <img class="cat-art-dark" src={`${base}/hero-card-adoption-readiness-dark.png`} alt="" />
+        </span>
         <span class="cat-body">
           <span class="cat-title">Adoption &amp; Readiness</span>
           <span class="cat-text">Drive adoption and build organizational readiness.</span>
@@ -155,15 +164,17 @@ const orderedLenses = ORDER.map((id) => {
       <div class="lens-grid">
         {orderedLenses.map((lens) => (
           <a class="lens-tile" href={lens.href}>
-            <span
-              class="tile-icon"
-              style={`--tile-c: var(--${lens.color}); background: var(--tile-c)`}
-              transition:name={`lens-icon-${lens.id}`}
-            >
-              <Icon name={lens.icon} size={16} />
+            <span class="tile-top">
+              <span
+                class="tile-icon"
+                style={`--tile-c: var(--${lens.color}); background: var(--tile-c)`}
+                transition:name={`lens-icon-${lens.id}`}
+              >
+                <Icon name={lens.icon} size={16} />
+              </span>
+              <span class:list={['pill', `pill--${lens.status}`]}>{STATUS_LABEL[lens.status]}</span>
             </span>
             <span class="tile-text">
-              <span class:list={['pill', `pill--${lens.status}`]}>{STATUS_LABEL[lens.status]}</span>
               <span class="tile-name">{lens.name}</span>
               <span class="tile-tag">{lens.tagline}</span>
             </span>
@@ -336,11 +347,23 @@ const orderedLenses = ORDER.map((id) => {
       overflow: hidden;
       background: #f9f2e9;
     }
+    html[data-theme='dark'] .cat-art {
+      background: #0d111a;
+    }
     .cat-art img {
       display: block;
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+    .cat-art img.cat-art-dark {
+      display: none;
+    }
+    html[data-theme='dark'] .cat-art img.cat-art-light {
+      display: none;
+    }
+    html[data-theme='dark'] .cat-art img.cat-art-dark {
+      display: block;
     }
     .cat-body {
       display: flex;
@@ -376,11 +399,10 @@ const orderedLenses = ORDER.map((id) => {
     }
     .lens-tile {
       position: relative;
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 14px;
-      align-items: start;
-      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 10px 16px;
       background: var(--surface-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -399,6 +421,12 @@ const orderedLenses = ORDER.map((id) => {
       outline: 2px solid var(--accent);
       outline-offset: 3px;
       border-radius: var(--radius);
+    }
+    .tile-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
     .tile-icon {
       position: relative;
@@ -428,9 +456,8 @@ const orderedLenses = ORDER.map((id) => {
     .tile-text {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 2px;
       min-width: 0;
-      padding-top: 22px;
     }
     .tile-name {
       font-weight: 680;
@@ -448,9 +475,6 @@ const orderedLenses = ORDER.map((id) => {
       overflow: hidden;
     }
     .pill {
-      position: absolute;
-      top: 10px;
-      right: 10px;
       padding: 2px 8px;
       border-radius: 999px;
       font-size: 10px;

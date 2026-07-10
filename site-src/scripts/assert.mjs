@@ -123,6 +123,8 @@ async function measure(page) {
         id,
         cardTop: card.top, cardRight: card.right, cardH: card.height,
         iconCenterX: icon.left + icon.width / 2, nameX: name.left,
+        iconTop: icon.top, iconBottom: icon.bottom, iconLeft: icon.left, iconRight: icon.right,
+        nameTop: name.top,
         iconSvgW: iconSvg ? iconSvg.width : 0, iconSvgH: iconSvg ? iconSvg.height : 0,
         tag: (tagEl.textContent || '').trim(),
         nameLines,
@@ -238,18 +240,19 @@ async function runTiles(page, label, lines, counter) {
     lines.push(`[${r.id}] expected status=${expStatus} (name lines=${r.nameLines})`);
     const cA = r.cardH <= 150; if (!cA) counter.fail++;
     lines.push(`   (a) height=${r.cardH.toFixed(1)} <=150 ${cA ? 'PASS' : 'FAIL'}`);
-    const cB = r.iconCenterX < r.nameX; if (!cB) counter.fail++;
-    lines.push(`   (b) iconCenterX=${r.iconCenterX.toFixed(1)} < nameX=${r.nameX.toFixed(1)} ${cB ? 'PASS' : 'FAIL'}`);
+    const cB = r.iconBottom <= r.nameTop + 0.5; if (!cB) counter.fail++;
+    lines.push(`   (b) icon ABOVE name: iconBottom=${r.iconBottom.toFixed(1)} <= nameTop=${r.nameTop.toFixed(1)} ${cB ? 'PASS' : 'FAIL'}`);
     const exp = EXPECTED[r.id];
     const cC = r.tag === exp; if (!cC) counter.fail++;
     lines.push(`   (c) tagline ${cC ? 'PASS' : 'FAIL got="' + r.tag + '" exp="' + exp + '"'}`);
     const cD = r.pillCount === 1; if (!cD) counter.fail++;
     lines.push(`   (d) exactly ONE pill: count=${r.pillCount} ${cD ? 'PASS' : 'FAIL'}`);
-    const dTop = r.pillTop == null ? NaN : r.pillTop - r.cardTop;
+    const rowDelta = r.pillTop == null ? NaN : Math.abs(r.iconTop - r.pillTop);
     const dRight = r.pillRight == null ? NaN : r.cardRight - r.pillRight;
-    const cE1 = dTop <= 14; if (!cE1) counter.fail++;
-    const cE2 = dRight <= 14; if (!cE2) counter.fail++;
-    lines.push(`   (e) pill within 14px of top+right: pillTop-cardTop=${Number.isFinite(dTop) ? dTop.toFixed(1) : 'n/a'} <=14 ${cE1 ? 'PASS' : 'FAIL'}; cardRight-pillRight=${Number.isFinite(dRight) ? dRight.toFixed(1) : 'n/a'} <=14 ${cE2 ? 'PASS' : 'FAIL'}`);
+    const cE1 = Number.isFinite(rowDelta) && rowDelta <= 10; if (!cE1) counter.fail++;
+    const cE2 = r.pillLeft != null && r.pillLeft >= r.iconRight - 0.5; if (!cE2) counter.fail++;
+    const cE3 = Number.isFinite(dRight) && dRight <= 24; if (!cE3) counter.fail++;
+    lines.push(`   (e) icon+pill SAME ROW: |iconTop-pillTop|=${Number.isFinite(rowDelta) ? rowDelta.toFixed(1) : 'n/a'} <=10 ${cE1 ? 'PASS' : 'FAIL'}; pill RIGHT of icon (no overlap): pillLeft=${r.pillLeft == null ? 'n/a' : r.pillLeft.toFixed(1)} >= iconRight=${r.iconRight.toFixed(1)} ${cE2 ? 'PASS' : 'FAIL'}; pill within tile: cardRight-pillRight=${Number.isFinite(dRight) ? dRight.toFixed(1) : 'n/a'} <=24 ${cE3 ? 'PASS' : 'FAIL'}`);
     const cF1 = r.pillText === expLabel; if (!cF1) counter.fail++;
     const cF2 = (r.pillClass || '').includes('pill--' + expStatus); if (!cF2) counter.fail++;
     lines.push(`   (f) pill label="${r.pillText}" === "${expLabel}" ${cF1 ? 'PASS' : 'FAIL'}; class has pill--${expStatus} ("${r.pillClass}") ${cF2 ? 'PASS' : 'FAIL'}`);
