@@ -16,7 +16,7 @@ import path from 'node:path';
 const OUT = path.join(
   'C:\\Users\\bmiddendorf\\OneDrive - Microsoft\\Documents',
   'Copilot Analytics Team\\Aggregated Copilot Analytics',
-  'CopilotScope\\_temp\\phase3.2f\\screenshots',
+  'CopilotScope\\_temp\\phase3.2g\\screenshots',
 );
 
 async function main() {
@@ -41,6 +41,11 @@ async function main() {
     await page.screenshot({ path: path.join(OUT, 'home-light.png'), fullPage: true });
     console.log('  wrote home-light.png');
 
+    // pill zoom — crop one Coming Soon lens tile (light, deviceScaleFactor 2)
+    const csTile = page.locator('a.lens-tile', { has: page.locator('.pill--coming-soon') }).first();
+    await csTile.screenshot({ path: path.join(OUT, 'pill-zoom.png') });
+    console.log('  wrote pill-zoom.png');
+
     // Home — dark, full page (persist theme, reload so pre-paint script applies)
     await page.evaluate(() => localStorage.setItem('csTheme', 'dark'));
     await page.reload({ waitUntil: 'networkidle' });
@@ -60,6 +65,18 @@ async function main() {
     await pageNarrow.screenshot({ path: path.join(OUT, 'home-light-390.png'), fullPage: true });
     console.log('  wrote home-light-390.png');
     await ctxNarrow.close();
+
+    // Home — light, 1920x1080 full page (overflow / scroll-safety visual)
+    const ctxWide = await browser.newContext({
+      viewport: { width: 1920, height: 1080 },
+      deviceScaleFactor: 1,
+    });
+    const pageWide = await ctxWide.newPage();
+    await pageWide.goto(`${baseUrl}/`, { waitUntil: 'networkidle' });
+    await pageWide.waitForTimeout(250);
+    await pageWide.screenshot({ path: path.join(OUT, 'home-light-1920.png'), fullPage: true });
+    console.log('  wrote home-light-1920.png');
+    await ctxWide.close();
 
     console.log('DONE. screenshots ->', OUT);
   } finally {

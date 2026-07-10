@@ -16,7 +16,7 @@ import path from 'node:path';
 const OUT = path.join(
   'C:\\Users\\bmiddendorf\\OneDrive - Microsoft\\Documents',
   'Copilot Analytics Team\\Aggregated Copilot Analytics',
-  'CopilotScope\\_temp\\phase3.2f',
+  'CopilotScope\\_temp\\phase3.2g',
 );
 mkdirSync(OUT, { recursive: true });
 const DBG = path.join(OUT, 'assert-debug.txt');
@@ -193,6 +193,8 @@ async function pillStyles(page) {
         padTop: cs.paddingTop, padRight: cs.paddingRight,
         padBottom: cs.paddingBottom, padLeft: cs.paddingLeft,
         bg: cs.backgroundColor,
+        h: p.getBoundingClientRect().height,
+        w: p.getBoundingClientRect().width,
       };
     });
     return { tok, pills };
@@ -212,13 +214,14 @@ async function heroGeom(page) {
     const ringC = { x: mk.left + fx * mk.width, y: mk.top + fy * mk.height };
     const wrap = document.querySelector('.hero-art-wrap').getBoundingClientRect();
     const cat = document.querySelector('.cat-cards').getBoundingClientRect();
+    const h2 = document.querySelector('.lens-section h2').getBoundingClientRect();
     const contained =
       mk.left >= wrap.left - 0.5 && mk.right <= wrap.right + 0.5 &&
       mk.top >= wrap.top - 0.5 && mk.bottom <= wrap.bottom + 0.5;
     return {
       orbitCx: orbitC.x, orbitCy: orbitC.y, ringCx: ringC.x, ringCy: ringC.y,
       dx: orbitC.x - ringC.x, dy: orbitC.y - ringC.y,
-      gap: cat.top - wrap.bottom, contained,
+      gap: cat.top - wrap.bottom, gapCatsH2: h2.top - cat.bottom, contained,
     };
   }, { fx: FRAC_CX, fy: FRAC_CY });
 }
@@ -287,6 +290,11 @@ async function runPills(page, label, lines, counter) {
   const sp = chSpread(tok['coming-soon']);
   const grayOK = sp <= 25; if (!grayOK) counter.fail++;
   lines.push(`   coming-soon is NEUTRAL GRAY (channel spread=${sp} <=25, not blue): ${grayOK ? 'PASS' : 'FAIL'}`);
+  lines.push(`   -- 2.4 per-card pill bbox HEIGHT <=20px --`);
+  for (const p of pills) {
+    const hOK = p.h <= 20; if (!hOK) counter.fail++;
+    lines.push(`   [${p.id}] pill bbox=${p.w.toFixed(1)}x${p.h.toFixed(1)} height<=20 ${hOK ? 'PASS' : 'FAIL'}`);
+  }
 }
 
 async function runHero(page, label, lines, counter, checkGap) {
@@ -300,8 +308,10 @@ async function runHero(page, label, lines, counter, checkGap) {
   const contOK = h.contained; if (!contOK) counter.fail++;
   lines.push(`   3.2 mark fully contained in .hero-art-wrap: ${contOK ? 'PASS' : 'FAIL'}`);
   if (checkGap) {
-    const gOK = h.gap >= 24; if (!gOK) counter.fail++;
-    lines.push(`   3.3 gap hero-art-wrap.bottom -> cat-cards.top = ${h.gap.toFixed(1)}px (>=24): ${gOK ? 'PASS' : 'FAIL'}`);
+    const gOK = h.gap >= 10 && h.gap <= 18; if (!gOK) counter.fail++;
+    lines.push(`   1.3 hero-art-wrap.bottom -> cat-cards.top gap = ${h.gap.toFixed(1)}px (10..18, lifted): ${gOK ? 'PASS' : 'FAIL'}`);
+    const g2OK = h.gapCatsH2 >= 46 && h.gapCatsH2 <= 58; if (!g2OK) counter.fail++;
+    lines.push(`   1.3 cat-cards.bottom -> lens h2.top gap = ${h.gapCatsH2.toFixed(1)}px (46..58, extra space): ${g2OK ? 'PASS' : 'FAIL'}`);
   }
 }
 
@@ -385,6 +395,86 @@ async function markTheme(page) {
   });
 }
 
+async function chipGaps(page) {
+  return page.evaluate(() => {
+    const orbits = Array.from(document.querySelectorAll('.hero-art .orbit')).map((o) => o.getBoundingClientRect());
+    let outer = orbits[0];
+    for (const o of orbits) if (o.width > outer.width) outer = o;
+    const cx = outer.left + outer.width / 2;
+    const cy = outer.top + outer.height / 2;
+    const R = outer.width / 2;
+    const chips = Array.from(document.querySelectorAll('.hero-art .chip'));
+    const near = (b) => {
+      const nx = Math.max(b.left, Math.min(cx, b.right));
+      const ny = Math.max(b.top, Math.min(cy, b.bottom));
+      return Math.hypot(cx - nx, cy - ny);
+    };
+    return chips.map((g, i) => {
+      const b = g.getBoundingClientRect();
+      const dist = near(b);
+      return { i, dist, gap: dist - R };
+    });
+  });
+}
+
+async function runChips(page, label, lines, counter) {
+  const rows = await chipGaps(page);
+  lines.push('');
+  lines.push(`=== 1.1 CHIP-TO-RING GAPS (${label}) — chips: sparkline[0], donut[1], checklist[2] ===`);
+  const names = ['sparkline', 'donut', 'checklist'];
+  rows.forEach((r) => lines.push(`   chip[${r.i}] ${names[r.i] || ''}: nearest-dist=${r.dist.toFixed(1)} gap(to outer ring)=${r.gap.toFixed(1)}px`));
+  if (rows.length >= 3) {
+    const ref = rows[2].gap;
+    const d0 = Math.abs(rows[0].gap - ref);
+    const d1 = Math.abs(rows[1].gap - ref);
+    const c0 = d0 <= 6; if (!c0) counter.fail++;
+    const c1 = d1 <= 6; if (!c1) counter.fail++;
+    lines.push(`   sparkline gap within +/-6px of checklist: |${rows[0].gap.toFixed(1)} - ${ref.toFixed(1)}| = ${d0.toFixed(1)} ${c0 ? 'PASS' : 'FAIL'}`);
+    lines.push(`   donut gap within +/-6px of checklist: |${rows[1].gap.toFixed(1)} - ${ref.toFixed(1)}| = ${d1.toFixed(1)} ${c1 ? 'PASS' : 'FAIL'}`);
+  } else { counter.fail++; lines.push('   FAIL: expected 3 chips'); }
+}
+
+async function heroLayer(page) {
+  return page.evaluate(() => {
+    const ring = document.querySelector('.hero-art .ring');
+    const rcs = getComputedStyle(ring);
+    const header = document.querySelector('header.topbar');
+    const hcs = getComputedStyle(header);
+    const orbits = Array.from(document.querySelectorAll('.hero-art .orbit')).map((o) => o.getBoundingClientRect());
+    let outer = orbits[0];
+    for (const o of orbits) if (o.width > outer.width) outer = o;
+    const wrap = document.querySelector('.hero-art-wrap').getBoundingClientRect();
+    const cat = document.querySelector('.cat-cards').getBoundingClientRect();
+    const hb = header.getBoundingClientRect();
+    return {
+      scrollW: document.scrollingElement.scrollWidth,
+      clientW: document.scrollingElement.clientWidth,
+      ringPE: rcs.pointerEvents, ringPos: rcs.position, ringZ: rcs.zIndex,
+      headerZ: hcs.zIndex,
+      orbitTop: outer.top, orbitBottom: outer.bottom,
+      wrapTop: wrap.top, wrapBottom: wrap.bottom,
+      headerBottom: hb.bottom, catTop: cat.top,
+    };
+  });
+}
+
+async function runLayer(page, label, lines, counter) {
+  const d = await heroLayer(page);
+  lines.push('');
+  lines.push(`=== 1.2 RING LAYER + NO-HORIZONTAL-SCROLL (${label}) ===`);
+  const sOK = d.scrollW <= d.clientW; if (!sOK) counter.fail++;
+  lines.push(`   no horizontal scroll: scrollWidth=${d.scrollW} <= clientWidth=${d.clientW} ${sOK ? 'PASS' : 'FAIL'}`);
+  const peOK = d.ringPE === 'none'; if (!peOK) counter.fail++;
+  lines.push(`   ring layer pointer-events '${d.ringPE}' === none ${peOK ? 'PASS' : 'FAIL'}`);
+  const belowOK = d.ringPos === 'static' && d.ringZ === 'auto'; if (!belowOK) counter.fail++;
+  lines.push(`   ring in-flow (position=${d.ringPos}, z-index=${d.ringZ}) -> BELOW later static cards ${belowOK ? 'PASS' : 'FAIL'}`);
+  const hz = parseInt(d.headerZ, 10);
+  const hdrOK = Number.isFinite(hz) && hz >= 1; if (!hdrOK) counter.fail++;
+  lines.push(`   header z-index=${d.headerZ} (>=1) occludes rings ${hdrOK ? 'PASS' : 'FAIL'}`);
+  const extOK = d.orbitBottom > d.wrapBottom + 1 || d.orbitTop < d.wrapTop - 1; if (!extOK) counter.fail++;
+  lines.push(`   rings extend BEYOND container: orbitTop=${d.orbitTop.toFixed(1)}<wrapTop=${d.wrapTop.toFixed(1)} OR orbitBottom=${d.orbitBottom.toFixed(1)}>wrapBottom=${d.wrapBottom.toFixed(1)} ${extOK ? 'PASS' : 'FAIL'}`);
+  lines.push(`   (context) header.bottom=${d.headerBottom.toFixed(1)} orbitTop=${d.orbitTop.toFixed(1)} ; cat.top=${d.catTop.toFixed(1)} orbitBottom=${d.orbitBottom.toFixed(1)}`);
+}
 async function main() {
   dbg('server starting');
   const server = makeServer();
@@ -409,6 +499,8 @@ async function main() {
     await runChrome(page, lines, counter);
     await runPills(page, 'light, 1440x900', lines, counter);
     await runHero(page, 'light, 1440x900', lines, counter, true);
+    await runChips(page, 'light, 1440x900', lines, counter);
+    await runLayer(page, 'light, 1440x900', lines, counter);
 
     const hLight = await headerBox(page);
     await page.evaluate(() => localStorage.setItem('csTheme', 'dark'));
@@ -453,7 +545,18 @@ async function main() {
     await page3.waitForTimeout(900);
     dbg('measuring 1920');
     await runHero(page3, 'light, 1920x1080', lines, counter, true);
+    await runLayer(page3, 'light, 1920x1080', lines, counter);
     await ctx3.close();
+
+    const ctx4 = await browser.newContext({ viewport: { width: 390, height: 900 } });
+    const page4 = await ctx4.newPage();
+    dbg('goto 390');
+    await page4.goto(`${baseUrl}/`, { waitUntil: 'load', timeout: 20000 });
+    await page4.waitForSelector('a.lens-tile', { timeout: 10000 });
+    await page4.waitForTimeout(900);
+    dbg('measuring 390');
+    await runLayer(page4, 'light, 390x900', lines, counter);
+    await ctx4.close();
 
     lines.push('');
     lines.push(`=== SUMMARY: ${counter.fail === 0 ? 'ALL PASS' : counter.fail + ' FAIL(S)'} ===`);

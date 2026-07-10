@@ -85,22 +85,22 @@ const orderedLenses = ORDER.map((id) => {
           <!-- Halo + orbit rings (the real logo mark is the centerpiece, layered over these) -->
           <g class="ring" aria-hidden="true">
             <circle class="halo" cx="248" cy="186" r="128" fill="var(--accent)" opacity="0.06" />
-            <circle class="orbit" cx="248" cy="186" r="150" />
-            <circle class="orbit" cx="248" cy="186" r="172" />
+            <circle class="orbit" cx="248" cy="186" r="164" />
+            <circle class="orbit" cx="248" cy="186" r="190" />
           </g>
 
           <!-- Satellite chip: mini sparkline -->
           <g class="chip" aria-hidden="true">
-            <rect class="chip-card" x="14" y="66" width="112" height="60" rx="14" />
-            <polygon class="spark-area" points="30,110 48,98 64,104 82,86 100,92 112,80 112,118 30,118" fill="url(#csSparkGrad)" />
-            <polyline class="spark-line" points="30,110 48,98 64,104 82,86 100,92 112,80" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+            <rect class="chip-card" x="39" y="78" width="112" height="60" rx="14" />
+            <polygon class="spark-area" points="55,122 73,110 89,116 107,98 125,104 137,92 137,130 55,130" fill="url(#csSparkGrad)" />
+            <polyline class="spark-line" points="55,122 73,110 89,116 107,98 125,104 137,92" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
           </g>
 
           <!-- Satellite chip: mini donut -->
           <g class="chip" aria-hidden="true">
-            <rect class="chip-card" x="24" y="220" width="84" height="84" rx="16" />
-            <circle cx="66" cy="262" r="24" fill="none" stroke="var(--border)" stroke-width="9" />
-            <circle cx="66" cy="262" r="24" fill="none" stroke="var(--lens-blue)" stroke-width="9" stroke-linecap="round" stroke-dasharray="98 152" transform="rotate(-90 66 262)" />
+            <rect class="chip-card" x="59" y="211" width="84" height="84" rx="16" />
+            <circle cx="101" cy="253" r="24" fill="none" stroke="var(--border)" stroke-width="9" />
+            <circle cx="101" cy="253" r="24" fill="none" stroke="var(--lens-blue)" stroke-width="9" stroke-linecap="round" stroke-dasharray="98 152" transform="rotate(-90 101 253)" />
           </g>
 
           <!-- Satellite chip: checklist -->
@@ -266,6 +266,7 @@ const orderedLenses = ORDER.map((id) => {
       height: auto;
       display: block;
       overflow: visible;
+      pointer-events: none;
       animation: heroRise 560ms var(--ease) both;
     }
     .hero-art .orbit {
@@ -301,6 +302,7 @@ const orderedLenses = ORDER.map((id) => {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: var(--sp-4);
+      margin-top: -14px;
     }
     .cat-card {
       display: flex;
@@ -359,6 +361,9 @@ const orderedLenses = ORDER.map((id) => {
     }
 
     /* ---------- Lens grid ---------- */
+    .lens-section {
+      margin-top: 24px;
+    }
     .lens-section h2 {
       font-size: 1.25rem;
       font-weight: 680;

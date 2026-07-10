@@ -6,7 +6,7 @@
 
 :root {
   /* --- Surfaces --- */
-  --surface-page: #f6f8fc;
+  --surface-page: #eaedf3;
   --surface-card: #ffffff;
   --surface-raised: #ffffff;
 
@@ -70,7 +70,7 @@
 
   /* --- Ambient content background (light) — subtle upper-right glow --- */
   --ambient:
-    radial-gradient(1200px 600px at 100% 0%, rgba(0, 120, 212, 0.06), transparent 60%);
+    radial-gradient(1200px 600px at 100% 0%, rgba(0, 120, 212, 0.05), transparent 62%);
 }
 
 html[data-theme="dark"] {
