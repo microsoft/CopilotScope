@@ -344,7 +344,7 @@ async function pageChrome(page) {
     const ctas = Array.from(document.querySelectorAll('.hero-actions a.btn')).map((a) =>
       (a.textContent || '').trim(),
     );
-    const stampEl = document.querySelector('.hero-stamp');
+    const stampEl = document.querySelector('.topbar-stamp');
     const stamp = { present: !!stampEl, href: stampEl ? stampEl.getAttribute('href') : null, isAnchor: stampEl ? stampEl.tagName === 'A' : false };
     const ossBadge = document.querySelector('.rail-badge');
     const ossArrow = ossBadge ? ossBadge.querySelectorAll('.ext').length : -1;

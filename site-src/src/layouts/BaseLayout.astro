@@ -133,6 +133,9 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
           <img class="brand-mark brand-mark-dark" src={markDarkHref} alt="" height="31" />
           <span class="brand-name">CopilotScope</span>
         </a>
+        <a class="topbar-stamp" href={base + '/whats-new'} aria-label="Work in progress - see What's New">
+          <img src={`${base}/work-in-progress-stamp.png`} alt="Work in progress" />
+        </a>
       </div>
       <div class="topbar-right">
         <button
@@ -344,6 +347,26 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
         letter-spacing: -0.01em;
         color: var(--ink);
         white-space: nowrap;
+      }
+      .topbar-stamp {
+        display: inline-flex;
+        align-items: center;
+        transform: rotate(-20deg);
+        transition: transform var(--dur) var(--ease);
+      }
+      .topbar-stamp img {
+        display: block;
+        height: 32px;
+        width: auto;
+        pointer-events: none;
+      }
+      .topbar-stamp:hover {
+        transform: rotate(-16deg) scale(1.06);
+      }
+      .topbar-stamp:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+        border-radius: 6px;
       }
 
       .hamburger {
