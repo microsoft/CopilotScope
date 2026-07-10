@@ -127,21 +127,21 @@ const orderedLenses = ORDER.map((id) => {
     <!-- ======================= Category cards ======================= -->
     <section class="cat-cards" aria-label="Explore lenses by category">
       <a class="cat-card" href={base + '/lenses'}>
-        <span class="cat-icon cat-green"><Icon name="trending-up" size={28} /></span>
+        <span class="cat-art"><img src={`${base}/hero-card-value-roi.png`} alt="" loading="lazy" /></span>
         <span class="cat-body">
           <span class="cat-title">Value &amp; ROI</span>
           <span class="cat-text">Measure financial impact and productivity gains.</span>
         </span>
       </a>
       <a class="cat-card" href={base + '/lenses'}>
-        <span class="cat-icon cat-blue"><Icon name="bot" size={28} /></span>
+        <span class="cat-art"><img src={`${base}/hero-card-agents-studio.png`} alt="" loading="lazy" /></span>
         <span class="cat-body">
           <span class="cat-title">Agents &amp; Studio</span>
           <span class="cat-text">Evaluate and optimize agent performance.</span>
         </span>
       </a>
       <a class="cat-card" href={base + '/lenses'}>
-        <span class="cat-icon cat-purple"><Icon name="people" size={28} /></span>
+        <span class="cat-art"><img src={`${base}/hero-card-adoption-readiness.png`} alt="" loading="lazy" /></span>
         <span class="cat-body">
           <span class="cat-title">Adoption &amp; Readiness</span>
           <span class="cat-text">Drive adoption and build organizational readiness.</span>
@@ -160,7 +160,7 @@ const orderedLenses = ORDER.map((id) => {
               style={`--tile-c: var(--${lens.color}); background: var(--tile-c)`}
               transition:name={`lens-icon-${lens.id}`}
             >
-              <Icon name={lens.icon} size={24} />
+              <Icon name={lens.icon} size={16} />
             </span>
             <span class="tile-text">
               <span class:list={['pill', `pill--${lens.status}`]}>{STATUS_LABEL[lens.status]}</span>
@@ -313,9 +313,8 @@ const orderedLenses = ORDER.map((id) => {
     }
     .cat-card {
       display: flex;
-      align-items: center;
-      gap: var(--sp-4);
-      padding: var(--sp-5);
+      flex-direction: column;
+      overflow: hidden;
       background: var(--surface-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -330,31 +329,24 @@ const orderedLenses = ORDER.map((id) => {
       border-color: var(--border-strong);
       text-decoration: none;
     }
-    .cat-icon {
-      flex: none;
-      width: 56px;
-      height: 56px;
-      border-radius: 14px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+    .cat-art {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1672 / 941;
+      overflow: hidden;
+      background: #f9f2e9;
     }
-    .cat-green {
-      background: color-mix(in srgb, var(--lens-green) 26%, transparent);
-      color: var(--lens-green);
-    }
-    .cat-blue {
-      background: color-mix(in srgb, var(--lens-blue) 26%, transparent);
-      color: var(--lens-blue);
-    }
-    .cat-purple {
-      background: color-mix(in srgb, var(--lens-purple) 26%, transparent);
-      color: var(--lens-purple);
+    .cat-art img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
     .cat-body {
       display: flex;
       flex-direction: column;
       gap: 4px;
+      padding: var(--sp-4) var(--sp-4) var(--sp-5);
     }
     .cat-title {
       font-weight: 680;
@@ -410,8 +402,8 @@ const orderedLenses = ORDER.map((id) => {
     }
     .tile-icon {
       position: relative;
-      width: 48px;
-      height: 48px;
+      width: 24px;
+      height: 24px;
       align-self: center;
       border-radius: 50%;
       display: inline-flex;
@@ -423,11 +415,11 @@ const orderedLenses = ORDER.map((id) => {
     .tile-icon::after {
       content: '';
       position: absolute;
-      left: 37px;
-      top: 36px;
-      margin-top: -3px;
-      width: 16px;
-      height: 6px;
+      left: 18.5px;
+      top: 18px;
+      margin-top: -1.5px;
+      width: 8px;
+      height: 3px;
       border-radius: 999px;
       background: var(--tile-c);
       transform-origin: 0 50%;

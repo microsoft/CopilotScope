@@ -2,7 +2,7 @@
   "files": [
     "_astro/BaseLayout.BqpoVMy4.css",
     "_astro/ClientRouter.astro_astro_type_script_index_0_lang.XvdBj9Ef.js",
-    "_astro/index.rIe7xDcw.css",
+    "_astro/index.CjCWl7BK.css",
     "_astro/page.BNgT0lHs.js",
     "_astro/prefetch.-fXNEVrh.js",
     "about/index.html",
@@ -12,6 +12,9 @@
     "favicon.ico",
     "favicon.svg",
     "getting-started/index.html",
+    "hero-card-adoption-readiness.png",
+    "hero-card-agents-studio.png",
+    "hero-card-value-roi.png",
     "index.html",
     "lens-finder/index.html",
     "lenses/adoptionlens/index.html",
@@ -30,5 +33,5 @@
     "whats-new/index.html",
     "work-in-progress-stamp.png"
   ],
-  "count": 29
+  "count": 32
 }
