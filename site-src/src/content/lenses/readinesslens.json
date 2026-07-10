@@ -8,5 +8,6 @@
   "icon": null,
   "downloadUrl": null,
   "docsUrl": null,
-  "summary": "Pre-adoption readiness — who is licensed, enabled, and ready, plus provisioning and reclamation."
+  "summary": "Pre-adoption readiness — who is licensed, enabled, and ready, plus provisioning and reclamation.",
+  "overviewDescription": "Licensed, enabled, ready. ReadinessLens shows the gap between the seats you've provisioned and the people set up to succeed, so rollout effort goes where it counts."
 }

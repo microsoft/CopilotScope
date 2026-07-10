@@ -8,5 +8,6 @@
   "icon": null,
   "downloadUrl": null,
   "docsUrl": null,
-  "summary": "Deep Copilot Studio agent evaluation — quality, topics, transcripts, errors, feedback, and credits."
+  "summary": "Deep Copilot Studio agent evaluation — quality, topics, transcripts, errors, feedback, and credits.",
+  "overviewDescription": "Purpose-built for Copilot Studio. StudioLens goes deep on agent evaluation — how your custom agents are used, how they perform, and where they need attention."
 }

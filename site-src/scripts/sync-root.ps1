@@ -35,7 +35,7 @@ $dist = Join-Path $siteSrc 'dist'
 $manifestPath = Join-Path $root 'root-manifest.json'
 
 # Top-level root entries this script must never copy over or delete.
-$protected = @('.git', '.gitignore', '.nojekyll', 'root-manifest.json', 'LICENSE', 'SECURITY.md', 'site-src')
+$protected = @('.git', '.gitignore', '.nojekyll', 'root-manifest.json', 'LICENSE', 'SECURITY.md', 'site-src', 'config')
 
 function Get-TopSegment([string]$rel) {
     return ($rel -split '/')[0]

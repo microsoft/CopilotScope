@@ -8,5 +8,6 @@
   "icon": null,
   "downloadUrl": null,
   "docsUrl": null,
-  "summary": "The core \"are people actually using it?\" lens — usage, reach, and activation."
+  "summary": "The core \"are people actually using it?\" lens — usage, reach, and activation.",
+  "overviewDescription": "Who is actually using Copilot, where, and how often. AdoptionLens tracks usage, reach, and activation across your organization so you can see momentum — and where it stalls."
 }

@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
-import { getCollection } from 'astro:content';
+import { getOrderedLenses, LENS_ICON } from '../lib/lenses';
 import Icon from '../components/Icon.astro';
 
 interface Props {
@@ -37,41 +37,16 @@ type NavEntry = NavLink | NavDivider | NavGroup;
 const isDivider = (e: NavEntry): e is NavDivider => 'divider' in e;
 const isGroup = (e: NavEntry): e is NavGroup => 'group' in e;
 
-const lensData = (await getCollection('lenses')).map((e) => e.data);
-const LENS_ICON: Record<string, string> = {
-  valuelens: 'trending-up',
-  adoptionlens: 'people',
-  readinesslens: 'clipboard-check',
-  maturitylens: 'bar-chart',
-  leaderlens: 'trophy',
-  studiolens: 'bot',
-  behaviorlens: 'brain',
-  governancelens: 'shield',
-};
-const LENS_CANON = [
-  'valuelens',
-  'adoptionlens',
-  'readinesslens',
-  'maturitylens',
-  'leaderlens',
-  'studiolens',
-  'behaviorlens',
-  'governancelens',
-];
-const STATUS_RANK: Record<string, number> = { installed: 0, available: 1, 'coming-soon': 2 };
-const lensNav: NavLink[] = [...lensData]
-  .sort(
-    (a, b) =>
-      STATUS_RANK[a.status] - STATUS_RANK[b.status] ||
-      LENS_CANON.indexOf(a.id) - LENS_CANON.indexOf(b.id),
-  )
-  .map((d) => ({
+const lensNav: NavLink[] = [
+  { label: 'Overview', href: `${base}/lenses`, icon: 'grid', indent: true },
+  ...(await getOrderedLenses()).map((d) => ({
     label: d.name,
     href: `${base}/lenses/${d.id}`,
     icon: LENS_ICON[d.id],
     tint: d.color,
     indent: true,
-  }));
+  })),
+];
 
 const nav: NavEntry[] = [
   { label: 'Home', href: home, icon: 'home' },

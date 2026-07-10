@@ -14,6 +14,7 @@ const lenses = defineCollection({
     downloadUrl: z.string().nullable(),
     docsUrl: z.string().nullable(),
     summary: z.string(),
+    overviewDescription: z.string(),
   }),
 });
 

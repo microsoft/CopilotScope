@@ -1,57 +1,19 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
-import { getCollection } from 'astro:content';
+import { getOrderedLenses, LENS_ICON, STATUS_LABEL } from '../lib/lenses';
 
 const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
 
-const lenses = await getCollection('lenses');
-
-// Explicit display order + per-lens glyph (the JSON `icon` field is null).
-const ORDER = [
-  'valuelens',
-  'adoptionlens',
-  'readinesslens',
-  'maturitylens',
-  'leaderlens',
-  'studiolens',
-  'behaviorlens',
-  'governancelens',
-];
-
-const ICON_BY_ID = {
-  valuelens: 'trending-up',
-  adoptionlens: 'people',
-  readinesslens: 'clipboard-check',
-  maturitylens: 'bar-chart',
-  leaderlens: 'trophy',
-  studiolens: 'bot',
-  behaviorlens: 'brain',
-  governancelens: 'shield',
-};
-
-const STATUS_RANK = { installed: 0, available: 1, 'coming-soon': 2 };
-
-const STATUS_LABEL = {
-  installed: 'Installed',
-  available: 'Available',
-  'coming-soon': 'Coming Soon',
-};
-
-const byId = new Map(lenses.map((entry) => [entry.data.id, entry.data]));
-
-const orderedLenses = ORDER.map((id) => {
-  const data = byId.get(id);
-  return {
-    id,
-    name: data.name,
-    tagline: data.tagline,
-    color: data.color,
-    status: data.status,
-    icon: ICON_BY_ID[id],
-    href: `${base}/lenses/${id}`,
-  };
-}).sort((a, b) => STATUS_RANK[a.status] - STATUS_RANK[b.status]);
+const orderedLenses = (await getOrderedLenses()).map((data) => ({
+  id: data.id,
+  name: data.name,
+  tagline: data.tagline,
+  color: data.color,
+  status: data.status,
+  icon: LENS_ICON[data.id],
+  href: `${base}/lenses/${data.id}`,
+}));
 ---
 
 <BaseLayout title="CopilotScope — One scope, many lenses.">
@@ -220,32 +182,6 @@ const orderedLenses = ORDER.map((id) => {
       display: flex;
       flex-wrap: wrap;
       gap: var(--sp-3);
-    }
-
-    /* ---------- Buttons ---------- */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 22px;
-      font-size: 0.98rem;
-      font-weight: 650;
-      border-radius: var(--radius-sm);
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: background-color var(--dur) var(--ease),
-        border-color var(--dur) var(--ease), color var(--dur) var(--ease),
-        transform var(--dur-fast) var(--ease);
-    }
-    .btn:hover { text-decoration: none; }
-    .btn:active { transform: translateY(1px); }
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-    }
-    .btn-primary:hover {
-      background: var(--accent-hover);
-      color: #fff;
     }
 
     /* ---------- Hero art ---------- */
@@ -428,31 +364,6 @@ const orderedLenses = ORDER.map((id) => {
       justify-content: space-between;
       gap: 8px;
     }
-    .tile-icon {
-      position: relative;
-      width: 24px;
-      height: 24px;
-      align-self: center;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      box-shadow: var(--shadow-1);
-    }
-    .tile-icon::after {
-      content: '';
-      position: absolute;
-      left: 18.5px;
-      top: 18px;
-      margin-top: -1.5px;
-      width: 8px;
-      height: 3px;
-      border-radius: 999px;
-      background: var(--tile-c);
-      transform-origin: 0 50%;
-      transform: rotate(42deg);
-    }
     .tile-text {
       display: flex;
       flex-direction: column;
@@ -473,27 +384,6 @@ const orderedLenses = ORDER.map((id) => {
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
-    }
-    .pill {
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      line-height: 1.05;
-      white-space: nowrap;
-    }
-    .pill--installed {
-      background: var(--status-installed);
-      color: var(--status-installed-ink);
-    }
-    .pill--available {
-      background: var(--status-available);
-      color: var(--status-available-ink);
-    }
-    .pill--coming-soon {
-      background: var(--status-comingsoon);
-      color: var(--status-comingsoon-ink);
     }
 
     /* ---------- Responsive ---------- */

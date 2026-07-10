@@ -8,5 +8,6 @@
   "icon": null,
   "downloadUrl": null,
   "docsUrl": null,
-  "summary": "The FinOps view of Copilot — cost vs. value, ROI, and time & tasks saved."
+  "summary": "The FinOps view of Copilot — cost vs. value, ROI, and time & tasks saved.",
+  "overviewDescription": "The flagship lens. ValueLens turns Copilot activity into business terms — cost versus value, ROI, and the time and tasks Copilot gives back to your people. Start here if you need to show what Copilot is worth."
 }

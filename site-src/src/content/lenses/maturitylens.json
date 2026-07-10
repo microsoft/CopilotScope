@@ -8,5 +8,6 @@
   "icon": null,
   "downloadUrl": null,
   "docsUrl": null,
-  "summary": "The adoption proficiency curve — Initial to Efficient — with a Maturity Meter."
+  "summary": "The adoption proficiency curve — Initial to Efficient — with a Maturity Meter.",
+  "overviewDescription": "Adoption is a curve, not a switch. MaturityLens maps how usage deepens over time — from first experiments to embedded daily habits — so you can move teams up the proficiency curve."
 }

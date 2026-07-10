@@ -8,5 +8,6 @@
   "icon": null,
   "downloadUrl": null,
   "docsUrl": null,
-  "summary": "Agent health, governance, and feedback — a first-class governance view for admins and CoE teams."
+  "summary": "Agent health, governance, and feedback — a first-class governance view for admins and CoE teams.",
+  "overviewDescription": "Confidence to scale. GovernanceLens keeps watch on agent health, governance posture, and feedback signals so growth in Copilot and agents doesn't outrun oversight."
 }

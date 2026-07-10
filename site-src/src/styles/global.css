@@ -180,3 +180,81 @@ p {
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
+
+/* =========================================================================
+   Shared components — extracted from index.astro so the home page and the
+   Lenses Overview page consume one identical set of rules.
+   ========================================================================= */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 22px;
+  font-size: 0.98rem;
+  font-weight: 650;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease), color var(--dur) var(--ease),
+    transform var(--dur-fast) var(--ease);
+}
+.btn:hover { text-decoration: none; }
+.btn:active { transform: translateY(1px); }
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--accent-hover);
+  color: #fff;
+}
+
+.tile-icon {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  align-self: center;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: var(--shadow-1);
+}
+.tile-icon::after {
+  content: '';
+  position: absolute;
+  left: 18.5px;
+  top: 18px;
+  margin-top: -1.5px;
+  width: 8px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--tile-c);
+  transform-origin: 0 50%;
+  transform: rotate(42deg);
+}
+
+.pill {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+  white-space: nowrap;
+}
+.pill--installed {
+  background: var(--status-installed);
+  color: var(--status-installed-ink);
+}
+.pill--available {
+  background: var(--status-available);
+  color: var(--status-available-ink);
+}
+.pill--coming-soon {
+  background: var(--status-comingsoon);
+  color: var(--status-comingsoon-ink);
+}

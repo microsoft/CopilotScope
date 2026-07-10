@@ -1,8 +1,318 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageStub from '../components/PageStub.astro';
+import Icon from '../components/Icon.astro';
+import { getOrderedLenses, LENS_ICON, STATUS_LABEL } from '../lib/lenses';
+
+const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
+
+const lenses = (await getOrderedLenses()).map((data) => ({
+  id: data.id,
+  name: data.name,
+  category: data.category,
+  color: data.color,
+  status: data.status,
+  overviewDescription: data.overviewDescription,
+  icon: LENS_ICON[data.id],
+  href: `${base}/lenses/${data.id}`,
+  showStars: data.status !== 'coming-soon',
+}));
+
+const finderHref = `${base}/lens-finder`;
 ---
 
 <BaseLayout title="Lenses · CopilotScope">
-  <PageStub heading="Lenses" />
+  <div class="lenses-overview">
+    <header class="lo-header">
+      <h1>Lenses</h1>
+      <p class="lo-sub">Eight Power BI lenses, one scope. Browse the full kit below &#8212; or let the Lens Finder point you to the right one.</p>
+    </header>
+
+    <section class="finder-callout" aria-label="Lens Finder">
+      <p class="fc-text">Not sure where to start? Answer a few questions and the Lens Finder will match you to the lens &#8212; or lenses &#8212; built for what you&#39;re trying to measure.</p>
+      <a class="btn btn-primary" href={finderHref}>Open Lens Finder</a>
+    </section>
+
+    <section class="lens-grid-overview" data-base={base} aria-label="All lenses">
+      {lenses.map((lens) => (
+        <article class="lens-card" data-lens={lens.id}>
+          <div class="lc-top">
+            <span class="tile-icon" style={`--tile-c: var(--${lens.color}); background: var(--tile-c)`}>
+              <Icon name={lens.icon} size={16} />
+            </span>
+            <span class:list={['pill', `pill--${lens.status}`]}>{STATUS_LABEL[lens.status]}</span>
+          </div>
+          <h2 class="lc-name">{lens.name}</h2>
+          <p class="lc-cat">{lens.category}</p>
+          <p class="lc-desc">{lens.overviewDescription}</p>
+          <div class="lc-footer">
+            {lens.showStars && (
+              <div class="star-row" data-lens={lens.id}>
+                <button class="star-btn" type="button" data-lens={lens.id} aria-label={`Star ${lens.name}`} aria-pressed="false">
+                  <span class="star-glyph" aria-hidden="true">&#9734;</span>
+                </button>
+                <span class="star-count" data-lens={lens.id} aria-live="polite">&#8212;</span>
+              </div>
+            )}
+            <a class="lc-view" href={lens.href}>View lens <span aria-hidden="true">&#8594;</span></a>
+          </div>
+        </article>
+      ))}
+    </section>
+  </div>
 </BaseLayout>
+
+<style>
+  .lo-header {
+    margin-bottom: var(--sp-5);
+  }
+  .lo-header h1 {
+    font-size: 2rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    margin: 0 0 var(--sp-2);
+  }
+  .lo-sub {
+    font-size: 1.05rem;
+    line-height: 1.5;
+    color: var(--muted);
+    margin: 0;
+    max-width: 70ch;
+  }
+
+  .finder-callout {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+    flex-wrap: wrap;
+    background: var(--accent-subtle);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--sp-4) var(--sp-5);
+    margin-bottom: var(--sp-5);
+  }
+  .fc-text {
+    flex: 1 1 320px;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .finder-callout .btn-primary {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .lens-grid-overview {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--sp-4);
+    align-items: stretch;
+  }
+  .lens-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    height: 100%;
+    padding: var(--sp-4);
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1);
+  }
+  .lc-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: var(--sp-1);
+  }
+  .lc-name {
+    font-size: 1.1rem;
+    font-weight: 680;
+    color: var(--ink);
+    margin: 0;
+  }
+  .lc-cat {
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    margin: 0;
+  }
+  .lc-desc {
+    flex: 1 1 auto;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: var(--muted);
+    margin: 0;
+  }
+  .lc-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-top: var(--sp-3);
+    padding-top: var(--sp-3);
+    border-top: 1px solid var(--border);
+  }
+  .star-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .star-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--surface-card);
+    color: var(--accent);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
+  }
+  .star-btn:hover {
+    background: var(--accent-subtle);
+    border-color: var(--accent);
+  }
+  .star-btn:active {
+    transform: translateY(1px);
+  }
+  .star-btn.is-starred {
+    background: var(--accent-subtle);
+    border-color: var(--accent);
+    cursor: default;
+  }
+  .star-glyph {
+    pointer-events: none;
+  }
+  .star-count {
+    min-width: 1ch;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .lc-view {
+    margin-left: auto;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .lc-view:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 900px) {
+    .lens-grid-overview {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    .lens-grid-overview {
+      grid-template-columns: 1fr;
+    }
+    .finder-callout {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+
+<script>
+  const ENDPOINT = 'https://stars.data-analytics.tech';
+  const TIMEOUT = 5000;
+  const grid = document.querySelector('.lens-grid-overview');
+  const base = grid ? grid.getAttribute('data-base') || '' : '';
+  const rows = Array.from(document.querySelectorAll('.star-row'));
+  const key = (id) => 'copilotscope.starred.' + id;
+  const isStarred = (id) => {
+    try {
+      return localStorage.getItem(key(id)) === 'true';
+    } catch (e) {
+      return false;
+    }
+  };
+  const markStarred = (row) => {
+    const btn = row.querySelector('.star-btn');
+    const glyph = row.querySelector('.star-glyph');
+    if (btn) {
+      btn.classList.add('is-starred');
+      btn.setAttribute('aria-pressed', 'true');
+    }
+    if (glyph) {
+      glyph.textContent = '\u2605';
+    }
+  };
+
+  rows.forEach((row) => {
+    if (isStarred(row.getAttribute('data-lens'))) markStarred(row);
+  });
+
+  const fetchJSON = async (url, opts) => {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), TIMEOUT);
+    try {
+      const res = await fetch(url, Object.assign({ signal: ctrl.signal }, opts));
+      if (!res.ok) throw new Error('http ' + res.status);
+      return await res.json();
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  const loadCounts = async () => {
+    try {
+      const j = await fetchJSON(ENDPOINT + '/stars', { method: 'GET' });
+      if (j && j.counts) return j.counts;
+    } catch (e) {}
+    try {
+      const j = await fetchJSON(base + '/config/stars.json', { method: 'GET' });
+      if (j && j.counts) return j.counts;
+    } catch (e) {}
+    return null;
+  };
+
+  (async () => {
+    const counts = await loadCounts();
+    if (!counts) {
+      rows.forEach((row) => {
+        row.style.display = 'none';
+      });
+      return;
+    }
+    rows.forEach((row) => {
+      const id = row.getAttribute('data-lens');
+      const el = row.querySelector('.star-count');
+      const v = counts[id];
+      if (el) el.textContent = typeof v === 'number' ? String(v) : '';
+    });
+  })();
+
+  rows.forEach((row) => {
+    const id = row.getAttribute('data-lens');
+    const btn = row.querySelector('.star-btn');
+    const el = row.querySelector('.star-count');
+    if (!btn) return;
+    btn.addEventListener('click', async () => {
+      if (isStarred(id)) return;
+      const cur = parseInt(el ? el.textContent : '', 10);
+      const optimistic = (Number.isFinite(cur) ? cur : 0) + 1;
+      if (el) el.textContent = String(optimistic);
+      markStarred(row);
+      try {
+        localStorage.setItem(key(id), 'true');
+      } catch (e) {}
+      try {
+        const j = await fetchJSON(ENDPOINT + '/stars/' + id, { method: 'POST' });
+        if (j && typeof j.count === 'number' && el) el.textContent = String(j.count);
+      } catch (e) {
+        /* keep optimistic increment */
+      }
+    });
+  });
+</script>

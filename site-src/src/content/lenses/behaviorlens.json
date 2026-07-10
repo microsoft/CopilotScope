@@ -8,5 +8,6 @@
   "icon": null,
   "downloadUrl": null,
   "docsUrl": null,
-  "summary": "Employee work-behaviour patterns mapped to the AI-activity taxonomy — the manual-vs-AI baseline."
+  "summary": "Employee work-behaviour patterns mapped to the AI-activity taxonomy — the manual-vs-AI baseline.",
+  "overviewDescription": "The baseline behind the story. BehaviorLens captures how your organization works across Microsoft 365 — collaboration patterns and work habits — as context for measuring how Copilot changes them."
 }
