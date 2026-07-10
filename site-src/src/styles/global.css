@@ -39,8 +39,8 @@
   --status-installed-ink: #1c6b45;
   --status-available: var(--accent-subtle);
   --status-available-ink: var(--accent);
-  --status-comingsoon: #cfe4fb;
-  --status-comingsoon-ink: #1c4e80;
+  --status-comingsoon: #e6e9ef;
+  --status-comingsoon-ink: #5a6470;
 
   /* --- Radii --- */
   --radius-sm: 8px;
@@ -108,8 +108,8 @@ html[data-theme="dark"] {
   --status-installed-ink: #6fe0a8;
   --status-available: var(--accent-subtle);
   --status-available-ink: var(--accent);
-  --status-comingsoon: #1c3a57;
-  --status-comingsoon-ink: #a9d1f5;
+  --status-comingsoon: #2a323d;
+  --status-comingsoon-ink: #aab4c0;
 
   /* --- Shadow tiers (deeper for dark) --- */
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.5);

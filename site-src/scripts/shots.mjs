@@ -16,7 +16,7 @@ import path from 'node:path';
 const OUT = path.join(
   'C:\\Users\\bmiddendorf\\OneDrive - Microsoft\\Documents',
   'Copilot Analytics Team\\Aggregated Copilot Analytics',
-  'CopilotScope\\_temp\\phase3.2e\\screenshots',
+  'CopilotScope\\_temp\\phase3.2f\\screenshots',
 );
 
 async function main() {

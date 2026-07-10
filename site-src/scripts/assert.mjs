@@ -1,13 +1,11 @@
-// assert.mjs — Phase 3.2d §1.4 element assertions on the built Home page.
+// assert.mjs — Phase 3.2f element assertions on the built Home page.
 // Serves ./dist under /CopilotScope with a tiny static server (no astro preview),
-// drives Playwright chromium at 1440x900 (and 900 for the 2-col check), writes
+// drives Playwright chromium at 1440x900 (2-col at 900, hero gap at 1920), writes
 // assertions.txt + a debug log OUTSIDE the site branch.
-// Per lens tile: (a) height<=150, (b) icon centerX < name leftX (row layout),
-// (c) tagline textContent === exact contract string, (d) pill within 16px of
-// card top AND right (coming-soon only), (e) the inline <svg> inside .tile-icon
-// has a non-zero bbox (icon RENDERS). Plus (f) name/pill no-overlap via
-// Range.getClientRects(). Also: each .rail-icon svg non-zero bbox, and the
-// header brand bbox in light AND dark (no-shift check).
+// Covers: per-lens-tile geometry/tagline/pill/icon; rail-icon render; page chrome
+// order/hero; header no-shift; hero mark theme swap; §2.4 pill uniformity
+// (font-size + padding identical across all 8, bg matches status token, coming-soon
+// gray); §3.1/§3.2/§3.3 hero ring-center vs orbit-center + containment + gap.
 // Run from site-src (after `npm run build`):  node scripts/assert.mjs
 import http from 'node:http';
 import { chromium } from 'playwright';
@@ -18,7 +16,7 @@ import path from 'node:path';
 const OUT = path.join(
   'C:\\Users\\bmiddendorf\\OneDrive - Microsoft\\Documents',
   'Copilot Analytics Team\\Aggregated Copilot Analytics',
-  'CopilotScope\\_temp\\phase3.2e',
+  'CopilotScope\\_temp\\phase3.2f',
 );
 mkdirSync(OUT, { recursive: true });
 const DBG = path.join(OUT, 'assert-debug.txt');
@@ -28,6 +26,9 @@ dbg('boot');
 
 const DIST = path.resolve('dist');
 const BASE = '/CopilotScope';
+// Ring-center fraction within the mark PNG (326x309); handle offsets it from bbox center.
+const FRAC_CX = 0.4095;
+const FRAC_CY = 0.432;
 const MIME = {
   '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript',
   '.mjs': 'text/javascript', '.svg': 'image/svg+xml', '.png': 'image/png',
@@ -46,7 +47,6 @@ const EXPECTED = {
   governancelens: 'Agent health, governance, feedback',
 };
 
-// Demo tri-state (Decision AA): valuelens installed, studiolens available, rest coming-soon.
 const EXP_STATUS = {
   valuelens: 'installed',
   studiolens: 'available',
@@ -159,6 +159,70 @@ async function headerBox(page) {
   });
 }
 
+function chSpread(rgb) {
+  const m = (rgb.match(/\d+/g) || []).map(Number);
+  if (m.length < 3) return 999;
+  return Math.max(m[0], m[1], m[2]) - Math.min(m[0], m[1], m[2]);
+}
+
+async function pillStyles(page) {
+  return page.evaluate(() => {
+    const mk = (v) => {
+      const d = document.createElement('div');
+      d.style.background = 'var(' + v + ')';
+      d.style.position = 'absolute';
+      d.style.left = '-9999px';
+      d.style.width = '10px';
+      d.style.height = '10px';
+      document.body.appendChild(d);
+      const c = getComputedStyle(d).backgroundColor;
+      d.remove();
+      return c;
+    };
+    const tok = {
+      installed: mk('--status-installed'),
+      available: mk('--status-available'),
+      'coming-soon': mk('--status-comingsoon'),
+    };
+    const pills = Array.from(document.querySelectorAll('a.lens-tile')).map((t) => {
+      const id = (t.getAttribute('href') || '').split('/').filter(Boolean).pop();
+      const p = t.querySelector('.pill');
+      const cs = getComputedStyle(p);
+      return {
+        id, fontSize: cs.fontSize,
+        padTop: cs.paddingTop, padRight: cs.paddingRight,
+        padBottom: cs.paddingBottom, padLeft: cs.paddingLeft,
+        bg: cs.backgroundColor,
+      };
+    });
+    return { tok, pills };
+  });
+}
+
+async function heroGeom(page) {
+  return page.evaluate(({ fx, fy }) => {
+    const orbit = document.querySelector('.hero-art .orbit');
+    const ob = orbit.getBoundingClientRect();
+    const orbitC = { x: ob.left + ob.width / 2, y: ob.top + ob.height / 2 };
+    let mk = null;
+    for (const im of document.querySelectorAll('.hero-mark')) {
+      const b = im.getBoundingClientRect();
+      if (b.width > 0) { mk = b; break; }
+    }
+    const ringC = { x: mk.left + fx * mk.width, y: mk.top + fy * mk.height };
+    const wrap = document.querySelector('.hero-art-wrap').getBoundingClientRect();
+    const cat = document.querySelector('.cat-cards').getBoundingClientRect();
+    const contained =
+      mk.left >= wrap.left - 0.5 && mk.right <= wrap.right + 0.5 &&
+      mk.top >= wrap.top - 0.5 && mk.bottom <= wrap.bottom + 0.5;
+    return {
+      orbitCx: orbitC.x, orbitCy: orbitC.y, ringCx: ringC.x, ringCy: ringC.y,
+      dx: orbitC.x - ringC.x, dy: orbitC.y - ringC.y,
+      gap: cat.top - wrap.bottom, contained,
+    };
+  }, { fx: FRAC_CX, fy: FRAC_CY });
+}
+
 async function runTiles(page, label, lines, counter) {
   const rows = await measure(page);
   lines.push('');
@@ -195,6 +259,49 @@ async function runTiles(page, label, lines, counter) {
       const cH = gap >= -0.5; if (!cH) counter.fail++;
       lines.push(`   (h) name/pill no-overlap: pillLeft=${r.pillLeft.toFixed(1)} - textRight=${r.textRightNearPill.toFixed(1)} = gap ${gap.toFixed(1)} (pillW=${r.pillW.toFixed(1)}) ${cH ? 'PASS' : 'FAIL(OVERLAP)'}`);
     }
+  }
+}
+
+async function runPills(page, label, lines, counter) {
+  const { tok, pills } = await pillStyles(page);
+  lines.push('');
+  lines.push(`=== 2.4 PILL UNIFORMITY (${label}) — all 8 Home pills ===`);
+  lines.push(`   tokens: installed=${tok.installed} available=${tok.available} coming-soon=${tok['coming-soon']}`);
+  const fs = new Set();
+  const pads = new Set();
+  for (const p of pills) {
+    fs.add(p.fontSize);
+    pads.add([p.padTop, p.padRight, p.padBottom, p.padLeft].join('/'));
+    lines.push(`   [${p.id}] font-size=${p.fontSize} padding=${p.padTop} ${p.padRight} ${p.padBottom} ${p.padLeft} bg=${p.bg}`);
+  }
+  const fsOK = fs.size === 1; if (!fsOK) counter.fail++;
+  lines.push(`   all 8 font-size IDENTICAL: ${fsOK ? 'PASS' : 'FAIL'} set={${[...fs].join(', ')}}`);
+  const padOK = pads.size === 1; if (!padOK) counter.fail++;
+  lines.push(`   all 8 padding IDENTICAL: ${padOK ? 'PASS' : 'FAIL'} set={${[...pads].join(' | ')}}`);
+  let bgOK = true;
+  for (const p of pills) {
+    const exp = tok[EXP_STATUS[p.id]];
+    if (p.bg !== exp) { bgOK = false; counter.fail++; lines.push(`   [${p.id}] bg=${p.bg} != token ${exp} FAIL`); }
+  }
+  lines.push(`   every pill bg matches its status token: ${bgOK ? 'PASS' : 'FAIL'}`);
+  const sp = chSpread(tok['coming-soon']);
+  const grayOK = sp <= 25; if (!grayOK) counter.fail++;
+  lines.push(`   coming-soon is NEUTRAL GRAY (channel spread=${sp} <=25, not blue): ${grayOK ? 'PASS' : 'FAIL'}`);
+}
+
+async function runHero(page, label, lines, counter, checkGap) {
+  const h = await heroGeom(page);
+  const dist = Math.hypot(h.dx, h.dy);
+  lines.push('');
+  lines.push(`=== 3.1/3.5 HERO RING-CENTER vs ORBIT-CENTER (${label}) ===`);
+  lines.push(`   orbit-center=(${h.orbitCx.toFixed(1)}, ${h.orbitCy.toFixed(1)})  mark-ring-center=(${h.ringCx.toFixed(1)}, ${h.ringCy.toFixed(1)})  delta=(${h.dx.toFixed(2)}, ${h.dy.toFixed(2)}) dist=${dist.toFixed(2)}`);
+  const cOK = dist <= 2; if (!cOK) counter.fail++;
+  lines.push(`   3.1 ring-center within 2px of orbit-center: ${cOK ? 'PASS' : 'FAIL'}`);
+  const contOK = h.contained; if (!contOK) counter.fail++;
+  lines.push(`   3.2 mark fully contained in .hero-art-wrap: ${contOK ? 'PASS' : 'FAIL'}`);
+  if (checkGap) {
+    const gOK = h.gap >= 24; if (!gOK) counter.fail++;
+    lines.push(`   3.3 gap hero-art-wrap.bottom -> cat-cards.top = ${h.gap.toFixed(1)}px (>=24): ${gOK ? 'PASS' : 'FAIL'}`);
   }
 }
 
@@ -265,8 +372,6 @@ async function runChrome(page, lines, counter) {
     counter.fail++;
     lines.push('   logo mark visible: FAIL (no visible .hero-mark found)');
   }
-  const before = c.wrapH * 288 / 258;
-  lines.push(`   hero-art-wrap box: AFTER height=${c.wrapH.toFixed(1)}px; BEFORE (computed, viewBox 288->258)=${before.toFixed(1)}px; delta=${(before - c.wrapH).toFixed(1)}px (~24 target)`);
 }
 
 async function markTheme(page) {
@@ -297,17 +402,19 @@ async function main() {
     dbg('goto 1440');
     await page.goto(`${baseUrl}/`, { waitUntil: 'load', timeout: 20000 });
     await page.waitForSelector('a.lens-tile', { timeout: 10000 });
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(900);
     dbg('measuring 1440');
     await runTiles(page, 'light, 1440x900, 4-col', lines, counter);
     await runRail(page, 'light, 1440x900', lines, counter);
     await runChrome(page, lines, counter);
+    await runPills(page, 'light, 1440x900', lines, counter);
+    await runHero(page, 'light, 1440x900', lines, counter, true);
 
     const hLight = await headerBox(page);
     await page.evaluate(() => localStorage.setItem('csTheme', 'dark'));
     await page.reload({ waitUntil: 'load', timeout: 20000 });
     await page.waitForSelector('header.topbar', { timeout: 10000 });
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(900);
     const hDark = await headerBox(page);
     lines.push('');
     lines.push('=== HEADER BBOX (no-layout-shift check) ===');
@@ -323,15 +430,30 @@ async function main() {
     lines.push('=== HERO MARK THEME SWAP (dark) ===');
     lines.push(`   dark theme: dark mark visible (w=${mt.darkW.toFixed(1)}>0) + light mark hidden (w=${mt.lightW.toFixed(1)}=0) ${mtOK ? 'PASS' : 'FAIL'}`);
 
+    await runPills(page, 'dark, 1440x900', lines, counter);
+    await runHero(page, 'dark, 1440x900', lines, counter, false);
+
     await ctx.close();
     const ctx2 = await browser.newContext({ viewport: { width: 900, height: 900 } });
     const page2 = await ctx2.newPage();
     dbg('goto 900');
     await page2.goto(`${baseUrl}/`, { waitUntil: 'load', timeout: 20000 });
     await page2.waitForSelector('a.lens-tile', { timeout: 10000 });
-    await page2.waitForTimeout(400);
+    await page2.waitForTimeout(900);
     dbg('measuring 900');
     await runTiles(page2, 'light, 900x900, 2-col', lines, counter);
+    await runPills(page2, 'light, 900x900, 2-col', lines, counter);
+    await ctx2.close();
+
+    const ctx3 = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
+    const page3 = await ctx3.newPage();
+    dbg('goto 1920');
+    await page3.goto(`${baseUrl}/`, { waitUntil: 'load', timeout: 20000 });
+    await page3.waitForSelector('a.lens-tile', { timeout: 10000 });
+    await page3.waitForTimeout(900);
+    dbg('measuring 1920');
+    await runHero(page3, 'light, 1920x1080', lines, counter, true);
+    await ctx3.close();
 
     lines.push('');
     lines.push(`=== SUMMARY: ${counter.fail === 0 ? 'ALL PASS' : counter.fail + ' FAIL(S)'} ===`);

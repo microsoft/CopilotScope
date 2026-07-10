@@ -241,13 +241,15 @@ const orderedLenses = ORDER.map((id) => {
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
-      width: 210px;
+      /* Ring-center (not bbox-center) aligned onto the orbit-ring center, and
+         sized to 180px so the whole mark stays inside .hero-art-wrap. */
+      transform: translate(-67.5px, -72.9px);
+      width: 180px;
       max-width: 325px;
       height: auto;
       z-index: 2;
       pointer-events: none;
-      animation: heroRise 560ms var(--ease) both;
+      animation: heroMarkFade 560ms var(--ease) both;
     }
     .hero-mark-dark {
       display: none;
@@ -284,6 +286,10 @@ const orderedLenses = ORDER.map((id) => {
     @keyframes heroRise {
       from { opacity: 0; transform: translateY(18px); }
       to { opacity: 1; transform: none; }
+    }
+    @keyframes heroMarkFade {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
     @keyframes heroFade {
       from { opacity: 0; transform: translateY(10px); }
@@ -484,6 +490,7 @@ const orderedLenses = ORDER.map((id) => {
 
     @media (prefers-reduced-motion: reduce) {
       .hero-art,
+      .hero-mark,
       .hero-text {
         animation: none;
       }
