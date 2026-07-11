@@ -153,6 +153,10 @@ body {
   transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
 }
 
+html[data-theme="light"] body {
+  background-color: var(--surface-card);
+}
+
 a {
   color: var(--accent);
   text-decoration: none;

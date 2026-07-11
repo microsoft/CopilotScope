@@ -341,6 +341,9 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
         background: var(--surface-card);
         border-bottom: 1px solid var(--border);
       }
+      html[data-theme='light'] .topbar {
+        background: var(--surface-page);
+      }
       .topbar-left,
       .topbar-right {
         display: flex;
@@ -482,6 +485,9 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
         padding: var(--sp-3) var(--sp-2);
         background: var(--surface-card);
         border-right: 1px solid var(--border);
+      }
+      html[data-theme='light'] .rail {
+        background: var(--surface-page);
       }
       .rail ul {
         list-style: none;
