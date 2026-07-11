@@ -38,12 +38,14 @@ const finderHref = `${base}/lens-finder`;
           <span class="lc-art">
             <img class="lc-art-light" src={`${base}/lens-card-${lens.id}-light.png`} alt="" />
             <img class="lc-art-dark" src={`${base}/lens-card-${lens.id}-dark.png`} alt="" />
-            <span class="tile-icon lc-icon" style={`--tile-c: var(--${lens.color}); background: var(--tile-c)`}>
-              <Icon name={lens.icon} size={16} />
-            </span>
             <span class:list={['pill', 'lc-pill', `pill--${lens.status}`]}>{STATUS_LABEL[lens.status]}</span>
           </span>
-          <h2 class="lc-name">{lens.name}</h2>
+          <div class="lc-title-row">
+            <h2 class="lc-name">{lens.name}</h2>
+            <span class="tile-icon lc-title-icon" style={`--tile-c: var(--${lens.color}); background: var(--tile-c)`}>
+              <Icon name={lens.icon} size={16} />
+            </span>
+          </div>
           <p class="lc-cat">{lens.category}</p>
           <p class="lc-desc">{lens.overviewDescription}</p>
           <div class="lc-footer">
@@ -148,12 +150,6 @@ const finderHref = `${base}/lens-finder`;
   html[data-theme='dark'] .lc-art img.lc-art-dark {
     display: block;
   }
-  .lc-icon {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 2;
-  }
   .lc-pill {
     position: absolute;
     top: 10px;
@@ -165,6 +161,15 @@ const finderHref = `${base}/lens-finder`;
   }
   html[data-theme='dark'] .lc-pill.pill--installed {
     background: color-mix(in srgb, var(--lens-green) 22%, var(--surface-card));
+  }
+  .lc-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-2);
+  }
+  .lc-title-icon {
+    flex: 0 0 auto;
   }
   .lc-name {
     font-size: 1.1rem;
