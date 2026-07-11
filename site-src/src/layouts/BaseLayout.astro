@@ -10,7 +10,7 @@ interface Props {
 const { title = 'CopilotScope' } = Astro.props;
 
 const rawBase = import.meta.env.BASE_URL;
-const base = rawBase.replace(/\/+$/, ''); // '/CopilotScope'
+const base = rawBase.replace(/\/+$/, ''); // '' — site served at the domain root
 const home = base + '/';
 const faviconHref = `${base}/favicon-mark.png`;
 const markHref = `${base}/logo-mark.png`;

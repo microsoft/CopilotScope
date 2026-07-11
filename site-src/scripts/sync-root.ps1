@@ -16,7 +16,7 @@
       5. Never touches the authoring source or branch scaffolding. The following
          root entries are protected and are neither copied over nor deleted:
          site-src/, .gitignore, .nojekyll, .git/, root-manifest.json, LICENSE,
-         SECURITY.md.
+         SECURITY.md, CNAME (custom-domain file - copilotscope.ai).
       6. -DryRun reports every copy / delete / rmdir it would perform and changes
          nothing on disk (the build is skipped so the working tree is untouched).
 #>
@@ -35,7 +35,7 @@ $dist = Join-Path $siteSrc 'dist'
 $manifestPath = Join-Path $root 'root-manifest.json'
 
 # Top-level root entries this script must never copy over or delete.
-$protected = @('.git', '.gitignore', '.nojekyll', 'root-manifest.json', 'LICENSE', 'SECURITY.md', 'site-src', 'config')
+$protected = @('.git', '.gitignore', '.nojekyll', 'root-manifest.json', 'LICENSE', 'SECURITY.md', 'site-src', 'config', 'CNAME')
 
 function Get-TopSegment([string]$rel) {
     return ($rel -split '/')[0]
