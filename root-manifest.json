@@ -19,6 +19,22 @@
     "hero-card-value-roi-dark.png",
     "hero-card-value-roi-light.png",
     "index.html",
+    "lens-card-adoptionlens-dark.png",
+    "lens-card-adoptionlens-light.png",
+    "lens-card-behaviorlens-dark.png",
+    "lens-card-behaviorlens-light.png",
+    "lens-card-governancelens-dark.png",
+    "lens-card-governancelens-light.png",
+    "lens-card-leaderlens-dark.png",
+    "lens-card-leaderlens-light.png",
+    "lens-card-maturitylens-dark.png",
+    "lens-card-maturitylens-light.png",
+    "lens-card-readinesslens-dark.png",
+    "lens-card-readinesslens-light.png",
+    "lens-card-studiolens-dark.png",
+    "lens-card-studiolens-light.png",
+    "lens-card-valuelens-dark.png",
+    "lens-card-valuelens-light.png",
     "lens-finder/index.html",
     "lenses/adoptionlens/index.html",
     "lenses/behaviorlens/index.html",
@@ -36,5 +52,5 @@
     "whats-new/index.html",
     "work-in-progress-stamp.png"
   ],
-  "count": 35
+  "count": 51
 }

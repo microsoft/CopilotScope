@@ -35,6 +35,10 @@ const finderHref = `${base}/lens-finder`;
     <section class="lens-grid-overview" data-base={base} aria-label="All lenses">
       {lenses.map((lens) => (
         <article class="lens-card" data-lens={lens.id}>
+          <span class="lc-art">
+            <img class="lc-art-light" src={`${base}/lens-card-${lens.id}-light.png`} alt="" />
+            <img class="lc-art-dark" src={`${base}/lens-card-${lens.id}-dark.png`} alt="" />
+          </span>
           <div class="lc-top">
             <span class="tile-icon" style={`--tile-c: var(--${lens.color}); background: var(--tile-c)`}>
               <Icon name={lens.icon} size={16} />
@@ -118,6 +122,32 @@ const finderHref = `${base}/lens-finder`;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow-1);
+    overflow: hidden;
+  }
+  .lc-art {
+    display: block;
+    margin: calc(-1 * var(--sp-4)) calc(-1 * var(--sp-4)) 0;
+    aspect-ratio: 836 / 470;
+    overflow: hidden;
+    background: #f9f2e9;
+  }
+  html[data-theme='dark'] .lc-art {
+    background: #0d111a;
+  }
+  .lc-art img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .lc-art img.lc-art-dark {
+    display: none;
+  }
+  html[data-theme='dark'] .lc-art img.lc-art-light {
+    display: none;
+  }
+  html[data-theme='dark'] .lc-art img.lc-art-dark {
+    display: block;
   }
   .lc-top {
     display: flex;
