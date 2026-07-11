@@ -1,5 +1,6 @@
 ---
 import { getEntry } from 'astro:content';
+import Icon from './Icon.astro';
 import { STATUS_LABEL } from '../lib/lenses';
 
 interface Props {
@@ -11,7 +12,7 @@ const entry = await getEntry('lenses', id);
 if (!entry) {
   throw new Error(`LensDetail: no lens entry found for id "${id}"`);
 }
-const { name, status, color, category, detail } = entry.data;
+const { name, status, color, category, detail, version, releaseDate } = entry.data;
 if (!detail) {
   throw new Error(`LensDetail: lens "${id}" has no detail copy`);
 }
@@ -23,35 +24,37 @@ const isComingSoon = status === 'coming-soon';
 
 const heroLight = `${base}/lens-hero-${id}-light.png`;
 const heroDark = `${base}/lens-hero-${id}-dark.png`;
-const docsHref = `${base}/lenses/${id}/docs`;
 
-// Download links point at the raw .pbit on main. Encode each path segment so
-// spaces / parens / plus survive in the URL.
 const RAW = 'https://raw.githubusercontent.com/microsoft/CopilotScope/main/';
 const encodePath = (p: string) => p.split('/').map(encodeURIComponent).join('/');
-const tiers = detail.tiers.map((t) => ({ ...t, rawUrl: RAW + encodePath(t.pbit) }));
+const tierAccents = ['ta', 'tb', 'tc'];
+const tiers = detail.tiers.map((t, i) => ({ ...t, rawUrl: RAW + encodePath(t.pbit), accent: tierAccents[i % tierAccents.length] }));
+
+const groups = detail.whatsInsideGroups;
+
+const navItems = [
+  { href: '#ld-top', label: 'Intro' },
+  { href: '#what-it-shows', label: 'What it shows' },
+  { href: '#whats-inside', label: "What's inside" },
+  { href: '#data-requirements', label: 'Data requirements' },
+  ...(isComingSoon ? [] : [{ href: '#get-this-lens', label: 'Get this lens' }]),
+];
+
+const modalTitleId = `fb-title-${id}`;
+const modalDescId = `fb-desc-${id}`;
 ---
 
 <article class="lens-detail" data-lens={id} data-status={status}>
   {isInstalled && (
     <div class="ld-strip" data-ld-strip hidden>
       <span class="ld-strip-id">
-        <span
-          class="tile-icon ld-strip-icon"
-          style={`--tile-c: var(--${color}); background: var(--tile-c)`}
-          aria-hidden="true"></span>
+        <span class="tile-icon ld-strip-icon" style={`--tile-c: var(--${color}); background: var(--tile-c)`} aria-hidden="true"></span>
         <span class="ld-strip-name">{name}</span>
         <span class:list={['pill', `pill--${status}`]}>{statusLabel}</span>
       </span>
       <span class="ld-strip-right">
         <span class="star-row star-row--compact" data-lens={id}>
-          <button
-            class="star-btn"
-            type="button"
-            data-lens={id}
-            data-name={name}
-            aria-label={`Star ${name}`}
-            aria-pressed="false"><span class="star-glyph" aria-hidden="true">&#9734;</span></button>
+          <button class="star-btn" type="button" data-lens={id} data-name={name} aria-label={`Star ${name}`} aria-pressed="false"><span class="star-glyph" aria-hidden="true">&#9734;</span></button>
           <span class="star-count" data-lens={id} aria-live="polite">&#8212;</span>
         </span>
         <button class="ld-about-tab" type="button" data-ld-toggle aria-pressed="false">About this lens</button>
@@ -61,99 +64,184 @@ const tiers = detail.tiers.map((t) => ({ ...t, rawUrl: RAW + encodePath(t.pbit) 
 
   {isInstalled && (
     <div class="ld-dashboard" data-ld-dashboard hidden>
-      <div class="ld-placeholder">
-        <span class="ld-ph-badge">Dashboard</span>
-        <h2>Your embedded dashboard will live here</h2>
-        <p>
-          The live, in-page {name} report is coming soon. When it ships, this pane will host your
-          interactive dashboard directly in CopilotScope. Until then, open the About this lens tab
-          above for the full overview and the template downloads.
-        </p>
+      <div class="ld-empty">
+        <span class="ld-empty-icon" style={`--tile-c: var(--${color})`} aria-hidden="true">
+          <Icon name="scatter" size={40} />
+        </span>
+        <h2 class="ld-empty-title">Your embedded dashboard will live here</h2>
+        <p class="ld-empty-text">The live, in-page {name} report is coming soon. When it ships, this pane will host your interactive dashboard directly in CopilotScope.</p>
+        <div class="ld-empty-actions">
+          <span class="star-row" data-lens={id}>
+            <button class="star-btn" type="button" data-lens={id} data-name={name} aria-label={`Star ${name}`} aria-pressed="false"><span class="star-glyph" aria-hidden="true">&#9734;</span></button>
+            <span class="star-count" data-lens={id} aria-live="polite">&#8212;</span>
+          </span>
+          <button class="ld-fb-btn ld-fb-btn--quiet" type="button" data-fb-open>Send feedback</button>
+          <span class="ld-fb-status" data-fb-status hidden></span>
+        </div>
       </div>
     </div>
   )}
 
   <div class="ld-marketing" data-ld-marketing>
-    <div class="ld-hero">
+    <div class="ld-hero" id="ld-top">
       <img class="ld-hero-img ld-hero-light" src={heroLight} alt="" />
       <img class="ld-hero-img ld-hero-dark" src={heroDark} alt="" />
     </div>
 
-    <header class="ld-title">
-      <div class="ld-title-top">
-        <h1>{name}</h1>
-        <span class:list={['pill', `pill--${status}`]}>{statusLabel}</span>
+    <div class="ld-layout">
+      <div class="ld-main">
+        <header class="ld-title">
+          <div class="ld-title-top">
+            <h1>{name}</h1>
+            <span class:list={['pill', `pill--${status}`]}>{statusLabel}</span>
+          </div>
+          <p class="ld-cat">{category}</p>
+        </header>
+
+        <p class="ld-intro">{detail.heroIntro}</p>
+
+        <section class="ld-card" id="what-it-shows">
+          <div class="ld-card-head">
+            <span class="ld-card-icon" aria-hidden="true"><Icon name="eye" size={18} /></span>
+            <h2>What it shows</h2>
+          </div>
+          <p class="ld-prose">{detail.whatItShows}</p>
+        </section>
+
+        <section class="ld-card" id="whats-inside">
+          <div class="ld-card-head">
+            <span class="ld-card-icon" aria-hidden="true"><Icon name="grid" size={18} /></span>
+            <h2>What&#39;s inside</h2>
+          </div>
+          {groups ? (
+            <div class="ld-wi">
+              {groups.map((g) => (
+                <div class="ld-wi-group">
+                  <p class="ld-wi-label">{g.label}</p>
+                  <ul class="ld-wi-grid">
+                    {g.items.map((it) => (
+                      <li class="ld-wi-item">{it}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p class="ld-prose">{detail.whatsInside}</p>
+          )}
+        </section>
+
+        <section class="ld-card" id="data-requirements">
+          <div class="ld-card-head">
+            <span class="ld-card-icon" aria-hidden="true"><Icon name="database" size={18} /></span>
+            <h2>Data requirements</h2>
+          </div>
+          <p class="ld-prose">{detail.dataRequirements}</p>
+        </section>
+
+        {!isComingSoon && (
+          <section class="ld-card" id="get-this-lens">
+            <div class="ld-card-head">
+              <span class="ld-card-icon" aria-hidden="true"><Icon name="download" size={18} /></span>
+              <h2>Get this lens</h2>
+            </div>
+            <p class="ld-prose ld-get-intro">{detail.getIntro}</p>
+            <ul class="ld-tiers">
+              {tiers.map((tier) => (
+                <li class:list={['ld-tier', `ld-tier--${tier.accent}`]}>
+                  <div class="ld-tier-body">
+                    <p class="ld-tier-name">{tier.name}</p>
+                    <p class="ld-tier-desc">{tier.description}</p>
+                  </div>
+                  <a class="ld-dl-btn" href={tier.rawUrl} download>
+                    <Icon name="download" size={16} /> Download template
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <p class="ld-disclaimer">{detail.disclaimer}</p>
       </div>
-      <p class="ld-cat">{category}</p>
-      <span class="star-row" data-lens={id}>
-        <button
-          class="star-btn"
-          type="button"
-          data-lens={id}
-          data-name={name}
-          aria-label={`Star ${name}`}
-          aria-pressed="false"><span class="star-glyph" aria-hidden="true">&#9734;</span></button>
-        <span class="star-count" data-lens={id} aria-live="polite">&#8212;</span>
-      </span>
-    </header>
 
-    <p class="ld-intro">{detail.heroIntro}</p>
+      <aside class="ld-rail" aria-label="Page information">
+        <nav class="ld-rail-card ld-rail-nav" data-ld-rail-nav aria-label="On this page">
+          <p class="ld-rail-title">On this page</p>
+          <ul>
+            {navItems.map((n) => (
+              <li><a href={n.href} data-spy>{n.label}</a></li>
+            ))}
+          </ul>
+        </nav>
 
-    <section class="ld-section">
-      <h2>What it shows</h2>
-      <p>{detail.whatItShows}</p>
-    </section>
+        <div class="ld-rail-card ld-status-card">
+          <p class="ld-rail-title">Product status</p>
+          <p class="ld-status-line"><span class:list={['pill', `pill--${status}`]}>{statusLabel}</span></p>
+          <dl class="ld-meta">
+            <div><dt>Version</dt><dd>{version}</dd></div>
+            <div><dt>Released</dt><dd>{releaseDate}</dd></div>
+          </dl>
+        </div>
 
-    <section class="ld-section">
-      <h2>What&#39;s inside</h2>
-      <p>{detail.whatsInside}</p>
-    </section>
+        <div class="ld-rail-card ld-fb-card">
+          <p class="ld-rail-title">Star &amp; feedback</p>
+          <span class="star-row" data-lens={id}>
+            <button class="star-btn" type="button" data-lens={id} data-name={name} aria-label={`Star ${name}`} aria-pressed="false"><span class="star-glyph" aria-hidden="true">&#9734;</span></button>
+            <span class="star-count" data-lens={id} aria-live="polite">&#8212;</span>
+            <span class="ld-fb-star-label">stars</span>
+          </span>
+          <button class="ld-fb-btn" type="button" data-fb-open>Send feedback</button>
+          <span class="ld-fb-status" data-fb-status hidden></span>
+        </div>
+      </aside>
+    </div>
+  </div>
 
-    <section class="ld-section">
-      <h2>Data requirements</h2>
-      <p>{detail.dataRequirements}</p>
-    </section>
-
-    {!isComingSoon && (
-      <section class="ld-section ld-get">
-        <h2>Get this lens</h2>
-        <p class="ld-get-intro">{detail.getIntro}</p>
-        <ul class="ld-tiers">
-          {tiers.map((tier) => (
-            <li class="ld-tier">
-              <p class="ld-tier-line"><strong class="ld-tier-name">{tier.name}</strong> &#8212; {tier.description}</p>
-              <p class="ld-tier-actions">
-                <a class="btn btn-primary ld-dl" href={tier.rawUrl} download>Download template</a>
-                <a class="ld-setup" href={docsHref}>Setup guide</a>
-              </p>
-            </li>
-          ))}
-        </ul>
-      </section>
-    )}
-
-    <p class="ld-disclaimer">{detail.disclaimer}</p>
+  <div class="fb-modal" data-fb-modal hidden>
+    <div class="fb-backdrop" data-fb-backdrop></div>
+    <div class="fb-dialog" data-fb-dialog role="dialog" aria-modal="true" aria-labelledby={modalTitleId} aria-describedby={modalDescId}>
+      <div class="fb-head">
+        <h2 id={modalTitleId} class="fb-title">Send feedback</h2>
+        <button class="fb-x" type="button" data-fb-cancel aria-label="Close feedback">&#10005;</button>
+      </div>
+      <label class="fb-label" for={`fb-cat-${id}`}>Type of feedback</label>
+      <select class="fb-select" id={`fb-cat-${id}`} data-fb-category>
+        <option value="broken">Something is broken</option>
+        <option value="confusing">Confusing or unclear</option>
+        <option value="missing-info">Missing information</option>
+        <option value="idea">Idea or suggestion</option>
+        <option value="other" selected>Other</option>
+      </select>
+      <label class="fb-label" for={`fb-msg-${id}`}>Your message</label>
+      <textarea class="fb-textarea" id={`fb-msg-${id}`} data-fb-message rows="5" maxlength="4000" placeholder="What's on your mind?"></textarea>
+      <div class="fb-meta">
+        <span class="fb-counter" data-fb-counter>0 / 4000</span>
+      </div>
+      <p class="fb-safety">Please don&#39;t include secrets, tenant data, customer data, or personal information.</p>
+      <p class="fb-privacy" id={modalDescId}>We only send the message you type, the category, the page, and the time. We never ask for your name, email, tenant, or credentials.</p>
+      <p class="fb-error" data-fb-error hidden></p>
+      <div class="fb-actions">
+        <button class="fb-cancel" type="button" data-fb-cancel>Cancel</button>
+        <button class="fb-submit" type="button" data-fb-submit disabled>Send feedback</button>
+      </div>
+    </div>
   </div>
 </article>
 
 <script>
   import '../scripts/stars-client';
   import '../scripts/detail-client';
+  import '../scripts/detail-rail';
+  import '../scripts/feedback-client';
 </script>
 
 <style>
   .lens-detail {
-    max-width: 74ch;
+    max-width: 1160px;
   }
 
-  /* ---- Mode B strip ---- */
-  /* strip + dashboard are JS-only chrome: the hidden attribute must win over
-     the display rules below so no-JS / crawlers never see Mode B. */
-  .ld-strip[hidden],
-  .ld-dashboard[hidden],
-  .ld-marketing[hidden] {
-    display: none !important;
-  }
+  /* ---------- Mode B strip ---------- */
   .ld-strip {
     display: flex;
     align-items: center;
@@ -167,269 +255,242 @@ const tiers = detail.tiers.map((t) => ({ ...t, rawUrl: RAW + encodePath(t.pbit) 
     border-radius: var(--radius);
     box-shadow: var(--shadow-1);
   }
-  .ld-strip-id {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--sp-3);
-    min-width: 0;
+  .ld-strip[hidden],
+  .ld-dashboard[hidden],
+  .ld-marketing[hidden] {
+    display: none !important;
   }
-  .ld-strip-icon {
-    flex: 0 0 auto;
-  }
-  .ld-strip-name {
-    font-size: 1rem;
-    font-weight: 650;
-    color: var(--ink);
-  }
-  .ld-strip-right {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--sp-3);
-  }
+  .ld-strip-id { display: inline-flex; align-items: center; gap: var(--sp-3); min-width: 0; }
+  .ld-strip-name { font-size: 1rem; font-weight: 650; color: var(--ink); }
+  .ld-strip-right { display: inline-flex; align-items: center; gap: var(--sp-3); }
   .ld-about-tab {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 14px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--accent);
-    background: var(--accent-subtle);
-    border: 1px solid var(--accent);
-    border-radius: 999px;
-    cursor: pointer;
+    display: inline-flex; align-items: center; padding: 6px 14px;
+    font-size: 0.85rem; font-weight: 600; color: var(--accent);
+    background: var(--accent-subtle); border: 1px solid var(--accent);
+    border-radius: 999px; cursor: pointer;
     transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
   }
-  .ld-about-tab:hover {
-    background: var(--accent);
-    color: #fff;
-  }
+  .ld-about-tab:hover { background: var(--accent); color: #fff; }
 
-  /* ---- Mode B dashboard placeholder ---- */
-  .ld-dashboard {
-    margin-bottom: var(--sp-5);
-  }
-  .ld-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--sp-3);
-    min-height: 420px;
-    justify-content: center;
+  /* ---------- Mode B empty state ---------- */
+  .ld-dashboard { margin-bottom: var(--sp-5); }
+  .ld-empty {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    gap: var(--sp-3); min-height: 460px; justify-content: center;
     padding: var(--sp-6) var(--sp-5);
-    background:
-      linear-gradient(180deg, var(--surface-card), var(--surface-card)),
-      var(--surface-page);
-    border: 1px dashed var(--border-strong);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-1) inset;
+    background: var(--surface-card);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow-1);
   }
-  .ld-ph-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 3px 10px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
-    background: var(--accent-subtle);
-    border-radius: 999px;
+  .ld-empty-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 76px; height: 76px; border-radius: 999px;
+    color: var(--tile-c);
+    background: color-mix(in srgb, var(--tile-c) 14%, var(--surface-card));
+    border: 1px solid color-mix(in srgb, var(--tile-c) 30%, transparent);
+    margin-bottom: var(--sp-2);
   }
-  .ld-placeholder h2 {
-    font-size: 1.35rem;
-    font-weight: 650;
-    margin: 0;
-    color: var(--ink);
-  }
-  .ld-placeholder p {
-    font-size: 1rem;
-    line-height: 1.55;
-    color: var(--muted);
-    margin: 0;
-    max-width: 60ch;
-  }
+  .ld-empty-title { font-size: 1.4rem; font-weight: 650; margin: 0; color: var(--ink); }
+  .ld-empty-text { font-size: 1rem; line-height: 1.55; color: var(--muted); margin: 0; max-width: 52ch; }
+  .ld-empty-actions { display: inline-flex; align-items: center; gap: var(--sp-4); flex-wrap: wrap; justify-content: center; margin-top: var(--sp-3); }
 
-  /* ---- Mode A hero ---- */
+  /* ---------- Hero ---------- */
   .ld-hero {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1672 / 941;
-    margin-bottom: var(--sp-5);
-    border-radius: var(--radius);
-    overflow: hidden;
-    background: #f9f2e9;
+    position: relative; width: 100%; aspect-ratio: 1672 / 941;
+    margin-bottom: var(--sp-5); border-radius: var(--radius);
+    overflow: hidden; background: #f9f2e9;
   }
-  html[data-theme='dark'] .ld-hero {
-    background: #0d111a;
-  }
-  .ld-hero-img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .ld-hero-img.ld-hero-dark {
-    display: none;
-  }
-  html[data-theme='dark'] .ld-hero-img.ld-hero-light {
-    display: none;
-  }
-  html[data-theme='dark'] .ld-hero-img.ld-hero-dark {
-    display: block;
-  }
+  html[data-theme='dark'] .ld-hero { background: #0d111a; }
+  .ld-hero-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .ld-hero-img.ld-hero-dark { display: none; }
+  html[data-theme='dark'] .ld-hero-img.ld-hero-light { display: none; }
+  html[data-theme='dark'] .ld-hero-img.ld-hero-dark { display: block; }
 
-  /* ---- Mode A title block ---- */
-  .ld-title {
-    margin-bottom: var(--sp-4);
+  /* ---------- Two-column layout ---------- */
+  .ld-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 296px;
+    gap: var(--sp-6);
+    align-items: start;
   }
-  .ld-title-top {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-3);
-    flex-wrap: wrap;
-  }
-  .ld-title-top h1 {
-    font-size: 2rem;
-    font-weight: 650;
-    letter-spacing: -0.01em;
-    margin: 0;
-  }
+  .ld-main { max-width: 760px; min-width: 0; }
+
+  .ld-title-top { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+  .ld-title-top h1 { font-size: 2rem; font-weight: 650; letter-spacing: -0.01em; margin: 0; }
   .ld-cat {
-    margin: var(--sp-2) 0 var(--sp-3);
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--subtle);
+    margin: var(--sp-2) 0 0; font-size: 0.8rem; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--subtle);
   }
-  .ld-intro {
-    font-size: 1.15rem;
-    line-height: 1.55;
-    color: var(--ink);
-    margin: 0 0 var(--sp-5);
-  }
+  .ld-intro { font-size: 1.15rem; line-height: 1.55; color: var(--ink); margin: var(--sp-4) 0 var(--sp-5); }
 
-  /* ---- Mode A sections ---- */
-  .ld-section {
-    margin: 0 0 var(--sp-5);
-  }
-  .ld-section h2 {
-    font-size: 1.2rem;
-    font-weight: 650;
-    margin: 0 0 var(--sp-2);
-    color: var(--ink);
-  }
-  .ld-section p {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: var(--muted);
-    margin: 0;
-  }
-
-  /* ---- Get this lens ---- */
-  .ld-get-intro {
-    margin-bottom: var(--sp-4);
-  }
-  .ld-tiers {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--sp-3);
-  }
-  .ld-tier {
-    padding: var(--sp-4);
+  /* ---------- Section cards ---------- */
+  .ld-card {
+    padding: var(--sp-5);
+    margin: 0 0 var(--sp-4);
     background: var(--surface-card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
+    box-shadow: var(--shadow-1);
+    scroll-margin-top: 84px;
   }
-  .ld-tier-line {
-    font-size: 1rem;
-    line-height: 1.55;
-    color: var(--muted);
-    margin: 0 0 var(--sp-3);
+  .ld-card-head { display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-3); }
+  .ld-card-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; flex: 0 0 auto; border-radius: 9px;
+    color: var(--accent); background: var(--accent-subtle);
   }
-  .ld-tier-name {
-    color: var(--ink);
-    font-weight: 650;
+  .ld-card-head h2 { font-size: 1.2rem; font-weight: 650; margin: 0; color: var(--ink); }
+  .ld-prose { font-size: 1rem; line-height: 1.6; color: var(--muted); margin: 0; }
+  .ld-get-intro { margin-bottom: var(--sp-4); }
+  #ld-top { scroll-margin-top: 20px; }
+
+  /* ---------- What's inside grid ---------- */
+  .ld-wi { display: flex; flex-direction: column; gap: var(--sp-4); }
+  .ld-wi-label { font-size: 0.9rem; font-weight: 600; color: var(--ink); margin: 0 0 var(--sp-2); }
+  .ld-wi-grid {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--sp-2);
   }
-  .ld-tier-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-4);
-    flex-wrap: wrap;
-    margin: 0;
+  .ld-wi-item {
+    font-size: 0.9rem; color: var(--muted);
+    padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface-page);
   }
-  .ld-setup {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--accent);
-    text-decoration: none;
+
+  /* ---------- Get this lens tiers ---------- */
+  .ld-tiers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-3); }
+  .ld-tier {
+    display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap;
+    padding: var(--sp-4); background: var(--surface-page);
+    border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
   }
-  .ld-setup:hover {
-    text-decoration: underline;
+  .ld-tier--ta { border-left-color: var(--lens-green); }
+  .ld-tier--tb { border-left-color: var(--accent); }
+  .ld-tier--tc { border-left-color: var(--lens-purple); }
+  .ld-tier-body { min-width: 0; flex: 1 1 340px; }
+  .ld-tier-name { font-size: 1rem; font-weight: 650; color: var(--ink); margin: 0 0 4px; }
+  .ld-tier-desc { font-size: 0.92rem; line-height: 1.5; color: var(--muted); margin: 0; }
+  .ld-dl-btn {
+    display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto;
+    padding: 8px 16px; font-size: 0.88rem; font-weight: 600;
+    color: #fff; background: var(--accent); border: 1px solid var(--accent);
+    border-radius: 8px; text-decoration: none;
+    transition: background-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
   }
+  .ld-dl-btn:hover { filter: brightness(1.05); }
+  .ld-dl-btn:active { transform: translateY(1px); }
 
   .ld-disclaimer {
-    margin: var(--sp-5) 0 0;
-    padding-top: var(--sp-4);
+    margin: var(--sp-5) 0 0; padding-top: var(--sp-4);
     border-top: 1px solid var(--border);
-    font-size: 0.85rem;
-    line-height: 1.5;
-    color: var(--subtle);
+    font-size: 0.85rem; line-height: 1.5; color: var(--subtle);
   }
 
-  /* ---- Star row (shared visual with the overview) ---- */
-  .star-row {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: var(--sp-2);
+  /* ---------- Right rail ---------- */
+  .ld-rail { position: sticky; top: 20px; display: flex; flex-direction: column; gap: var(--sp-4); }
+  .ld-rail-card {
+    padding: var(--sp-4); background: var(--surface-card);
+    border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-1);
   }
-  .star-row--compact {
-    margin-top: 0;
+  .ld-rail-title {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--subtle); margin: 0 0 var(--sp-3);
   }
+  .ld-rail-nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .ld-rail-nav a {
+    display: block; padding: 6px 10px; font-size: 0.9rem; color: var(--muted);
+    text-decoration: none; border-left: 2px solid transparent; border-radius: 0 6px 6px 0;
+    transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease);
+  }
+  .ld-rail-nav a:hover { color: var(--ink); background: var(--surface-page); }
+  .ld-rail-nav a.is-active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-subtle); font-weight: 600; }
+
+  .ld-status-line { margin: 0 0 var(--sp-3); }
+  .ld-meta { margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+  .ld-meta div { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-3); }
+  .ld-meta dt { font-size: 0.85rem; color: var(--subtle); margin: 0; }
+  .ld-meta dd { font-size: 0.9rem; font-weight: 600; color: var(--ink); margin: 0; }
+
+  .ld-fb-card .star-row { margin-bottom: var(--sp-3); }
+  .ld-fb-star-label { font-size: 0.85rem; color: var(--subtle); }
+  .ld-fb-btn {
+    display: inline-flex; align-items: center; justify-content: center; width: 100%;
+    padding: 8px 14px; font-size: 0.88rem; font-weight: 600;
+    color: var(--accent); background: var(--accent-subtle);
+    border: 1px solid var(--accent); border-radius: 8px; cursor: pointer;
+    transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+  }
+  .ld-fb-btn:hover { background: var(--accent); color: #fff; }
+  .ld-fb-btn--quiet { width: auto; }
+  .ld-fb-status { display: block; margin-top: var(--sp-2); font-size: 0.82rem; color: var(--lens-green); }
+  .ld-empty-actions .ld-fb-status { margin-top: 0; }
+
+  /* ---------- Star row ---------- */
+  .star-row { display: inline-flex; align-items: center; gap: 6px; }
   .star-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px;
-    height: 26px;
-    border: 1px solid var(--border-strong);
-    border-radius: 999px;
-    background: var(--surface-card);
-    color: var(--accent);
-    font-size: 15px;
-    line-height: 1;
-    cursor: pointer;
-    transition: background-color var(--dur) var(--ease),
-      border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border: 1px solid var(--border-strong);
+    border-radius: 999px; background: var(--surface-card); color: var(--accent);
+    font-size: 15px; line-height: 1; cursor: pointer;
+    transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
   }
-  .star-btn:hover {
-    background: var(--accent-subtle);
-    border-color: var(--accent);
-  }
-  .star-btn:active {
-    transform: translateY(1px);
-  }
-  .star-btn.is-starred {
-    background: var(--accent-subtle);
-    border-color: var(--accent);
-  }
-  .star-glyph {
-    pointer-events: none;
-  }
-  .star-count {
-    min-width: 1ch;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--ink);
-  }
+  .star-btn:hover { background: var(--accent-subtle); border-color: var(--accent); }
+  .star-btn:active { transform: translateY(1px); }
+  .star-btn.is-starred { background: var(--accent-subtle); border-color: var(--accent); }
+  .star-glyph { pointer-events: none; }
+  .star-count { min-width: 1ch; font-size: 0.9rem; font-weight: 600; color: var(--ink); }
 
+  /* ---------- Feedback modal ---------- */
+  .fb-modal[hidden] { display: none; }
+  .fb-modal { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: var(--sp-4); }
+  .fb-backdrop { position: absolute; inset: 0; background: rgba(8, 12, 20, 0.55); backdrop-filter: blur(2px); }
+  .fb-dialog {
+    position: relative; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+    background: var(--surface-card); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow-2); padding: var(--sp-5);
+  }
+  .fb-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-3); }
+  .fb-title { font-size: 1.2rem; font-weight: 650; margin: 0; color: var(--ink); }
+  .fb-x { background: none; border: none; color: var(--muted); font-size: 1rem; cursor: pointer; padding: 4px; line-height: 1; }
+  .fb-x:hover { color: var(--ink); }
+  .fb-label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--ink); margin: var(--sp-3) 0 6px; }
+  .fb-select, .fb-textarea {
+    width: 100%; font: inherit; font-size: 0.95rem; color: var(--ink);
+    background: var(--surface-page); border: 1px solid var(--border-strong);
+    border-radius: 8px; padding: 8px 10px;
+  }
+  .fb-textarea { resize: vertical; min-height: 110px; line-height: 1.5; }
+  .fb-select:focus, .fb-textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .fb-meta { display: flex; justify-content: flex-end; margin-top: 4px; }
+  .fb-counter { font-size: 0.78rem; color: var(--subtle); }
+  .fb-counter--bad { color: var(--lens-red, #c23b3b); }
+  .fb-safety, .fb-privacy { font-size: 0.8rem; line-height: 1.45; color: var(--subtle); margin: var(--sp-3) 0 0; }
+  .fb-error {
+    font-size: 0.85rem; color: var(--lens-red, #c23b3b); margin: var(--sp-3) 0 0;
+    padding: 8px 10px; background: color-mix(in srgb, var(--lens-red, #c23b3b) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--lens-red, #c23b3b) 30%, transparent); border-radius: 8px;
+  }
+  .fb-error[hidden] { display: none; }
+  .fb-actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--sp-3); margin-top: var(--sp-4); }
+  .fb-cancel {
+    padding: 8px 16px; font-size: 0.88rem; font-weight: 600; color: var(--muted);
+    background: none; border: 1px solid var(--border-strong); border-radius: 8px; cursor: pointer;
+  }
+  .fb-cancel:hover { color: var(--ink); border-color: var(--ink); }
+  .fb-submit {
+    padding: 8px 18px; font-size: 0.88rem; font-weight: 600; color: #fff;
+    background: var(--accent); border: 1px solid var(--accent); border-radius: 8px; cursor: pointer;
+  }
+  .fb-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ---------- Responsive: rail reflows below content ---------- */
+  @media (max-width: 900px) {
+    .ld-layout { grid-template-columns: minmax(0, 1fr); }
+    .ld-rail { position: static; flex-direction: column; }
+    .ld-main { max-width: none; }
+  }
   @media (max-width: 640px) {
-    .ld-strip {
-      align-items: flex-start;
-    }
+    .ld-strip { align-items: flex-start; }
   }
 </style>

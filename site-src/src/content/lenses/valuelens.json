@@ -33,6 +33,49 @@
         "pbit": "lenses/ValueLens/deployment/3. Fabric Extended/Fabric + Copilot Studio/ValueLens - Fabric (+ Studio Agent Deepdive).pbit"
       }
     ],
-    "disclaimer": "Experimental template using Purview audit logs as the primary source. Not an official Microsoft-supported product — questions and issues via the GitHub repo."
-  }
+    "disclaimer": "Experimental template using Purview audit logs as the primary source. Not an official Microsoft-supported product — questions and issues via the GitHub repo.",
+    "whatsInsideGroups": [
+      {
+        "label": "Fifteen report pages covering the full story",
+        "pre": "Fifteen report pages covering the full story: ",
+        "items": [
+          "User Activation",
+          "Adoption & Reach",
+          "Activity & Value",
+          "Usage Maturity",
+          "Leaderboards",
+          "Agent Governance",
+          "User Feedback",
+          "License Readiness",
+          "Heatmap Trend"
+        ],
+        "oxford": true,
+        "post": ""
+      },
+      {
+        "label": "plus three Copilot Studio pages in the extended build",
+        "pre": " — plus three Copilot Studio pages in the extended build (",
+        "items": [
+          "Credits Consumed",
+          "Agent Evaluation",
+          "Topic Analysis"
+        ],
+        "oxford": false,
+        "post": ")"
+      },
+      {
+        "label": "and three appendices",
+        "pre": " and three appendices (",
+        "items": [
+          "Key Concepts",
+          "Glossary",
+          "a Signal Table that traces raw signals through to value as an audit trail"
+        ],
+        "oxford": true,
+        "post": ")."
+      }
+    ]
+  },
+  "version": "v1.0",
+  "releaseDate": "July 12, 2026"
 }

@@ -29,5 +29,7 @@
       }
     ],
     "disclaimer": "Experimental template reading Copilot Studio transcripts from Dataverse. Not an official Microsoft-supported product — questions and issues via the GitHub repo."
-  }
+  },
+  "version": "v1.0",
+  "releaseDate": "July 12, 2026"
 }
