@@ -38,20 +38,18 @@ const finderHref = `${base}/lens-finder`;
           <span class="lc-art">
             <img class="lc-art-light" src={`${base}/lens-card-${lens.id}-light.png`} alt="" />
             <img class="lc-art-dark" src={`${base}/lens-card-${lens.id}-dark.png`} alt="" />
-          </span>
-          <div class="lc-top">
-            <span class="tile-icon" style={`--tile-c: var(--${lens.color}); background: var(--tile-c)`}>
+            <span class="tile-icon lc-icon" style={`--tile-c: var(--${lens.color}); background: var(--tile-c)`}>
               <Icon name={lens.icon} size={16} />
             </span>
-            <span class:list={['pill', `pill--${lens.status}`]}>{STATUS_LABEL[lens.status]}</span>
-          </div>
+            <span class:list={['pill', 'lc-pill', `pill--${lens.status}`]}>{STATUS_LABEL[lens.status]}</span>
+          </span>
           <h2 class="lc-name">{lens.name}</h2>
           <p class="lc-cat">{lens.category}</p>
           <p class="lc-desc">{lens.overviewDescription}</p>
           <div class="lc-footer">
             {lens.showStars && (
               <div class="star-row" data-lens={lens.id}>
-                <button class="star-btn" type="button" data-lens={lens.id} aria-label={`Star ${lens.name}`} aria-pressed="false">
+                <button class="star-btn" type="button" data-lens={lens.id} data-name={lens.name} aria-label={`Star ${lens.name}`} aria-pressed="false">
                   <span class="star-glyph" aria-hidden="true">&#9734;</span>
                 </button>
                 <span class="star-count" data-lens={lens.id} aria-live="polite">&#8212;</span>
@@ -125,6 +123,7 @@ const finderHref = `${base}/lens-finder`;
     overflow: hidden;
   }
   .lc-art {
+    position: relative;
     display: block;
     margin: calc(-1 * var(--sp-4)) calc(-1 * var(--sp-4)) 0;
     aspect-ratio: 836 / 470;
@@ -149,12 +148,23 @@ const finderHref = `${base}/lens-finder`;
   html[data-theme='dark'] .lc-art img.lc-art-dark {
     display: block;
   }
-  .lc-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: var(--sp-1);
+  .lc-icon {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+  }
+  .lc-pill {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+  }
+  .lc-pill.pill--installed {
+    background: color-mix(in srgb, var(--lens-green) 18%, var(--surface-card));
+  }
+  html[data-theme='dark'] .lc-pill.pill--installed {
+    background: color-mix(in srgb, var(--lens-green) 22%, var(--surface-card));
   }
   .lc-name {
     font-size: 1.1rem;
@@ -215,7 +225,6 @@ const finderHref = `${base}/lens-finder`;
   .star-btn.is-starred {
     background: var(--accent-subtle);
     border-color: var(--accent);
-    cursor: default;
   }
   .star-glyph {
     pointer-events: none;
@@ -228,13 +237,24 @@ const finderHref = `${base}/lens-finder`;
   }
   .lc-view {
     margin-left: auto;
-    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 12px;
+    font-size: 0.8rem;
     font-weight: 600;
-    color: var(--accent);
+    color: var(--ink);
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
     white-space: nowrap;
+    transition: background-color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
   }
   .lc-view:hover {
-    text-decoration: underline;
+    background: color-mix(in srgb, var(--ink) 6%, var(--surface-card));
+    border-color: var(--border-strong);
+    text-decoration: none;
   }
 
   @media (max-width: 900px) {
@@ -267,20 +287,20 @@ const finderHref = `${base}/lens-finder`;
       return false;
     }
   };
-  const markStarred = (row) => {
+  const setState = (row, starred) => {
     const btn = row.querySelector('.star-btn');
     const glyph = row.querySelector('.star-glyph');
+    const name = btn ? btn.getAttribute('data-name') || 'this lens' : 'this lens';
     if (btn) {
-      btn.classList.add('is-starred');
-      btn.setAttribute('aria-pressed', 'true');
+      btn.classList.toggle('is-starred', starred);
+      btn.setAttribute('aria-pressed', starred ? 'true' : 'false');
+      btn.setAttribute('aria-label', starred ? 'Remove your star from ' + name : 'Star ' + name);
     }
-    if (glyph) {
-      glyph.textContent = '\u2605';
-    }
+    if (glyph) glyph.textContent = starred ? '\u2605' : '\u2606';
   };
 
   rows.forEach((row) => {
-    if (isStarred(row.getAttribute('data-lens'))) markStarred(row);
+    setState(row, isStarred(row.getAttribute('data-lens')));
   });
 
   const fetchJSON = async (url, opts) => {
@@ -329,19 +349,33 @@ const finderHref = `${base}/lens-finder`;
     const el = row.querySelector('.star-count');
     if (!btn) return;
     btn.addEventListener('click', async () => {
-      if (isStarred(id)) return;
+      const starred = isStarred(id);
       const cur = parseInt(el ? el.textContent : '', 10);
-      const optimistic = (Number.isFinite(cur) ? cur : 0) + 1;
-      if (el) el.textContent = String(optimistic);
-      markStarred(row);
-      try {
-        localStorage.setItem(key(id), 'true');
-      } catch (e) {}
-      try {
-        const j = await fetchJSON(ENDPOINT + '/stars/' + id, { method: 'POST' });
-        if (j && typeof j.count === 'number' && el) el.textContent = String(j.count);
-      } catch (e) {
-        /* keep optimistic increment */
+      const base0 = Number.isFinite(cur) ? cur : 0;
+      if (!starred) {
+        if (el) el.textContent = String(base0 + 1);
+        try {
+          localStorage.setItem(key(id), 'true');
+        } catch (e) {}
+        setState(row, true);
+        try {
+          const j = await fetchJSON(ENDPOINT + '/stars/' + id, { method: 'POST' });
+          if (j && typeof j.count === 'number' && el) el.textContent = String(Math.max(0, j.count));
+        } catch (e) {
+          /* keep optimistic increment */
+        }
+      } else {
+        if (el) el.textContent = String(Math.max(0, base0 - 1));
+        try {
+          localStorage.removeItem(key(id));
+        } catch (e) {}
+        setState(row, false);
+        try {
+          const j = await fetchJSON(ENDPOINT + '/stars/' + id, { method: 'DELETE' });
+          if (j && typeof j.count === 'number' && el) el.textContent = String(Math.max(0, j.count));
+        } catch (e) {
+          /* keep optimistic decrement */
+        }
       }
     });
   });
