@@ -83,13 +83,12 @@ const modalDescId = `fb-desc-${id}`;
   )}
 
   <div class="ld-marketing" data-ld-marketing>
-    <div class="ld-hero" id="ld-top">
-      <img class="ld-hero-img ld-hero-light" src={heroLight} alt="" />
-      <img class="ld-hero-img ld-hero-dark" src={heroDark} alt="" />
-    </div>
-
     <div class="ld-layout">
       <div class="ld-main">
+        <div class="ld-hero" id="ld-top">
+          <img class="ld-hero-img ld-hero-light" src={heroLight} alt="" />
+          <img class="ld-hero-img ld-hero-dark" src={heroDark} alt="" />
+        </div>
         <header class="ld-title">
           <div class="ld-title-top">
             <h1>{name}</h1>
@@ -388,7 +387,7 @@ const modalDescId = `fb-desc-${id}`;
   }
 
   /* ---------- Right rail ---------- */
-  .ld-rail { position: sticky; top: 20px; display: flex; flex-direction: column; gap: var(--sp-4); }
+  .ld-rail { position: sticky; top: 76px; display: flex; flex-direction: column; gap: var(--sp-4); }
   .ld-rail-card {
     padding: var(--sp-4); background: var(--surface-card);
     border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-1);
