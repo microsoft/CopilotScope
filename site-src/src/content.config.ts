@@ -15,6 +15,23 @@ const lenses = defineCollection({
     docsUrl: z.string().nullable(),
     summary: z.string(),
     overviewDescription: z.string(),
+    detail: z
+      .object({
+        heroIntro: z.string(),
+        whatItShows: z.string(),
+        whatsInside: z.string(),
+        dataRequirements: z.string(),
+        getIntro: z.string(),
+        tiers: z.array(
+          z.object({
+            name: z.string(),
+            description: z.string(),
+            pbit: z.string(),
+          }),
+        ),
+        disclaimer: z.string(),
+      })
+      .optional(),
   }),
 });
 

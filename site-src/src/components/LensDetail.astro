@@ -1,0 +1,435 @@
+---
+import { getEntry } from 'astro:content';
+import { STATUS_LABEL } from '../lib/lenses';
+
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+
+const entry = await getEntry('lenses', id);
+if (!entry) {
+  throw new Error(`LensDetail: no lens entry found for id "${id}"`);
+}
+const { name, status, color, category, detail } = entry.data;
+if (!detail) {
+  throw new Error(`LensDetail: lens "${id}" has no detail copy`);
+}
+
+const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
+const statusLabel = STATUS_LABEL[status];
+const isInstalled = status === 'installed';
+const isComingSoon = status === 'coming-soon';
+
+const heroLight = `${base}/lens-hero-${id}-light.png`;
+const heroDark = `${base}/lens-hero-${id}-dark.png`;
+const docsHref = `${base}/lenses/${id}/docs`;
+
+// Download links point at the raw .pbit on main. Encode each path segment so
+// spaces / parens / plus survive in the URL.
+const RAW = 'https://raw.githubusercontent.com/microsoft/CopilotScope/main/';
+const encodePath = (p: string) => p.split('/').map(encodeURIComponent).join('/');
+const tiers = detail.tiers.map((t) => ({ ...t, rawUrl: RAW + encodePath(t.pbit) }));
+---
+
+<article class="lens-detail" data-lens={id} data-status={status}>
+  {isInstalled && (
+    <div class="ld-strip" data-ld-strip hidden>
+      <span class="ld-strip-id">
+        <span
+          class="tile-icon ld-strip-icon"
+          style={`--tile-c: var(--${color}); background: var(--tile-c)`}
+          aria-hidden="true"></span>
+        <span class="ld-strip-name">{name}</span>
+        <span class:list={['pill', `pill--${status}`]}>{statusLabel}</span>
+      </span>
+      <span class="ld-strip-right">
+        <span class="star-row star-row--compact" data-lens={id}>
+          <button
+            class="star-btn"
+            type="button"
+            data-lens={id}
+            data-name={name}
+            aria-label={`Star ${name}`}
+            aria-pressed="false"><span class="star-glyph" aria-hidden="true">&#9734;</span></button>
+          <span class="star-count" data-lens={id} aria-live="polite">&#8212;</span>
+        </span>
+        <button class="ld-about-tab" type="button" data-ld-toggle aria-pressed="false">About this lens</button>
+      </span>
+    </div>
+  )}
+
+  {isInstalled && (
+    <div class="ld-dashboard" data-ld-dashboard hidden>
+      <div class="ld-placeholder">
+        <span class="ld-ph-badge">Dashboard</span>
+        <h2>Your embedded dashboard will live here</h2>
+        <p>
+          The live, in-page {name} report is coming soon. When it ships, this pane will host your
+          interactive dashboard directly in CopilotScope. Until then, open the About this lens tab
+          above for the full overview and the template downloads.
+        </p>
+      </div>
+    </div>
+  )}
+
+  <div class="ld-marketing" data-ld-marketing>
+    <div class="ld-hero">
+      <img class="ld-hero-img ld-hero-light" src={heroLight} alt="" />
+      <img class="ld-hero-img ld-hero-dark" src={heroDark} alt="" />
+    </div>
+
+    <header class="ld-title">
+      <div class="ld-title-top">
+        <h1>{name}</h1>
+        <span class:list={['pill', `pill--${status}`]}>{statusLabel}</span>
+      </div>
+      <p class="ld-cat">{category}</p>
+      <span class="star-row" data-lens={id}>
+        <button
+          class="star-btn"
+          type="button"
+          data-lens={id}
+          data-name={name}
+          aria-label={`Star ${name}`}
+          aria-pressed="false"><span class="star-glyph" aria-hidden="true">&#9734;</span></button>
+        <span class="star-count" data-lens={id} aria-live="polite">&#8212;</span>
+      </span>
+    </header>
+
+    <p class="ld-intro">{detail.heroIntro}</p>
+
+    <section class="ld-section">
+      <h2>What it shows</h2>
+      <p>{detail.whatItShows}</p>
+    </section>
+
+    <section class="ld-section">
+      <h2>What&#39;s inside</h2>
+      <p>{detail.whatsInside}</p>
+    </section>
+
+    <section class="ld-section">
+      <h2>Data requirements</h2>
+      <p>{detail.dataRequirements}</p>
+    </section>
+
+    {!isComingSoon && (
+      <section class="ld-section ld-get">
+        <h2>Get this lens</h2>
+        <p class="ld-get-intro">{detail.getIntro}</p>
+        <ul class="ld-tiers">
+          {tiers.map((tier) => (
+            <li class="ld-tier">
+              <p class="ld-tier-line"><strong class="ld-tier-name">{tier.name}</strong> &#8212; {tier.description}</p>
+              <p class="ld-tier-actions">
+                <a class="btn btn-primary ld-dl" href={tier.rawUrl} download>Download template</a>
+                <a class="ld-setup" href={docsHref}>Setup guide</a>
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <p class="ld-disclaimer">{detail.disclaimer}</p>
+  </div>
+</article>
+
+<script>
+  import '../scripts/stars-client';
+  import '../scripts/detail-client';
+</script>
+
+<style>
+  .lens-detail {
+    max-width: 74ch;
+  }
+
+  /* ---- Mode B strip ---- */
+  /* strip + dashboard are JS-only chrome: the hidden attribute must win over
+     the display rules below so no-JS / crawlers never see Mode B. */
+  .ld-strip[hidden],
+  .ld-dashboard[hidden],
+  .ld-marketing[hidden] {
+    display: none !important;
+  }
+  .ld-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    flex-wrap: wrap;
+    padding: var(--sp-3) var(--sp-4);
+    margin-bottom: var(--sp-4);
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1);
+  }
+  .ld-strip-id {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-3);
+    min-width: 0;
+  }
+  .ld-strip-icon {
+    flex: 0 0 auto;
+  }
+  .ld-strip-name {
+    font-size: 1rem;
+    font-weight: 650;
+    color: var(--ink);
+  }
+  .ld-strip-right {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-3);
+  }
+  .ld-about-tab {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-subtle);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+  }
+  .ld-about-tab:hover {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* ---- Mode B dashboard placeholder ---- */
+  .ld-dashboard {
+    margin-bottom: var(--sp-5);
+  }
+  .ld-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-3);
+    min-height: 420px;
+    justify-content: center;
+    padding: var(--sp-6) var(--sp-5);
+    background:
+      linear-gradient(180deg, var(--surface-card), var(--surface-card)),
+      var(--surface-page);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1) inset;
+  }
+  .ld-ph-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-subtle);
+    border-radius: 999px;
+  }
+  .ld-placeholder h2 {
+    font-size: 1.35rem;
+    font-weight: 650;
+    margin: 0;
+    color: var(--ink);
+  }
+  .ld-placeholder p {
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--muted);
+    margin: 0;
+    max-width: 60ch;
+  }
+
+  /* ---- Mode A hero ---- */
+  .ld-hero {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1672 / 941;
+    margin-bottom: var(--sp-5);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: #f9f2e9;
+  }
+  html[data-theme='dark'] .ld-hero {
+    background: #0d111a;
+  }
+  .ld-hero-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ld-hero-img.ld-hero-dark {
+    display: none;
+  }
+  html[data-theme='dark'] .ld-hero-img.ld-hero-light {
+    display: none;
+  }
+  html[data-theme='dark'] .ld-hero-img.ld-hero-dark {
+    display: block;
+  }
+
+  /* ---- Mode A title block ---- */
+  .ld-title {
+    margin-bottom: var(--sp-4);
+  }
+  .ld-title-top {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    flex-wrap: wrap;
+  }
+  .ld-title-top h1 {
+    font-size: 2rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .ld-cat {
+    margin: var(--sp-2) 0 var(--sp-3);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--subtle);
+  }
+  .ld-intro {
+    font-size: 1.15rem;
+    line-height: 1.55;
+    color: var(--ink);
+    margin: 0 0 var(--sp-5);
+  }
+
+  /* ---- Mode A sections ---- */
+  .ld-section {
+    margin: 0 0 var(--sp-5);
+  }
+  .ld-section h2 {
+    font-size: 1.2rem;
+    font-weight: 650;
+    margin: 0 0 var(--sp-2);
+    color: var(--ink);
+  }
+  .ld-section p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* ---- Get this lens ---- */
+  .ld-get-intro {
+    margin-bottom: var(--sp-4);
+  }
+  .ld-tiers {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+  .ld-tier {
+    padding: var(--sp-4);
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .ld-tier-line {
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--muted);
+    margin: 0 0 var(--sp-3);
+  }
+  .ld-tier-name {
+    color: var(--ink);
+    font-weight: 650;
+  }
+  .ld-tier-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+    flex-wrap: wrap;
+    margin: 0;
+  }
+  .ld-setup {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .ld-setup:hover {
+    text-decoration: underline;
+  }
+
+  .ld-disclaimer {
+    margin: var(--sp-5) 0 0;
+    padding-top: var(--sp-4);
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--subtle);
+  }
+
+  /* ---- Star row (shared visual with the overview) ---- */
+  .star-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: var(--sp-2);
+  }
+  .star-row--compact {
+    margin-top: 0;
+  }
+  .star-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--surface-card);
+    color: var(--accent);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
+  }
+  .star-btn:hover {
+    background: var(--accent-subtle);
+    border-color: var(--accent);
+  }
+  .star-btn:active {
+    transform: translateY(1px);
+  }
+  .star-btn.is-starred {
+    background: var(--accent-subtle);
+    border-color: var(--accent);
+  }
+  .star-glyph {
+    pointer-events: none;
+  }
+  .star-count {
+    min-width: 1ch;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  @media (max-width: 640px) {
+    .ld-strip {
+      align-items: flex-start;
+    }
+  }
+</style>

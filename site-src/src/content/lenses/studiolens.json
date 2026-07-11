@@ -9,5 +9,25 @@
   "downloadUrl": null,
   "docsUrl": null,
   "summary": "Deep Copilot Studio agent evaluation — quality, topics, transcripts, errors, feedback, and credits.",
-  "overviewDescription": "Purpose-built for Copilot Studio. StudioLens goes deep on agent evaluation — how your custom agents are used, how they perform, and where they need attention."
+  "overviewDescription": "Purpose-built for Copilot Studio. StudioLens goes deep on agent evaluation — how your custom agents are used, how they perform, and where they need attention.",
+  "detail": {
+    "heroIntro": "Deep agent performance and evaluation for Copilot Studio. StudioLens reads your agents' conversation transcripts and turns them into answers: how agents perform, resolve, contain, and cost — quality, topics, errors, feedback, and message-credit consumption, in one Power BI template.",
+    "whatItShows": "Agent sessions, turns, errors, and sub-agent calls; quality and performance evaluation including resolution, containment, abandonment, and escalation; topic analysis showing what users actually ask and where conversations succeed or break down; knowledge-file usage; user feedback; and Copilot Studio message-credit consumption for the cost side of the story.",
+    "whatsInside": "Two builds of the same template. Dataverse (Direct) parses transcripts live in the Power BI model — open the template, set three parameters, done; nothing else to stand up. The Fabric build lands transcripts and credit consumption as Delta tables in a Lakehouse for scheduled ingestion, larger volumes, longer history, and the PPAC message-credit pages.",
+    "dataRequirements": "A Dataverse environment where Copilot Studio logs conversation transcripts, plus an org-data CSV. The Fabric path additionally needs Fabric capacity and a Lakehouse. Note Dataverse's ~30-day transcript retention — the Fabric path is the answer for historical analysis at scale.",
+    "getIntro": "Two paths, same analytics:",
+    "tiers": [
+      {
+        "name": "Dataverse (Direct) (simplest — start here)",
+        "description": "the lowest-footprint build; transcripts parsed live in-model, one or many Dataverse environments, no infrastructure.",
+        "pbit": "lenses/StudioLens/deployment/1. Dataverse (Direct)/StudioLens - Dataverse.pbit"
+      },
+      {
+        "name": "Fabric",
+        "description": "scheduled Spark ingestion for scale, history, and the message-credit pages.",
+        "pbit": "lenses/StudioLens/deployment/2. Fabric/StudioLens - Fabric.pbit"
+      }
+    ],
+    "disclaimer": "Experimental template reading Copilot Studio transcripts from Dataverse. Not an official Microsoft-supported product — questions and issues via the GitHub repo."
+  }
 }

@@ -4,5 +4,31 @@ import PageStub from '../components/PageStub.astro';
 ---
 
 <BaseLayout title="FAQ & Support · CopilotScope">
-  <PageStub heading="FAQ & Support" />
+  <PageStub heading="FAQ & Support">
+    <section class="support-access">
+      <h2>Access &amp; support</h2>
+      <p>If your organization's network blocks copilotscope.ai, use aka.ms/CopilotScope as an alternate address.</p>
+    </section>
+  </PageStub>
 </BaseLayout>
+
+<style>
+  .support-access {
+    margin-top: var(--sp-5);
+    padding-top: var(--sp-4);
+    border-top: 1px solid var(--border);
+  }
+  .support-access h2 {
+    font-size: 1.1rem;
+    font-weight: 650;
+    margin: 0 0 var(--sp-2);
+    color: var(--ink);
+  }
+  .support-access p {
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--muted);
+    margin: 0;
+    max-width: 62ch;
+  }
+</style>

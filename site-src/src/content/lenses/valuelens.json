@@ -9,5 +9,30 @@
   "downloadUrl": null,
   "docsUrl": null,
   "summary": "The FinOps view of Copilot — cost vs. value, ROI, and time & tasks saved.",
-  "overviewDescription": "The flagship lens. ValueLens turns Copilot activity into business terms — cost versus value, ROI, and the time and tasks Copilot gives back to your people. Start here if you need to show what Copilot is worth."
+  "overviewDescription": "The flagship lens. ValueLens turns Copilot activity into business terms — cost versus value, ROI, and the time and tasks Copilot gives back to your people. Start here if you need to show what Copilot is worth.",
+  "detail": {
+    "heroIntro": "One Power BI template for every Copilot and agent adoption signal. ValueLens turns Purview audit logs, licensing data, and org structure into a defensible ROI narrative — hours saved, assisted value, adoption, maturity, and governance across your whole Copilot estate, aligned to Microsoft's Frontier Firm framework.",
+    "whatItShows": "Every Copilot interaction is classified into an AI Task, mapped to a research-sourced time baseline, summed into Hours Saved, and multiplied by hourly rates into Assisted Value — a value model grounded in published research from Microsoft Research, MIT, NBER, BCG/Harvard, McKinsey, Forrester, IDC and others. On top of that model, ValueLens measures: quantified value in hours and dollars; your position on the Frontier Firm journey from human + Copilot, to human + agent, to agent-run workflows; value broken down by function — Sales, HR, IT, Legal, Finance, Marketing, Customer Service — with task-level attribution; user maturity from Beginner through Proficient; and a full business case with projected annual value, ROI multiple, and license investment net.",
+    "whatsInside": "Fifteen report pages covering the full story: User Activation, Adoption & Reach, Activity & Value, Usage Maturity, Leaderboards, Agent Governance, User Feedback, License Readiness, and Heatmap Trend — plus three Copilot Studio pages in the extended build (Credits Consumed, Agent Evaluation, Topic Analysis) and three appendices (Key Concepts, Glossary, and a Signal Table that traces raw signals through to value as an audit trail).",
+    "dataRequirements": "Three core sources: Copilot interaction audit logs from Microsoft Purview, licensed users from the Microsoft 365 Admin Center, and org data from Microsoft Entra. Optional sources — Agent 365 exports, Cowork/Work IQ consumption, credit billing, product feedback, and Copilot Studio transcripts — light up additional pages and are gated by toggles; the dashboard works fully without them.",
+    "getIntro": "ValueLens ships in three deployment paths — same pages, same value model, different data plumbing. Pick the one that matches your setup:",
+    "tiers": [
+      {
+        "name": "SharePoint (simplest)",
+        "description": "the fastest start on Power BI Pro alone; no Fabric or Premium required.",
+        "pbit": "lenses/ValueLens/deployment/2. SharePoint/ValueLens - SharePoint.pbit"
+      },
+      {
+        "name": "Fabric (recommended)",
+        "description": "scheduled Spark ingestion into a Lakehouse for the best performance, plus the optional billing and feedback pages; the same build runs on Databricks, Synapse, or Azure SQL.",
+        "pbit": "lenses/ValueLens/deployment/1. Fabric/ValueLens - Fabric.pbit"
+      },
+      {
+        "name": "Fabric Extended (advanced)",
+        "description": "everything in the Fabric path plus the deeper Copilot Studio agent, topic, and CSAT pages; stand up Fabric first, then add this.",
+        "pbit": "lenses/ValueLens/deployment/3. Fabric Extended/Fabric + Copilot Studio/ValueLens - Fabric (+ Studio Agent Deepdive).pbit"
+      }
+    ],
+    "disclaimer": "Experimental template using Purview audit logs as the primary source. Not an official Microsoft-supported product — questions and issues via the GitHub repo."
+  }
 }
