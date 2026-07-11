@@ -5,10 +5,26 @@ import { getOrderedLenses, LENS_ICON, STATUS_LABEL } from '../lib/lenses';
 
 const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
 
+// Category -> hash slug (the three home hero categories, verbatim).
+const CAT_SLUG: Record<string, string> = {
+  'Value & ROI': 'value-roi',
+  'Agents & Studio': 'agents-studio',
+  'Adoption & Readiness': 'adoption-readiness',
+};
+
+// Filter-row category cards. Images + one-line taglines are reused verbatim
+// from the home page category cards (hero-card-*-light/dark.png).
+const CATEGORIES = [
+  { slug: 'value-roi', name: 'Value & ROI', img: 'value-roi', tag: 'Measure financial impact and productivity gains.' },
+  { slug: 'agents-studio', name: 'Agents & Studio', img: 'agents-studio', tag: 'Evaluate and optimize agent performance.' },
+  { slug: 'adoption-readiness', name: 'Adoption & Readiness', img: 'adoption-readiness', tag: 'Drive adoption and build organizational readiness.' },
+];
+
 const lenses = (await getOrderedLenses()).map((data) => ({
   id: data.id,
   name: data.name,
   category: data.category,
+  categorySlug: CAT_SLUG[data.category] ?? '',
   color: data.color,
   status: data.status,
   overviewDescription: data.overviewDescription,
@@ -32,20 +48,44 @@ const finderHref = `${base}/lens-finder`;
       <a class="btn btn-primary" href={finderHref}>Open Lens Finder</a>
     </section>
 
+    <section class="filter-row" role="group" aria-label="Filter lenses by category">
+      <button type="button" class="filter-card filter-all is-selected" data-filter="all" aria-pressed="true" aria-label="Show all lenses">
+        <span class="fc-art fc-art-all">
+          <span class="fc-silhouette" aria-hidden="true"><Icon name="grid" size={44} /></span>
+        </span>
+        <span class="fc-body">
+          <span class="fc-title">All Lenses</span>
+          <span class="fc-tag">The complete kit, one view.</span>
+        </span>
+      </button>
+      {CATEGORIES.map((cat) => (
+        <button type="button" class="filter-card" data-filter={cat.slug} aria-pressed="false" aria-label={`Filter to ${cat.name} lenses`}>
+          <span class="fc-art">
+            <img class="fc-art-light" src={`${base}/hero-card-${cat.img}-light.png`} alt="" />
+            <img class="fc-art-dark" src={`${base}/hero-card-${cat.img}-dark.png`} alt="" />
+          </span>
+          <span class="fc-body">
+            <span class="fc-title">{cat.name}</span>
+            <span class="fc-tag">{cat.tag}</span>
+          </span>
+        </button>
+      ))}
+    </section>
+
+    <p class="grid-title" id="grid-title" aria-live="polite">All lenses</p>
+
     <section class="lens-grid-overview" data-base={base} aria-label="All lenses">
       {lenses.map((lens) => (
-        <article class="lens-card" data-lens={lens.id}>
-          <span class="lc-art">
-            <img class="lc-art-light" src={`${base}/lens-card-${lens.id}-light.png`} alt="" />
-            <img class="lc-art-dark" src={`${base}/lens-card-${lens.id}-dark.png`} alt="" />
-            <span class:list={['pill', 'lc-pill', `pill--${lens.status}`]}>{STATUS_LABEL[lens.status]}</span>
-          </span>
-          <div class="lc-title-row">
-            <h2 class="lc-name">{lens.name}</h2>
-            <span class="tile-icon lc-title-icon" style={`--tile-c: var(--${lens.color}); background: var(--tile-c)`}>
-              <Icon name={lens.icon} size={16} />
+        <article class="lens-card" data-lens={lens.id} data-category={lens.categorySlug}>
+          <div class="lc-top">
+            <span class="lc-icon">
+              <span class="tile-icon" style={`--tile-c: var(--${lens.color}); background: var(--tile-c)`}>
+                <Icon name={lens.icon} size={16} />
+              </span>
             </span>
+            <span class:list={['pill', 'lc-pill', `pill--${lens.status}`]}>{STATUS_LABEL[lens.status]}</span>
           </div>
+          <h2 class="lc-name">{lens.name}</h2>
           <p class="lc-cat">{lens.category}</p>
           <p class="lc-desc">{lens.overviewDescription}</p>
           <div class="lc-footer">
@@ -106,12 +146,133 @@ const finderHref = `${base}/lens-finder`;
     white-space: nowrap;
   }
 
+  /* ---------- Filter row ---------- */
+  .filter-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--sp-4);
+    margin-bottom: var(--sp-5);
+  }
+  .filter-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+    text-align: left;
+    font: inherit;
+    color: var(--ink);
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1);
+    cursor: pointer;
+    transition: transform var(--dur) var(--ease),
+      box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  }
+  .filter-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-2);
+    border-color: var(--border-strong);
+  }
+  .filter-card.is-selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), var(--shadow-2);
+  }
+  .filter-card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .fc-art {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1672 / 941;
+    overflow: hidden;
+    background: #f9f2e9;
+  }
+  html[data-theme='dark'] .fc-art {
+    background: #0d111a;
+  }
+  .fc-art img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .fc-art img.fc-art-dark {
+    display: none;
+  }
+  html[data-theme='dark'] .fc-art img.fc-art-light {
+    display: none;
+  }
+  html[data-theme='dark'] .fc-art img.fc-art-dark {
+    display: block;
+  }
+  /* All Lenses: deliberate silhouette (no illustration) — LOCKED asymmetry */
+  .fc-art-all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-card);
+  }
+  html[data-theme='dark'] .fc-art-all {
+    background: var(--surface-card);
+  }
+  .fc-silhouette {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: var(--accent-subtle);
+    color: var(--accent);
+  }
+  .fc-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--sp-3) var(--sp-4) var(--sp-4);
+  }
+  .fc-title {
+    font-size: 0.98rem;
+    font-weight: 680;
+    color: var(--ink);
+  }
+  .fc-tag {
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+
+  .grid-title {
+    margin: 0 0 var(--sp-4);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--muted);
+  }
+
+  /* ---------- Lens grid ---------- */
   .lens-grid-overview {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--sp-4);
     align-items: stretch;
   }
+  .lens-grid-overview.is-filtering {
+    animation: filterFade 150ms var(--ease);
+  }
+  @keyframes filterFade {
+    from { opacity: 0.35; }
+    to { opacity: 1; }
+  }
+  /* Pure-CSS filtering: no-JS visitors and crawlers see all 8 (no data-filter). */
+  .lens-grid-overview[data-filter='value-roi'] .lens-card:not([data-category='value-roi']),
+  .lens-grid-overview[data-filter='agents-studio'] .lens-card:not([data-category='agents-studio']),
+  .lens-grid-overview[data-filter='adoption-readiness'] .lens-card:not([data-category='adoption-readiness']) {
+    display: none;
+  }
+
   .lens-card {
     display: flex;
     flex-direction: column;
@@ -122,53 +283,28 @@ const finderHref = `${base}/lens-finder`;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow-1);
-    overflow: hidden;
   }
-  .lc-art {
-    position: relative;
-    display: block;
-    margin: calc(-1 * var(--sp-4)) calc(-1 * var(--sp-4)) 0;
-    aspect-ratio: 836 / 470;
-    overflow: hidden;
-    background: #f9f2e9;
-  }
-  html[data-theme='dark'] .lc-art {
-    background: #0d111a;
-  }
-  .lc-art img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .lc-art img.lc-art-dark {
-    display: none;
-  }
-  html[data-theme='dark'] .lc-art img.lc-art-light {
-    display: none;
-  }
-  html[data-theme='dark'] .lc-art img.lc-art-dark {
-    display: block;
-  }
-  .lc-pill {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 2;
-  }
-  .lc-pill.pill--installed {
-    background: color-mix(in srgb, var(--lens-green) 18%, var(--surface-card));
-  }
-  html[data-theme='dark'] .lc-pill.pill--installed {
-    background: color-mix(in srgb, var(--lens-green) 22%, var(--surface-card));
-  }
-  .lc-title-row {
+  .lc-top {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: var(--sp-2);
+    margin-bottom: var(--sp-1);
   }
-  .lc-title-icon {
+  .lc-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    flex: 0 0 auto;
+  }
+  /* Reuse the shared 24px .tile-icon component, scaled to a 46px circle so the
+     glyph-to-circle ratio and magnifier handle stay identical to the shared mark. */
+  .lc-icon .tile-icon {
+    transform: scale(1.9167);
+  }
+  .lc-pill {
     flex: 0 0 auto;
   }
   .lc-name {
@@ -262,6 +398,17 @@ const finderHref = `${base}/lens-finder`;
     text-decoration: none;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .lens-grid-overview.is-filtering {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .filter-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
   @media (max-width: 900px) {
     .lens-grid-overview {
       grid-template-columns: repeat(2, 1fr);
@@ -269,6 +416,9 @@ const finderHref = `${base}/lens-finder`;
   }
   @media (max-width: 600px) {
     .lens-grid-overview {
+      grid-template-columns: 1fr;
+    }
+    .filter-row {
       grid-template-columns: 1fr;
     }
     .finder-callout {
@@ -279,109 +429,180 @@ const finderHref = `${base}/lens-finder`;
 </style>
 
 <script>
-  const ENDPOINT = 'https://stars.data-analytics.tech';
-  const TIMEOUT = 5000;
-  const grid = document.querySelector('.lens-grid-overview');
-  const base = grid ? grid.getAttribute('data-base') || '' : '';
-  const rows = Array.from(document.querySelectorAll('.star-row'));
-  const key = (id) => 'copilotscope.starred.' + id;
-  const isStarred = (id) => {
-    try {
-      return localStorage.getItem(key(id)) === 'true';
-    } catch (e) {
-      return false;
-    }
+  // ---- Category filter (view-transition safe) ----
+  const CAT_LABEL = {
+    'value-roi': 'Value & ROI',
+    'agents-studio': 'Agents & Studio',
+    'adoption-readiness': 'Adoption & Readiness',
   };
-  const setState = (row, starred) => {
-    const btn = row.querySelector('.star-btn');
-    const glyph = row.querySelector('.star-glyph');
-    const name = btn ? btn.getAttribute('data-name') || 'this lens' : 'this lens';
-    if (btn) {
-      btn.classList.toggle('is-starred', starred);
-      btn.setAttribute('aria-pressed', starred ? 'true' : 'false');
-      btn.setAttribute('aria-label', starred ? 'Remove your star from ' + name : 'Star ' + name);
-    }
-    if (glyph) glyph.textContent = starred ? '\u2605' : '\u2606';
-  };
+  const VALID = ['value-roi', 'agents-studio', 'adoption-readiness'];
 
-  rows.forEach((row) => {
-    setState(row, isStarred(row.getAttribute('data-lens')));
-  });
+  function initFilters() {
+    const grid = document.querySelector('.lens-grid-overview');
+    if (!grid) return;
+    const buttons = Array.from(document.querySelectorAll('.filter-card'));
+    const title = document.getElementById('grid-title');
+    if (!buttons.length) return;
 
-  const fetchJSON = async (url, opts) => {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), TIMEOUT);
-    try {
-      const res = await fetch(url, Object.assign({ signal: ctrl.signal }, opts));
-      if (!res.ok) throw new Error('http ' + res.status);
-      return await res.json();
-    } finally {
-      clearTimeout(timer);
-    }
-  };
-
-  const loadCounts = async () => {
-    try {
-      const j = await fetchJSON(ENDPOINT + '/stars', { method: 'GET' });
-      if (j && j.counts) return j.counts;
-    } catch (e) {}
-    try {
-      const j = await fetchJSON(base + '/config/stars.json', { method: 'GET' });
-      if (j && j.counts) return j.counts;
-    } catch (e) {}
-    return null;
-  };
-
-  (async () => {
-    const counts = await loadCounts();
-    if (!counts) {
-      rows.forEach((row) => {
-        row.style.display = 'none';
+    const apply = (slug, fade) => {
+      const isAll = !slug || slug === 'all' || VALID.indexOf(slug) === -1;
+      const sel = isAll ? 'all' : slug;
+      buttons.forEach((b) => {
+        const on = (b.getAttribute('data-filter') || 'all') === sel;
+        b.classList.toggle('is-selected', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
-      return;
-    }
-    rows.forEach((row) => {
-      const id = row.getAttribute('data-lens');
-      const el = row.querySelector('.star-count');
-      const v = counts[id];
-      if (el) el.textContent = typeof v === 'number' ? String(v) : '';
-    });
-  })();
-
-  rows.forEach((row) => {
-    const id = row.getAttribute('data-lens');
-    const btn = row.querySelector('.star-btn');
-    const el = row.querySelector('.star-count');
-    if (!btn) return;
-    btn.addEventListener('click', async () => {
-      const starred = isStarred(id);
-      const cur = parseInt(el ? el.textContent : '', 10);
-      const base0 = Number.isFinite(cur) ? cur : 0;
-      if (!starred) {
-        if (el) el.textContent = String(base0 + 1);
-        try {
-          localStorage.setItem(key(id), 'true');
-        } catch (e) {}
-        setState(row, true);
-        try {
-          const j = await fetchJSON(ENDPOINT + '/stars/' + id, { method: 'POST' });
-          if (j && typeof j.count === 'number' && el) el.textContent = String(Math.max(0, j.count));
-        } catch (e) {
-          /* keep optimistic increment */
-        }
-      } else {
-        if (el) el.textContent = String(Math.max(0, base0 - 1));
-        try {
-          localStorage.removeItem(key(id));
-        } catch (e) {}
-        setState(row, false);
-        try {
-          const j = await fetchJSON(ENDPOINT + '/stars/' + id, { method: 'DELETE' });
-          if (j && typeof j.count === 'number' && el) el.textContent = String(Math.max(0, j.count));
-        } catch (e) {
-          /* keep optimistic decrement */
+      if (isAll) grid.removeAttribute('data-filter');
+      else grid.setAttribute('data-filter', sel);
+      if (title) {
+        if (isAll) {
+          title.textContent = 'All lenses';
+        } else {
+          const n = grid.querySelectorAll('.lens-card[data-category="' + sel + '"]').length;
+          title.textContent = (CAT_LABEL[sel] || sel) + ' \u00b7 ' + n + (n === 1 ? ' lens' : ' lenses');
         }
       }
+      if (fade) {
+        grid.classList.remove('is-filtering');
+        void grid.offsetWidth;
+        grid.classList.add('is-filtering');
+      }
+    };
+
+    const select = (slug) => {
+      const isAll = !slug || slug === 'all' || VALID.indexOf(slug) === -1;
+      try {
+        if (isAll) history.replaceState(null, '', location.pathname + location.search);
+        else history.replaceState(null, '', '#' + slug);
+      } catch (e) {}
+      apply(slug, true);
+    };
+
+    buttons.forEach((b) => {
+      b.addEventListener('click', () => select(b.getAttribute('data-filter') || 'all'));
     });
-  });
+
+    const hash = (location.hash || '').replace('#', '');
+    apply(VALID.indexOf(hash) !== -1 ? hash : 'all', false);
+  }
+
+  if (!window.__csFiltersBound) {
+    window.__csFiltersBound = true;
+    document.addEventListener('astro:page-load', initFilters);
+  }
+
+  // ---- Stars (view-transition safe; hidden/filtered cards keep their counts) ----
+  function initStars() {
+    const grid = document.querySelector('.lens-grid-overview');
+    if (!grid) return;
+    const ENDPOINT = 'https://stars.data-analytics.tech';
+    const TIMEOUT = 5000;
+    const base = grid.getAttribute('data-base') || '';
+    const rows = Array.from(document.querySelectorAll('.star-row'));
+    const key = (id) => 'copilotscope.starred.' + id;
+    const isStarred = (id) => {
+      try {
+        return localStorage.getItem(key(id)) === 'true';
+      } catch (e) {
+        return false;
+      }
+    };
+    const setState = (row, starred) => {
+      const btn = row.querySelector('.star-btn');
+      const glyph = row.querySelector('.star-glyph');
+      const name = btn ? btn.getAttribute('data-name') || 'this lens' : 'this lens';
+      if (btn) {
+        btn.classList.toggle('is-starred', starred);
+        btn.setAttribute('aria-pressed', starred ? 'true' : 'false');
+        btn.setAttribute('aria-label', starred ? 'Remove your star from ' + name : 'Star ' + name);
+      }
+      if (glyph) glyph.textContent = starred ? '\u2605' : '\u2606';
+    };
+
+    rows.forEach((row) => {
+      setState(row, isStarred(row.getAttribute('data-lens')));
+    });
+
+    const fetchJSON = async (url, opts) => {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), TIMEOUT);
+      try {
+        const res = await fetch(url, Object.assign({ signal: ctrl.signal }, opts));
+        if (!res.ok) throw new Error('http ' + res.status);
+        return await res.json();
+      } finally {
+        clearTimeout(timer);
+      }
+    };
+
+    const loadCounts = async () => {
+      try {
+        const j = await fetchJSON(ENDPOINT + '/stars', { method: 'GET' });
+        if (j && j.counts) return j.counts;
+      } catch (e) {}
+      try {
+        const j = await fetchJSON(base + '/config/stars.json', { method: 'GET' });
+        if (j && j.counts) return j.counts;
+      } catch (e) {}
+      return null;
+    };
+
+    (async () => {
+      const counts = await loadCounts();
+      if (!counts) {
+        rows.forEach((row) => {
+          row.style.display = 'none';
+        });
+        return;
+      }
+      rows.forEach((row) => {
+        const id = row.getAttribute('data-lens');
+        const el = row.querySelector('.star-count');
+        const v = counts[id];
+        if (el) el.textContent = typeof v === 'number' ? String(v) : '';
+      });
+    })();
+
+    rows.forEach((row) => {
+      const id = row.getAttribute('data-lens');
+      const btn = row.querySelector('.star-btn');
+      const el = row.querySelector('.star-count');
+      if (!btn) return;
+      btn.addEventListener('click', async () => {
+        const starred = isStarred(id);
+        const cur = parseInt(el ? el.textContent : '', 10);
+        const base0 = Number.isFinite(cur) ? cur : 0;
+        if (!starred) {
+          if (el) el.textContent = String(base0 + 1);
+          try {
+            localStorage.setItem(key(id), 'true');
+          } catch (e) {}
+          setState(row, true);
+          try {
+            const j = await fetchJSON(ENDPOINT + '/stars/' + id, { method: 'POST' });
+            if (j && typeof j.count === 'number' && el) el.textContent = String(Math.max(0, j.count));
+          } catch (e) {
+            /* keep optimistic increment */
+          }
+        } else {
+          if (el) el.textContent = String(Math.max(0, base0 - 1));
+          try {
+            localStorage.removeItem(key(id));
+          } catch (e) {}
+          setState(row, false);
+          try {
+            const j = await fetchJSON(ENDPOINT + '/stars/' + id, { method: 'DELETE' });
+            if (j && typeof j.count === 'number' && el) el.textContent = String(Math.max(0, j.count));
+          } catch (e) {
+            /* keep optimistic decrement */
+          }
+        }
+      });
+    });
+  }
+
+  if (!window.__csStarsBound) {
+    window.__csStarsBound = true;
+    document.addEventListener('astro:page-load', initStars);
+  }
 </script>

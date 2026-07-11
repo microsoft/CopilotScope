@@ -71,6 +71,11 @@
   /* --- Ambient content background (light) — subtle upper-right glow --- */
   --ambient:
     radial-gradient(1200px 600px at 100% 0%, rgba(0, 120, 212, 0.05), transparent 62%);
+
+  /* --- Top bar brand (mock 3.3a.6) navy #021b3f sampled from logo-mark.png --- */
+  --topbar-brand: #021b3f;
+  --topbar-ink: #f3f6fb;
+  --topbar-muted: #9fb0c9;
 }
 
 html[data-theme="dark"] {
@@ -155,6 +160,15 @@ body {
 
 html[data-theme="light"] body {
   background-color: var(--surface-card);
+}
+
+/* mock 3.3a.6-fix2 Experiment 4: light content gradient - ON BY DEFAULT (no toggle needed).
+   Subtle gray depth lift toward --surface-page at the top-right; the light analog of the dark
+   theme's unconditional --ambient glow. To turn OFF: change this selector back to
+   html.gradtrial[data-theme="light"] body (class-gated) or delete this rule. */
+html[data-theme="light"] body {
+  background-image:
+    radial-gradient(1200px 600px at 100% 0%, rgba(0, 120, 212, 0.12), transparent 60%);
 }
 
 a {

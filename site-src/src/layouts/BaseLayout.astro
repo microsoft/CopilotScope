@@ -29,6 +29,7 @@ type NavLink = {
   external?: boolean;
   rel?: string;
   ariaLabel?: string;
+  utility?: boolean;
 };
 type NavDivider = { divider: true; push?: boolean };
 type NavGroup = { group: string; icon: string; children: NavLink[] };
@@ -56,10 +57,10 @@ const nav: NavEntry[] = [
   { label: 'Lens Finder', href: base + '/lens-finder', icon: 'target' },
   { group: 'Lenses', icon: 'aperture', children: lensNav },
   { divider: true, push: true },
-  { label: "What's New", href: base + '/whats-new', icon: 'sparkle' },
-  { label: 'FAQ & Support', href: base + '/about', icon: 'info' },
-  { label: 'Copilot Analytics Lab', href: 'https://microsoft.github.io/CopilotAnalyticsLabs', icon: 'scatter', external: true, rel: 'noopener noreferrer', ariaLabel: 'Copilot Analytics Lab (opens in new tab)' },
-  { label: 'GitHub', href: repoUrl, icon: 'github', external: true },
+  { label: "What's New", href: base + '/whats-new', icon: 'sparkle', utility: true },
+  { label: 'FAQ & Support', href: base + '/about', icon: 'info', utility: true },
+  { label: 'Copilot Analytics Lab', href: 'https://microsoft.github.io/CopilotAnalyticsLabs', icon: 'scatter', external: true, rel: 'noopener noreferrer', ariaLabel: 'Copilot Analytics Lab (opens in new tab)', utility: true },
+  { label: 'GitHub', href: repoUrl, icon: 'github', external: true, utility: true },
 ];
 
 const isActive = (item: NavLink): boolean => !item.external && strip(item.href) === current;
@@ -176,7 +177,7 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
                 <li>
                   <a
                     href={item.href}
-                    class:list={['rail-link', { active: isActive(item), indent: item.indent }]}
+                    class:list={['rail-link', { active: isActive(item), indent: item.indent, 'rail-link--utility': item.utility }]}
                     data-path={item.external ? undefined : strip(item.href)}
                     target={item.external ? '_blank' : undefined}
                     rel={item.external ? (item.rel ?? 'noopener') : undefined}
@@ -342,7 +343,8 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
         border-bottom: 1px solid var(--border);
       }
       html[data-theme='light'] .topbar {
-        background: var(--surface-page);
+        background: var(--topbar-brand);
+        border-bottom: 1px solid var(--border-strong);
       }
       .topbar-left,
       .topbar-right {
@@ -372,12 +374,22 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
       html[data-theme='dark'] .brand-mark-dark {
         display: block;
       }
+      /* mock 3.3a.6-fix: force white-ink (dark) logo in LIGHT theme (navy bar); dark keeps its normal swap */
+      html[data-theme='light'] .brand-mark-light {
+        display: none;
+      }
+      html[data-theme='light'] .brand-mark-dark {
+        display: block;
+      }
       .brand-name {
         font-size: 22px;
         font-weight: 600;
         letter-spacing: -0.01em;
         color: var(--ink);
         white-space: nowrap;
+      }
+      html[data-theme='light'] .brand-name {
+        color: var(--topbar-ink);
       }
       .topbar-stamp {
         display: inline-flex;
@@ -432,6 +444,11 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
         border: 1px solid var(--border-strong);
         border-radius: 999px;
         cursor: pointer;
+      }
+      /* mock 3.3a.6-fix: clearer oval border on the light-theme toggle against the navy bar */
+      html[data-theme='light'] .theme-toggle {
+        border-color: var(--subtle);
+        border-width: 2px;
       }
       .theme-toggle .tt-glyph {
         position: absolute;
@@ -488,6 +505,8 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
       }
       html[data-theme='light'] .rail {
         background: var(--surface-page);
+        border-right: 1px solid var(--border-strong);
+        box-shadow: inset -12px 0 12px -12px rgba(16, 24, 40, 0.16);
       }
       .rail ul {
         list-style: none;
@@ -556,6 +575,18 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
         margin-left: auto;
         font-size: 12px;
         color: var(--subtle);
+      }
+      /* mock 3.3a.6: rail submenu links lighter than parent nav (weight only) */
+      .rail-sub .rail-link {
+        font-weight: 400;
+      }
+      .rail-sub .rail-link.active {
+        font-weight: 600;
+      }
+      /* 3.3a.6: bottom utility links quiet tier (weight 400 + muted, both themes) */
+      .rail-link--utility {
+        font-weight: 400;
+        color: var(--muted);
       }
 
       .rail-group {
