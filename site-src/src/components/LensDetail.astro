@@ -85,19 +85,22 @@ const modalDescId = `fb-desc-${id}`;
   <div class="ld-marketing" data-ld-marketing>
     <div class="ld-layout">
       <div class="ld-main">
-        <div class="ld-hero" id="ld-top">
-          <img class="ld-hero-img ld-hero-light" src={heroLight} alt="" />
-          <img class="ld-hero-img ld-hero-dark" src={heroDark} alt="" />
-        </div>
-        <header class="ld-title">
-          <div class="ld-title-top">
-            <h1>{name}</h1>
-            <span class:list={['pill', `pill--${status}`]}>{statusLabel}</span>
+        <div class="ld-header-row">
+          <div class="ld-hero" id="ld-top">
+            <img class="ld-hero-img ld-hero-light" src={heroLight} alt="" />
+            <img class="ld-hero-img ld-hero-dark" src={heroDark} alt="" />
           </div>
-          <p class="ld-cat">{category}</p>
-        </header>
-
-        <p class="ld-intro">{detail.heroIntro}</p>
+          <div class="ld-header-text">
+            <header class="ld-title">
+              <div class="ld-title-top">
+                <h1>{name}</h1>
+                <span class:list={['pill', `pill--${status}`]}>{statusLabel}</span>
+              </div>
+              <p class="ld-cat">{category}</p>
+            </header>
+            <p class="ld-intro">{detail.heroIntro}</p>
+          </div>
+        </div>
 
         <section class="ld-card" id="what-it-shows">
           <div class="ld-card-head">
@@ -294,9 +297,14 @@ const modalDescId = `fb-desc-${id}`;
   .ld-empty-actions { display: inline-flex; align-items: center; gap: var(--sp-4); flex-wrap: wrap; justify-content: center; margin-top: var(--sp-3); }
 
   /* ---------- Hero ---------- */
+  .ld-header-row {
+    display: flex; align-items: flex-start; gap: var(--sp-5);
+    margin-bottom: var(--sp-5);
+  }
+  .ld-header-text { flex: 1 1 auto; min-width: 0; }
   .ld-hero {
-    position: relative; width: 100%; aspect-ratio: 1672 / 941;
-    margin-bottom: var(--sp-5); border-radius: var(--radius);
+    position: relative; flex: 0 0 auto; width: 300px; aspect-ratio: 1672 / 826;
+    border-radius: var(--radius);
     overflow: hidden; background: #f9f2e9;
   }
   html[data-theme='dark'] .ld-hero { background: #0d111a; }
@@ -320,7 +328,7 @@ const modalDescId = `fb-desc-${id}`;
     margin: var(--sp-2) 0 0; font-size: 0.8rem; font-weight: 600;
     letter-spacing: 0.06em; text-transform: uppercase; color: var(--subtle);
   }
-  .ld-intro { font-size: 1.15rem; line-height: 1.55; color: var(--ink); margin: var(--sp-4) 0 var(--sp-5); }
+  .ld-intro { font-size: 1.15rem; line-height: 1.55; color: var(--ink); margin: var(--sp-3) 0 0; }
 
   /* ---------- Section cards ---------- */
   .ld-card {
@@ -491,5 +499,7 @@ const modalDescId = `fb-desc-${id}`;
   }
   @media (max-width: 640px) {
     .ld-strip { align-items: flex-start; }
+    .ld-header-row { flex-direction: column; }
+    .ld-hero { width: 100%; max-width: 360px; }
   }
 </style>
