@@ -45,8 +45,8 @@ const modalDescId = `fb-desc-${id}`;
 ---
 
 <article class="lens-detail" data-lens={id} data-status={status}>
-  {isInstalled && (
-    <div class="ld-strip" data-ld-strip hidden>
+  {!isComingSoon && (
+    <div class="ld-strip" data-ld-strip hidden={isInstalled}>
       <span class="ld-strip-id">
         <span class="tile-icon ld-strip-icon" style={`--tile-c: var(--${color}); background: var(--tile-c)`} aria-hidden="true"></span>
         <span class="ld-strip-name">{name}</span>
@@ -57,7 +57,9 @@ const modalDescId = `fb-desc-${id}`;
           <button class="star-btn" type="button" data-lens={id} data-name={name} aria-label={`Star ${name}`} aria-pressed="false"><span class="star-glyph" aria-hidden="true">&#9734;</span></button>
           <span class="star-count" data-lens={id} aria-live="polite">&#8212;</span>
         </span>
-        <button class="ld-about-tab" type="button" data-ld-toggle aria-pressed="false">About this lens</button>
+        {isInstalled && (
+          <button class="ld-about-tab" type="button" data-ld-toggle aria-pressed="false">About this lens</button>
+        )}
       </span>
     </div>
   )}
@@ -98,9 +100,9 @@ const modalDescId = `fb-desc-${id}`;
               </div>
               <p class="ld-cat">{category}</p>
             </header>
-            <p class="ld-intro">{detail.heroIntro}</p>
           </div>
         </div>
+        <p class="ld-intro">{detail.heroIntro}</p>
 
         <section class="ld-card" id="what-it-shows">
           <div class="ld-card-head">
@@ -299,16 +301,16 @@ const modalDescId = `fb-desc-${id}`;
   /* ---------- Hero ---------- */
   .ld-header-row {
     display: flex; align-items: flex-start; gap: var(--sp-5);
-    margin-bottom: var(--sp-5);
+    margin-bottom: var(--sp-4);
   }
   .ld-header-text { flex: 1 1 auto; min-width: 0; }
   .ld-hero {
-    position: relative; flex: 0 0 auto; width: 300px; aspect-ratio: 1672 / 826;
+    position: relative; flex: 0 0 auto; width: 300px; aspect-ratio: 1672 / 941;
     border-radius: var(--radius);
     overflow: hidden; background: #f9f2e9;
   }
   html[data-theme='dark'] .ld-hero { background: #0d111a; }
-  .ld-hero-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .ld-hero-img { display: block; width: 100%; height: 100%; object-fit: contain; }
   .ld-hero-img.ld-hero-dark { display: none; }
   html[data-theme='dark'] .ld-hero-img.ld-hero-light { display: none; }
   html[data-theme='dark'] .ld-hero-img.ld-hero-dark { display: block; }
@@ -328,7 +330,7 @@ const modalDescId = `fb-desc-${id}`;
     margin: var(--sp-2) 0 0; font-size: 0.8rem; font-weight: 600;
     letter-spacing: 0.06em; text-transform: uppercase; color: var(--subtle);
   }
-  .ld-intro { font-size: 1.15rem; line-height: 1.55; color: var(--ink); margin: var(--sp-3) 0 0; }
+  .ld-intro { font-size: 1.15rem; line-height: 1.55; color: var(--ink); margin: 0 0 var(--sp-5); padding: 0 calc(var(--sp-5) + 1px); }
 
   /* ---------- Section cards ---------- */
   .ld-card {
