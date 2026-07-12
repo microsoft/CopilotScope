@@ -1,0 +1,113 @@
+---
+lens: studiolens
+title: "Dataverse (Direct) setup guide"
+description: "Stand up StudioLens on the Dataverse (Direct) path: set the two required inputs, connect over the Dataverse Web API with an Organizational account, handle multiple environments, and verify with the Dataverse Diagnostic table."
+status: published
+sourceFiles:
+  - "lenses/StudioLens/deployment/1. Dataverse (Direct)/README.md"
+  - "lenses/StudioLens/deployment/1. Dataverse (Direct)/StudioLens - Dataverse.pbit"
+  - "lenses/StudioLens/deployment/1. Dataverse (Direct)/model_expressions_reference.tmdl"
+---
+
+import ScreenshotPlaceholder from '../../../../components/ScreenshotPlaceholder.astro';
+
+The Dataverse (Direct) build parses Copilot Studio conversation transcripts **live in the Power BI
+model** — no infrastructure to stand up. The template is pre-set to Dataverse, so you supply two
+inputs, sign in, and refresh.
+
+## 1. Set the two required inputs
+
+The template is pre-set to Dataverse — the **Source Mode** parameter defaults to `Dataverse`. You
+set **two** required inputs:
+
+<div class="table-scroll">
+
+| Input | What it is |
+|---|---|
+| **Dataverse Url** | Your Dataverse environment URL. Accepts several URLs separated by `;` for multi-environment. |
+| **Org Data CSV** | A CSV of user and department context for the report's breakdowns. |
+
+</div>
+
+There is no "Agent 365 CSV" input on this build. (Transcript CSV Path exists in the model as an
+alternate/shared-model expression, but it is **not** a required startup input for the Direct path.)
+
+<ScreenshotPlaceholder
+  id="SL-DIRECT-001"
+  description="Capture the StudioLens - Dataverse template's Edit Parameters dialog using synthetic values. Show the Dataverse Url and Org Data CSV inputs; exclude real environment URLs, tenant names, file paths that reveal identities, credentials, secrets, and customer records."
+  alt="StudioLens Dataverse template parameters with synthetic Dataverse Url and Org Data CSV values."
+/>
+
+## 2. How the model reads Dataverse
+
+The model reads Dataverse through **`OData.Feed`** against the Dataverse **Web API** at
+`/api/data/v9.2/` (built from your Dataverse Url). It does **not** use the native Dataverse connector.
+
+## 3. Authenticate
+
+On the first refresh, choose **Organizational account** and sign in with an org login that can
+**Read the Conversation Transcript table**. Set the source **privacy level** to **Organizational**.
+This path uses **no app registration and no client secret**.
+
+<ScreenshotPlaceholder
+  id="SL-DIRECT-002"
+  description="Capture the Power BI data source sign-in showing Organizational account selected and the privacy level set to Organizational, using a synthetic account. Exclude real usernames, tenant names, environment URLs, credentials, and secrets."
+  alt="StudioLens Dataverse Organizational-account sign-in with Organizational privacy level."
+/>
+
+## 4. Multiple environments
+
+The **Dataverse Url** accepts several environment URLs separated by `;`. The model pulls
+`conversationtranscripts` from each environment — each fetched inside a `try ... otherwise` so an
+unreachable environment is **skipped, not fatal** — tags each row with its `environment`, and unions
+them.
+
+In the Service, configure **per-environment credentials** under **Settings – Data source
+credentials**, and keep privacy levels **consistent** (all Organizational). If privacy levels differ,
+Power Query's `Formula.Firewall` may block combining the sources.
+
+## 5. Org Data CSV — path options
+
+The **Org Data CSV** can live in several places; the connector and gateway needs differ:
+
+<div class="table-scroll">
+
+| Org Data CSV location | Connector | Gateway |
+|---|---|---|
+| SharePoint file URL | `Web.Contents` | None (cloud-to-cloud) |
+| Local / synced path | `File.Contents` | On-premises data gateway required |
+| UNC path | `File.Contents` | Gateway required |
+
+</div>
+
+## 6. What the parser produces
+
+The Direct model's M functions parse the raw transcripts into the transcript tables:
+
+<div class="table-scroll">
+
+| M function | Output table |
+|---|---|
+| `RawTranscripts()` | Raw transcripts |
+| `ParsedBase()` | Parsed activities |
+| `Parse_Sessions()` | Agent Sessions |
+| `Parse_Turns()` | Agent Turns |
+| `Parse_Errors()` | Agent Errors |
+| `Parse_SubAgents()` | Agent Sub-Agent Calls |
+| `Parse_Performance()` | Agent Performance |
+
+</div>
+
+The **Agent Catalogue** self-derives from the parsed transcripts.
+
+## 7. Verify the connection
+
+The built-in **Dataverse Diagnostic** table returns live row counts of `conversationtranscripts` and
+`systemusers`. If `conversationtranscripts` is `0` but `systemusers` is greater than `0`, the
+connection is fine — the environment simply has no transcripts in scope.
+
+## Note on credits
+
+Message-credit / consumption analysis is **not** part of the Dataverse (Direct) build. The PPAC
+message-credit pages are available on the
+**[Fabric path](/lenses/studiolens/docs/setup/fabric)** only.

@@ -1,13 +1,149 @@
 {
   "schemaVersion": 1,
-  "count": 25,
+  "count": 42,
   "placeholders": [
+    {
+      "id": "SL-DIRECT-001",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/setup/dataverse-direct/",
+      "description": "Capture the StudioLens - Dataverse template's Edit Parameters dialog using synthetic values. Show the Dataverse Url and Org Data CSV inputs; exclude real environment URLs, tenant names, file paths that reveal identities, credentials, secrets, and customer records.",
+      "proposedAlt": "StudioLens Dataverse template parameters with synthetic Dataverse Url and Org Data CSV values.",
+      "status": "needed"
+    },
+    {
+      "id": "SL-DIRECT-002",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/setup/dataverse-direct/",
+      "description": "Capture the Power BI data source sign-in showing Organizational account selected and the privacy level set to Organizational, using a synthetic account. Exclude real usernames, tenant names, environment URLs, credentials, and secrets.",
+      "proposedAlt": "StudioLens Dataverse Organizational-account sign-in with Organizational privacy level.",
+      "status": "needed"
+    },
+    {
+      "id": "SL-FABRIC-001",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/setup/fabric/",
+      "description": "Capture the Fabric Lakehouse explorer after the StudioLens core notebooks have run, with the notebook CONFIG cell visible using synthetic values. Show the agent_* and credit_consumption_* tables; exclude workspace names, lakehouse names, tenant identifiers, environment URLs, secrets, and customer records.",
+      "proposedAlt": "Fabric Lakehouse with StudioLens transcript and credit tables after the core notebooks run.",
+      "status": "needed"
+    },
+    {
+      "id": "SL-FABRIC-002",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/setup/fabric/",
+      "description": "Capture the StudioLens - Fabric template's Edit Parameters dialog using synthetic values. Show Fabric SQL Endpoint, Lakehouse Name, Enable_Dataverse = Include, and Enable_Consumption = Include; exclude real endpoints, workspace names, tenant identifiers, credentials, and secrets.",
+      "proposedAlt": "StudioLens Fabric template parameters with Enable_Dataverse and Enable_Consumption set to Include.",
+      "status": "needed"
+    },
     {
       "id": "SL-OVERVIEW-001",
       "lens": "studiolens",
       "pageUrl": "/lenses/studiolens/docs/",
-      "description": "Capture the StudioLens report overview using anonymized sample data. Include the full Power BI report canvas with agent performance summary metrics and visible page navigation; exclude browser chrome, environment names, transcripts, and personal data.",
+      "description": "Capture the StudioLens report overview using anonymized sample data. Include the full Power BI report canvas with agent performance summary metrics and visible page navigation; exclude browser chrome, environment URLs, tenant names, transcript text, user identities, credentials, and customer records.",
       "proposedAlt": "StudioLens agent performance overview with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "SL-PAGE-001",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/page-reference/",
+      "description": "Capture the Studio: Quality & Performance page using anonymized sample data. Show the resolution, containment, abandonment, and escalation metrics; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records.",
+      "proposedAlt": "StudioLens Quality & Performance page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "SL-PAGE-002",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/page-reference/",
+      "description": "Capture the Studio: Conversation Flow & Quality page using anonymized sample data. Show the turn-level flow and quality signals; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records.",
+      "proposedAlt": "StudioLens Conversation Flow & Quality page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "SL-PAGE-003",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/page-reference/",
+      "description": "Capture the Studio: Value & Impact page using anonymized sample data. Show the value and impact metrics; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records.",
+      "proposedAlt": "StudioLens Value & Impact page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "SL-PAGE-004",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/page-reference/",
+      "description": "Capture the Studio: Topic Explorer page using anonymized sample data. Show the topic breakdown and outcomes; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records.",
+      "proposedAlt": "StudioLens Topic Explorer page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "SL-PAGE-005",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/page-reference/",
+      "description": "Capture the Studio: Knowledge Files page using anonymized sample data. Show knowledge-file usage; exclude file names that reveal identities, environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records.",
+      "proposedAlt": "StudioLens Knowledge Files page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "SL-PAGE-006",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/page-reference/",
+      "description": "Capture the Studio: Error Analysis page using anonymized sample data. Show the error breakdown; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records.",
+      "proposedAlt": "StudioLens Error Analysis page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "SL-PAGE-007",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/page-reference/",
+      "description": "Capture the Studio: Feedback & CSAT page using anonymized sample data. Show the feedback and CSAT signal; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records.",
+      "proposedAlt": "StudioLens Feedback & CSAT page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "SL-PAGE-008",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/page-reference/",
+      "description": "Capture the Studio: Credit Consumption page using anonymized sample data. Show the message-credit consumption metrics; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records.",
+      "proposedAlt": "StudioLens Credit Consumption page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "SL-PAGE-009",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/page-reference/",
+      "description": "Capture the Studio: User Feedback page using anonymized sample data. Show the user feedback signal; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records.",
+      "proposedAlt": "StudioLens User Feedback page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "SL-PAGE-010",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/page-reference/",
+      "description": "Capture the Appendix: Glossary page using anonymized sample data. Show the metric and term definitions; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records.",
+      "proposedAlt": "StudioLens Glossary appendix page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "SL-PAGE-011",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/page-reference/",
+      "description": "Capture the Appendix: Impact Table page using anonymized sample data. Show the impact appendix table; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records.",
+      "proposedAlt": "StudioLens Impact Table appendix page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "SL-PAGE-012",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/page-reference/",
+      "description": "Capture the Appendix: Key Concepts page using anonymized sample data. Show the concept and reference material; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records.",
+      "proposedAlt": "StudioLens Key Concepts appendix page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "SL-PAGE-013",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/page-reference/",
+      "description": "Capture the Appendix: Signal - Impact Table page using anonymized sample data. Show the signal and impact appendix table; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records.",
+      "proposedAlt": "StudioLens Signal - Impact Table appendix page with anonymized sample data.",
       "status": "needed"
     },
     {

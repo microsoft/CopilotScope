@@ -1,17 +1,92 @@
 ---
 lens: studiolens
 title: "Overview & concepts"
-description: "Documentation for StudioLens is in build and coming soon."
-status: scaffold
-sourceFiles: []
+description: "What StudioLens evaluates for Copilot Studio agents: quality, performance, topics, knowledge, errors, feedback, and message credits, across the Dataverse Direct and Fabric builds, with the compliance disclaimer."
+status: published
+sourceFiles:
+  - "lenses/StudioLens/STUDIOLENS.md"
+  - "lenses/StudioLens/docs/STUDIOLENS-STANDALONE-README.md"
 ---
 
 import ScreenshotPlaceholder from '../../../components/ScreenshotPlaceholder.astro';
 
-Full in-app documentation for StudioLens is in build and coming soon. In the meantime, the lens page has everything you need to download the template and get started.
+StudioLens is the deep Copilot Studio agent-evaluation lens. It reads your agents' conversation
+transcripts from Dataverse and turns them into quality, performance, topic, knowledge, error,
+feedback, and message-credit analytics in one Power BI template — the answers to how your custom
+agents are used, how they perform, and where they need attention.
+
+## What StudioLens evaluates
+
+- **Quality & performance** — resolution, containment, abandonment, and escalation across sessions.
+- **Conversation flow** — sessions, turns, and sub-agent calls, and where conversations break down.
+- **Topics** — what users actually ask, and which topics resolve or struggle.
+- **Knowledge files** — which knowledge sources agents actually draw on.
+- **Errors** — where and why agent turns fail.
+- **User feedback** — signal from the people talking to your agents.
+- **Message credits** — Copilot Studio message-credit consumption, for the cost side (Fabric path).
+
+## The transcript model
+
+StudioLens is built on one transcript-analysis model. It parses raw Copilot Studio conversation
+transcripts into a consistent set of tables:
+
+<div class="table-scroll">
+
+| Table | What it holds |
+|---|---|
+| Agent Sessions | One row per conversation session. |
+| Agent Turns | One row per user/agent turn within a session. |
+| Agent Errors | Error events raised during turns. |
+| Agent Sub-Agent Calls | Calls an agent makes to sub-agents. |
+| Agent Performance | Latency and performance signals per turn and session. |
+| Agent Catalogue | The set of agents seen in the transcripts. |
+
+</div>
+
+## Two builds of one template
+
+StudioLens ships as **two builds of the same template** that share the transcript-analysis model but
+differ in how data gets in and which pages are available:
+
+- **Dataverse (Direct)** — parses transcripts live in the Power BI model. Open the template, set the
+  two required inputs, and refresh; nothing else to stand up.
+- **Fabric** — lands transcripts and message-credit consumption as Delta tables in a Lakehouse for
+  scheduled ingestion, larger volumes, longer history, and the PPAC message-credit pages.
+
+The two builds share the transcript-analysis model but differ in **page availability and data
+plumbing** — they are not page-for-page identical. See
+[Choose your deployment path](/lenses/studiolens/docs/choose-deployment-path) for the full comparison.
+
+## Retention: why Fabric for history
+
+Dataverse retains Copilot Studio conversation transcripts for approximately **30 days**. The
+Dataverse (Direct) build is ideal for live, recent analysis inside that window; the **Fabric** build
+is the answer for historical analysis at scale, because it lands transcripts into a Lakehouse before
+the Dataverse retention window closes.
 
 <ScreenshotPlaceholder
   id="SL-OVERVIEW-001"
-  description="Capture the StudioLens report overview using anonymized sample data. Include the full Power BI report canvas with agent performance summary metrics and visible page navigation; exclude browser chrome, environment names, transcripts, and personal data."
+  description="Capture the StudioLens report overview using anonymized sample data. Include the full Power BI report canvas with agent performance summary metrics and visible page navigation; exclude browser chrome, environment URLs, tenant names, transcript text, user identities, credentials, and customer records."
   alt="StudioLens agent performance overview with anonymized sample data."
 />
+
+## Privacy posture
+
+StudioLens reads Copilot Studio conversation transcripts from **Dataverse**. Those transcripts can
+contain the actual text of user and agent messages, so treat the report as sensitive:
+
+- Use **anonymized or synthetic** values in any screenshots, samples, or shared captures.
+- Exclude environment URLs, tenant names, user identities, transcript text, credentials, and secrets
+  from anything you share.
+- Microsoft has **no visibility** into the data you load into the template and no control over how it
+  is used.
+
+## Usage & compliance disclaimer
+
+<div class="vl-disclaimer">
+
+While this tool helps customers understand the business value of their AI usage data, Microsoft has **no visibility** into the data customers input, nor control over how the template is used. Customers are solely responsible for ensuring their use complies with all applicable laws and regulations (including data privacy and security). **Microsoft disclaims all liability** arising from use of this template.
+
+This is an **experimental** template that reads Copilot Studio conversation transcripts from Dataverse. Transcripts are intended to give visibility into agent interactions, not to serve as the sole source of truth for licensing or full-fidelity reporting. Not supported through Microsoft support channels — please open an issue in this repo.
+
+</div>

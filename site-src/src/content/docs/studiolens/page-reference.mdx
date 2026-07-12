@@ -1,0 +1,197 @@
+---
+lens: studiolens
+title: "Page reference"
+description: "The StudioLens page inventory for both builds: the Dataverse (Direct) 9 visible plus 2 hidden pages and the Fabric 11 visible pages, with the differing page labels called out."
+status: published
+sourceFiles:
+  - "lenses/StudioLens/deployment/1. Dataverse (Direct)/StudioLens - Dataverse.pbit"
+  - "lenses/StudioLens/deployment/2. Fabric/StudioLens - Fabric.pbit"
+---
+
+import ScreenshotPlaceholder from '../../../components/ScreenshotPlaceholder.astro';
+
+StudioLens is two builds of one template, and their page inventories differ. This reference lists the
+pages in each build in order, calls out the two **hidden** Dataverse (Direct) pages, and preserves the
+differing page labels between the builds.
+
+## Dataverse (Direct) — 9 visible + 2 hidden
+
+<div class="table-scroll">
+
+| # | Page | Visibility |
+|---|---|---|
+| 1 | Studio: Quality & Performance | Visible |
+| 2 | Studio: Conversation Flow & Quality | Visible |
+| 3 | Studio: Value & Impact | Visible |
+| 4 | Studio: Topic Explorer | Visible |
+| 5 | Studio: Knowledge Files | Visible |
+| 6 | Studio: Error Analysis | Visible |
+| 7 | Studio: Feedback & CSAT | Visible |
+| 8 | Appendix: Glossary | Visible |
+| 9 | Appendix: Impact Table | Visible |
+| — | Studio: Credit Consumption | **Hidden in view mode** |
+| — | Appendix: Studio: Transcript Explorer | **Hidden in view mode** |
+
+</div>
+
+### Studio: Quality & Performance
+
+Resolution, containment, abandonment, and escalation across agent sessions and turns.
+
+<ScreenshotPlaceholder
+  id="SL-PAGE-001"
+  description="Capture the Studio: Quality & Performance page using anonymized sample data. Show the resolution, containment, abandonment, and escalation metrics; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records."
+  alt="StudioLens Quality & Performance page with anonymized sample data."
+/>
+
+### Studio: Conversation Flow & Quality
+
+How conversations progress turn by turn, and where they succeed or break down.
+
+<ScreenshotPlaceholder
+  id="SL-PAGE-002"
+  description="Capture the Studio: Conversation Flow & Quality page using anonymized sample data. Show the turn-level flow and quality signals; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records."
+  alt="StudioLens Conversation Flow & Quality page with anonymized sample data."
+/>
+
+### Studio: Value & Impact
+
+The value and impact view for agent activity.
+
+<ScreenshotPlaceholder
+  id="SL-PAGE-003"
+  description="Capture the Studio: Value & Impact page using anonymized sample data. Show the value and impact metrics; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records."
+  alt="StudioLens Value & Impact page with anonymized sample data."
+/>
+
+### Studio: Topic Explorer
+
+What users actually ask, and which topics resolve or struggle.
+
+<ScreenshotPlaceholder
+  id="SL-PAGE-004"
+  description="Capture the Studio: Topic Explorer page using anonymized sample data. Show the topic breakdown and outcomes; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records."
+  alt="StudioLens Topic Explorer page with anonymized sample data."
+/>
+
+### Studio: Knowledge Files
+
+Which knowledge files agents actually draw on.
+
+<ScreenshotPlaceholder
+  id="SL-PAGE-005"
+  description="Capture the Studio: Knowledge Files page using anonymized sample data. Show knowledge-file usage; exclude file names that reveal identities, environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records."
+  alt="StudioLens Knowledge Files page with anonymized sample data."
+/>
+
+### Studio: Error Analysis
+
+Where and why agent turns fail.
+
+<ScreenshotPlaceholder
+  id="SL-PAGE-006"
+  description="Capture the Studio: Error Analysis page using anonymized sample data. Show the error breakdown; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records."
+  alt="StudioLens Error Analysis page with anonymized sample data."
+/>
+
+### Studio: Feedback & CSAT (Dataverse label)
+
+User feedback and CSAT signal on the Dataverse (Direct) build. (The Fabric build labels the
+equivalent page **User Feedback**.)
+
+<ScreenshotPlaceholder
+  id="SL-PAGE-007"
+  description="Capture the Studio: Feedback & CSAT page using anonymized sample data. Show the feedback and CSAT signal; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records."
+  alt="StudioLens Feedback & CSAT page with anonymized sample data."
+/>
+
+### Appendix: Glossary
+
+Metric and term definitions for the report. (Shared across both builds.)
+
+<ScreenshotPlaceholder
+  id="SL-PAGE-010"
+  description="Capture the Appendix: Glossary page using anonymized sample data. Show the metric and term definitions; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records."
+  alt="StudioLens Glossary appendix page with anonymized sample data."
+/>
+
+### Appendix: Impact Table (Dataverse label)
+
+The impact appendix table on the Dataverse (Direct) build. (The Fabric build labels the equivalent
+page **Signal - Impact Table**.)
+
+<ScreenshotPlaceholder
+  id="SL-PAGE-011"
+  description="Capture the Appendix: Impact Table page using anonymized sample data. Show the impact appendix table; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records."
+  alt="StudioLens Impact Table appendix page with anonymized sample data."
+/>
+
+The two remaining pages — **Studio: Credit Consumption** and **Appendix: Studio: Transcript
+Explorer** — ship **hidden in view mode** on the Dataverse (Direct) build and are not available to
+ordinary report users.
+
+## Fabric — 11 visible
+
+<div class="table-scroll">
+
+| # | Page | Visibility |
+|---|---|---|
+| 1 | Studio: Quality & Performance | Visible |
+| 2 | Studio: Value & Impact | Visible |
+| 3 | Studio: Topic Explorer | Visible |
+| 4 | Studio: Conversation Flow & Quality | Visible |
+| 5 | Studio: Knowledge Files | Visible |
+| 6 | Studio: Error Analysis | Visible |
+| 7 | Studio: Credit Consumption | Visible |
+| 8 | Studio: User Feedback | Visible |
+| 9 | Appendix: Key Concepts | Visible |
+| 10 | Appendix: Glossary | Visible |
+| 11 | Appendix: Signal - Impact Table | Visible |
+
+</div>
+
+The Fabric build's shared pages — Quality & Performance, Value & Impact, Topic Explorer,
+Conversation Flow & Quality, Knowledge Files, Error Analysis, and Glossary — carry the captures
+above. The pages below are unique to (or relabelled on) the Fabric build.
+
+### Studio: Credit Consumption
+
+PPAC message-credit consumption — the cost side of the story. This page is **Fabric-only**.
+
+<ScreenshotPlaceholder
+  id="SL-PAGE-008"
+  description="Capture the Studio: Credit Consumption page using anonymized sample data. Show the message-credit consumption metrics; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records."
+  alt="StudioLens Credit Consumption page with anonymized sample data."
+/>
+
+### Studio: User Feedback (Fabric label)
+
+User feedback on the Fabric build. (The Dataverse build labels the equivalent page **Feedback &
+CSAT**.)
+
+<ScreenshotPlaceholder
+  id="SL-PAGE-009"
+  description="Capture the Studio: User Feedback page using anonymized sample data. Show the user feedback signal; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records."
+  alt="StudioLens User Feedback page with anonymized sample data."
+/>
+
+### Appendix: Key Concepts (Fabric only)
+
+Concept and reference material for the Fabric build.
+
+<ScreenshotPlaceholder
+  id="SL-PAGE-012"
+  description="Capture the Appendix: Key Concepts page using anonymized sample data. Show the concept and reference material; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records."
+  alt="StudioLens Key Concepts appendix page with anonymized sample data."
+/>
+
+### Appendix: Signal - Impact Table (Fabric label)
+
+The signal and impact appendix table on the Fabric build. (The Dataverse build labels the equivalent
+page **Impact Table**.)
+
+<ScreenshotPlaceholder
+  id="SL-PAGE-013"
+  description="Capture the Appendix: Signal - Impact Table page using anonymized sample data. Show the signal and impact appendix table; exclude environment URLs, tenant names, transcript text, user identities, credentials, secrets, and customer records."
+  alt="StudioLens Signal - Impact Table appendix page with anonymized sample data."
+/>

@@ -1,0 +1,99 @@
+---
+lens: studiolens
+title: "Fabric setup guide"
+description: "Stand up StudioLens on Fabric: create a Lakehouse, grant the permissions, run the core transcript and credit notebooks, connect the template with Enable_Dataverse and Enable_Consumption, and schedule the refresh."
+status: published
+sourceFiles:
+  - "lenses/StudioLens/deployment/2. Fabric/README.md"
+  - "lenses/StudioLens/deployment/2. Fabric/StudioLens - Fabric.pbit"
+  - "lenses/StudioLens/deployment/2. Fabric/notebooks/Copilot_Agent_Transcript_Parser.ipynb"
+  - "lenses/StudioLens/deployment/2. Fabric/notebooks/Copilot_Credit_Consumption_Ingester.ipynb"
+---
+
+import ScreenshotPlaceholder from '../../../../components/ScreenshotPlaceholder.astro';
+
+The Fabric build lands Copilot Studio transcripts and message-credit consumption as **Delta tables in
+a Lakehouse** for scheduled ingestion, larger volumes, longer history, and the PPAC message-credit
+pages. Notebooks do the parsing in Spark; the Power BI template is a thin client over the Lakehouse
+SQL endpoint.
+
+## 1. Create a Lakehouse
+
+In a Fabric workspace on a capacity (**F2+ or trial**): create a **Lakehouse** and note its **SQL
+endpoint** (`<workspace-guid>.datawarehouse.fabric.microsoft.com`) and the **Lakehouse Name**.
+
+## 2. Permissions
+
+Register an **Entra app** with **Microsoft Graph application** permissions (admin-consented), and
+grant environment access per notebook:
+
+<div class="table-scroll">
+
+| For | Permission |
+|---|---|
+| Transcript parser | **Dataverse Read on ConversationTranscript** (System Customizer / Environment Maker) |
+| Credit consumption | **Global or Billing Administrator** to export PPAC MCSMessages reports |
+| Agent 365 registry (optional) | `CopilotPackages.Read.All` + `Application.Read.All` |
+
+</div>
+
+## 3. Run the core notebooks
+
+Import each notebook, **attach and pin** the Lakehouse as default, fill the `# === CONFIG ===` cell,
+and run:
+
+<div class="table-scroll">
+
+| Notebook | Output tables (`dbo`) |
+|---|---|
+| `Copilot_Agent_Transcript_Parser.ipynb` | `agent_sessions`, `agent_turns`, `agent_errors`, `agent_subagents`, `agent_catalogue`, `agent_performance` |
+| `Copilot_Credit_Consumption_Ingester.ipynb` | `credit_consumption_tenant`, `credit_consumption_agent`, `credit_consumption_user` |
+
+</div>
+
+Org data is optional (`copilot_org_data`) for department slicing.
+
+<ScreenshotPlaceholder
+  id="SL-FABRIC-001"
+  description="Capture the Fabric Lakehouse explorer after the StudioLens core notebooks have run, with the notebook CONFIG cell visible using synthetic values. Show the agent_* and credit_consumption_* tables; exclude workspace names, lakehouse names, tenant identifiers, environment URLs, secrets, and customer records."
+  alt="Fabric Lakehouse with StudioLens transcript and credit tables after the core notebooks run."
+/>
+
+> **Optional preview only.** `Copilot_Agent365_Registry_Ingester_PREVIEW.ipynb` writes
+> `dbo.agent365_catalog`, which is **not** the `agents_365` table the current model reads. It is
+> optional preview/reference material — it is **not** part of the core Fabric run and does **not**
+> power the current report. Do not run it as part of normal setup.
+
+## 4. Handle secrets
+
+Keep the app's **client secret in Azure Key Vault** and reference it via **`notebookutils`** rather
+than hardcoding it. Use synthetic placeholders only — never commit real tenant IDs, environment
+URLs, or secrets.
+
+## 5. Connect the template
+
+Open `StudioLens - Fabric.pbit` and set:
+
+<div class="table-scroll">
+
+| Parameter | Value |
+|---|---|
+| **Fabric SQL Endpoint** | `<workspace-guid>.datawarehouse.fabric.microsoft.com` |
+| **Lakehouse Name** | Your Lakehouse name |
+| **`Enable_Dataverse`** | `Include` (agent pages) |
+| **`Enable_Consumption`** | `Include` (Credit Consumption page) |
+
+</div>
+
+The correct toggles are **`Enable_Dataverse`** and **`Enable_Consumption`**. Click **Load**, then **Publish**.
+
+<ScreenshotPlaceholder
+  id="SL-FABRIC-002"
+  description="Capture the StudioLens - Fabric template's Edit Parameters dialog using synthetic values. Show Fabric SQL Endpoint, Lakehouse Name, Enable_Dataverse = Include, and Enable_Consumption = Include; exclude real endpoints, workspace names, tenant identifiers, credentials, and secrets."
+  alt="StudioLens Fabric template parameters with Enable_Dataverse and Enable_Consumption set to Include."
+/>
+
+## 6. Schedule the refresh
+
+Schedule the notebooks (or a Fabric **pipeline**) to run on a cadence, then enable dataset
+**Scheduled refresh** in the Service so the report tracks new transcripts and credit data.
