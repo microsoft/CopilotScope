@@ -107,8 +107,8 @@
         "label": "deployment paths"
       },
       {
-        "value": "8+",
-        "label": "research sources behind the value model"
+        "value": "Published",
+        "label": "time-baseline research"
       }
     ],
     "whatItShowsLead": "Every Copilot interaction is classified into an AI Task, mapped to a research-sourced time baseline, and turned into hours saved and assisted value.",

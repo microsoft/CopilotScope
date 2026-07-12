@@ -195,30 +195,40 @@ const modalDescId = `fb-desc-${id}`;
         <section class="ld-card" id="data-requirements">
           <div class="ld-card-head">
             <span class="ld-card-icon ld-icon-data" aria-hidden="true"><Icon name="database" size={18} /></span>
-            <h2>Data requirements</h2>
+            <h2 id={`data-req-heading-${id}`}>Data requirements</h2>
           </div>
           {dataSources ? (
-            <div class="ld-table">
-              <div class="ld-tr ld-tr-head">
-                <span class="ld-th ld-th-source">Source</span>
-                <span class="ld-th ld-th-desc">Description</span>
-                <span class="ld-th ld-th-req">Required</span>
-              </div>
-              {dataSources.map((s) => (
-                <div class="ld-tr">
-                  <span class="ld-td ld-td-source">
-                    <span class="ld-src-icon" aria-hidden="true"><Icon name={s.icon} size={16} /></span>
-                    <span class="ld-src-name">{s.source}</span>
-                  </span>
-                  <span class="ld-td ld-td-desc">{s.description}</span>
-                  <span class="ld-td ld-td-req"><span class:list={['ld-req-pill', s.requirement === 'Required' ? 'ld-req-required' : 'ld-req-optional']}>{s.requirement}</span></span>
-                </div>
-              ))}
-              {dataNote && (
-                <div class="ld-tr ld-tr-note">
-                  <span class="ld-td-note"><Icon name="info" size={15} /> {dataNote}</span>
-                </div>
-              )}
+            <div class="ld-table-wrap">
+              <table class="ld-table" aria-labelledby={`data-req-heading-${id}`}>
+                <thead>
+                  <tr>
+                    <th scope="col" class="ld-th-source">Source</th>
+                    <th scope="col" class="ld-th-desc">Description</th>
+                    <th scope="col" class="ld-th-req">Required</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dataSources.map((s) => (
+                    <tr>
+                      <td class="ld-td-source">
+                        <span class="ld-src">
+                          <span class="ld-src-icon" aria-hidden="true"><Icon name={s.icon} size={16} /></span>
+                          <span class="ld-src-name">{s.source}</span>
+                        </span>
+                      </td>
+                      <td class="ld-td-desc">{s.description}</td>
+                      <td class="ld-td-req"><span class:list={['ld-req-pill', s.requirement === 'Required' ? 'ld-req-required' : 'ld-req-optional']}>{s.requirement}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+                {dataNote && (
+                  <tfoot>
+                    <tr>
+                      <td class="ld-td-note" colspan="3"><span class="ld-note-inner"><Icon name="info" size={15} /> {dataNote}</span></td>
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
             </div>
           ) : (
             <p class="ld-prose">{detail.dataRequirements}</p>
@@ -661,32 +671,28 @@ const modalDescId = `fb-desc-${id}`;
   .ld-check { display: flex; align-items: flex-start; gap: var(--sp-2); font-size: 0.88rem; line-height: 1.4; color: var(--muted); }
   .ld-check-icon { display: inline-flex; flex: 0 0 auto; color: var(--lens-green); margin-top: 1px; }
 
-  /* ---------- Data requirements table ---------- */
-  .ld-table { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  .ld-tr { display: grid; grid-template-columns: minmax(140px, 1.2fr) minmax(0, 2fr) auto; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); border-top: 1px solid var(--border); }
-  .ld-tr:first-child { border-top: none; }
-  .ld-tr-head { background: var(--surface-page); }
-  .ld-th { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--subtle); }
-  .ld-th-req, .ld-td-req { text-align: right; justify-self: end; }
-  .ld-td { font-size: 0.88rem; color: var(--muted); line-height: 1.4; min-width: 0; }
-  .ld-td-source { display: flex; align-items: center; gap: var(--sp-2); }
+  /* ---------- Data requirements table (native, fix7) ---------- */
+  .ld-table-wrap { border: 1px solid var(--border); border-radius: var(--radius); overflow-x: auto; }
+  .ld-table { width: 100%; min-width: 440px; border-collapse: collapse; }
+  .ld-table th, .ld-table td { padding: var(--sp-3) var(--sp-4); text-align: left; vertical-align: middle; border-top: 1px solid var(--border); }
+  .ld-table thead th { border-top: none; background: var(--surface-page); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--subtle); }
+  .ld-table td { font-size: 0.88rem; color: var(--muted); line-height: 1.4; }
+  .ld-th-req, .ld-td-req { text-align: right; white-space: nowrap; }
+  .ld-src { display: inline-flex; align-items: center; gap: var(--sp-2); }
   .ld-src-icon { display: inline-flex; flex: 0 0 auto; color: var(--accent); }
   .ld-src-name { font-weight: 600; color: var(--ink); }
   .ld-req-pill { display: inline-flex; align-items: center; padding: 3px 10px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em; border-radius: 999px; white-space: nowrap; }
   .ld-req-required { color: var(--lens-green); background: color-mix(in srgb, var(--lens-green) 14%, var(--surface-card)); border: 1px solid color-mix(in srgb, var(--lens-green) 35%, transparent); }
   .ld-req-optional { color: var(--subtle); background: var(--surface-page); border: 1px solid var(--border-strong); }
-  .ld-tr-note { background: var(--surface-page); }
-  .ld-td-note { grid-column: 1 / -1; display: flex; align-items: flex-start; gap: 6px; font-size: 0.82rem; line-height: 1.4; color: var(--subtle); }
-  .ld-td-note :global(svg) { flex: 0 0 auto; margin-top: 1px; }
+  .ld-table tfoot td { background: var(--surface-page); color: var(--subtle); }
+  .ld-note-inner { display: inline-flex; align-items: flex-start; gap: 6px; font-size: 0.82rem; line-height: 1.4; }
+  .ld-note-inner :global(svg) { flex: 0 0 auto; margin-top: 1px; }
 
   /* ---------- fix6 responsive ---------- */
   @media (max-width: 560px) {
     .ld-stats { flex-direction: column; }
     .ld-stat { border-left: none; padding: var(--sp-3) 0 0; border-top: 1px solid var(--border); }
     .ld-stat:first-child { border-top: none; padding-top: 0; }
-    .ld-tr { grid-template-columns: 1fr; gap: 6px; }
-    .ld-tr-head { display: none; }
-    .ld-th-req, .ld-td-req { justify-self: start; text-align: left; }
   }
 
   /* ---------- Responsive: rail reflows below content ---------- */

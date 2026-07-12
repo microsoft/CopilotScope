@@ -54,8 +54,8 @@
         "label": "parameters to start (Dataverse path)"
       },
       {
-        "value": "6",
-        "label": "evaluation dimensions"
+        "value": "~30",
+        "label": "days of Dataverse transcript retention"
       }
     ],
     "whatItShowsLead": "StudioLens reads your agents' conversation transcripts and turns them into answers.",
