@@ -26,8 +26,7 @@ can be present or absent without ever breaking a refresh.
 
 ## Source, permission, and capacity matrix
 
-Both deployment versions read the same logical tables with the same column names — only the source
-layer differs (Fabric reads a Lakehouse Delta table; SharePoint reads a CSV).
+The Fabric and SharePoint paths share aligned contracts for sources both paths implement, while the source layer differs: Fabric reads Lakehouse Delta tables and SharePoint reads CSVs. Dataverse agent tables and PPAC credit-consumption tables are Fabric Extended only; the SharePoint producer is not available for those contracts.
 
 <div class="table-scroll">
 
@@ -67,7 +66,7 @@ value to select.
 
 ## The 15 data contracts
 
-Both versions read the same logical tables. A producer is compatible only if the Delta table or CSV
+The table below is the complete ValueLens contract portfolio. Individual deployment paths implement only the contracts available to that path. A producer is compatible only if the Delta table or CSV
 it writes exposes the exact column names (casing and spaces matter).
 
 <div class="table-scroll">
@@ -130,8 +129,7 @@ The Dataverse agent tables key on the user's AAD object id, while org data is En
 tenant. They reconcile only when the transcripts and the Entra directory describe the same users in
 the same tenant. If agents are published in a different environment or tenant (common in demos), the
 object ids won't exist in the org table and the credit-by-organization breakdown won't attribute — a
-data-alignment issue, not a model bug. Unmatched rows surface under an "(Unattributed)" organization
-bucket so a mismatch is visible rather than silently inflating every org's share.
+data-alignment issue, not a model bug. When the object IDs do not reconcile, the credit-by-organization breakdown may be missing or misleading. The source recommends future hardening: emit a UPN when available, add a UPN fallback relationship, and surface unmatched rows under an '(Unmapped)' bucket. Those are recommendations, not confirmed current behavior.
 
 ## Privacy and security
 

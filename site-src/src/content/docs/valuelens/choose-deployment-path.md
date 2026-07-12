@@ -13,9 +13,7 @@ sourceFiles:
   - "lenses/ValueLens/deployment/3. Fabric Extended/Fabric + M365/README.md"
 ---
 
-ValueLens ships as three deployment paths. They all produce the same pages and the same value
-model — they differ only in **how the data gets in and refreshes**. Pick the one that matches your
-setup; you can always move up a path later.
+ValueLens uses one shared value model, but page availability varies by deployment path. The paths also differ in how data gets in and refreshes. Pick the one that matches your setup; you can move to a fuller path later.
 
 ## The three paths at a glance
 

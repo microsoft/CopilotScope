@@ -27,11 +27,14 @@ tables plus the agent tables — so it works only once the core ingesters are pr
 
 ## 1. Run the core notebooks
 
-Run the notebooks in **`notebooks/_core/`** in order — audit logs → licensed users → org data →
-product feedback → cost consumption → **Agents 365 registry**. For Agents 365 use
-`Copilot_Agent365_Registry_Ingester.ipynb` **by default** (Graph API app-only). Fall back to
-`Copilot_Agent365_Lander.ipynb` (CSV drop) only if you cannot grant the ingester's app-registration
-permissions. Both target the same `dbo.agents_365` table — pick one, don't run both.
+Run the three required backbone notebooks in `notebooks/_core/` first: audit logs → licensed users → org data.
+
+Then add only the optional producers you use:
+- Product Feedback — optional.
+- Cost consumption — optional.
+- Agent 365 — optional; use `Copilot_Agent365_Registry_Ingester.ipynb` by default. Fall back to `Copilot_Agent365_Lander.ipynb` only when the registry ingester's app-registration permissions are unavailable.
+
+The two Agent 365 notebooks target the same `dbo.agents_365` table — pick one and do not run both.
 
 ## 2. Parse Copilot Studio transcripts
 

@@ -141,7 +141,7 @@ setup guide it comes from.
 
 | Symptom | Fix |
 |---|---|
-| Credit-by-organization shows no breakdown | Cross-environment / cross-tenant identity: the Dataverse agent tables key on AAD object id, while org data is Entra from this tenant. They reconcile only for the same users in the same tenant. Unmatched rows surface under an "(Unattributed)" organization bucket. |
+| Credit-by-organization shows no breakdown | Confirm the transcript users and Entra org data describe the same users in the same tenant. If they do not, the object IDs will not join and the credit-by-organization breakdown may show no breakdown or an invalid 100% result. This is a data-alignment issue, not a model bug. The source recommends a future UPN fallback and an '(Unmapped)' bucket; do not assume either is implemented today. |
 | Transcript notebook cannot get a Dataverse token | Fabric's `notebookutils.getToken` cannot mint a Dataverse token — use an app-registration service principal added as an **Application User** with **Read** on the Conversation Transcript table. |
 
 </div>

@@ -60,11 +60,14 @@ producing data before you add this layer.</li>
 path (same parameters, RBAC roles, and Graph permissions).</li>
 </ul>
 <h2 id="1-run-the-core-notebooks">1. Run the core notebooks</h2>
-<p>Run the notebooks in <strong><code>notebooks/_core/</code></strong> in order — audit logs → licensed users → org data →
-product feedback → cost consumption → <strong>Agents 365 registry</strong>. For Agents 365 use
-<code>Copilot_Agent365_Registry_Ingester.ipynb</code> <strong>by default</strong> (Graph API app-only). Fall back to
-<code>Copilot_Agent365_Lander.ipynb</code> (CSV drop) only if you cannot grant the ingester’s app-registration
-permissions. Both target the same <code>dbo.agents_365</code> table — pick one, don’t run both.</p>
+<p>Run the three required backbone notebooks in <code>notebooks/_core/</code> first: audit logs → licensed users → org data.</p>
+<p>Then add only the optional producers you use:</p>
+<ul>
+<li>Product Feedback — optional.</li>
+<li>Cost consumption — optional.</li>
+<li>Agent 365 — optional; use <code>Copilot_Agent365_Registry_Ingester.ipynb</code> by default. Fall back to <code>Copilot_Agent365_Lander.ipynb</code> only when the registry ingester’s app-registration permissions are unavailable.</li>
+</ul>
+<p>The two Agent 365 notebooks target the same <code>dbo.agents_365</code> table — pick one and do not run both.</p>
 <h2 id="2-parse-copilot-studio-transcripts">2. Parse Copilot Studio transcripts</h2>
 <p>Run <strong><code>notebooks/Copilot_Agent_Transcript_Parser.ipynb</code></strong> to land the Copilot Studio transcript
 tables (<code>agent_sessions</code>, <code>agent_turns</code>, <code>agent_errors</code>, <code>agent_subagents</code>, <code>agent_catalogue</code>,

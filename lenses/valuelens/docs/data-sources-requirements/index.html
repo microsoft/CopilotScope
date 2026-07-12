@@ -57,8 +57,7 @@ Admin Center), and org data (Microsoft Entra).</li>
 (PPAC), product feedback, and Copilot Studio agent transcripts (Dataverse).</li>
 </ul>
 <h2 id="source-permission-and-capacity-matrix">Source, permission, and capacity matrix</h2>
-<p>Both deployment versions read the same logical tables with the same column names — only the source
-layer differs (Fabric reads a Lakehouse Delta table; SharePoint reads a CSV).</p>
+<p>The Fabric and SharePoint paths share aligned contracts for sources both paths implement, while the source layer differs: Fabric reads Lakehouse Delta tables and SharePoint reads CSVs. Dataverse agent tables and PPAC credit-consumption tables are Fabric Extended only; the SharePoint producer is not available for those contracts.</p>
 <div class="table-scroll">
 <table>
 <thead>
@@ -140,7 +139,7 @@ permissions are unavailable. They write the same <code>dbo.agents_365</code> tab
 OCV export. Product feedback is optional and export-based.</li>
 </ul>
 <h2 id="the-15-data-contracts">The 15 data contracts</h2>
-<p>Both versions read the same logical tables. A producer is compatible only if the Delta table or CSV
+<p>The table below is the complete ValueLens contract portfolio. Individual deployment paths implement only the contracts available to that path. A producer is compatible only if the Delta table or CSV
 it writes exposes the exact column names (casing and spaces matter).</p>
 <div class="table-scroll">
 <table>
@@ -316,8 +315,7 @@ the credit-by-organization breakdown cannot attribute.</li>
 tenant. They reconcile only when the transcripts and the Entra directory describe the same users in
 the same tenant. If agents are published in a different environment or tenant (common in demos), the
 object ids won’t exist in the org table and the credit-by-organization breakdown won’t attribute — a
-data-alignment issue, not a model bug. Unmatched rows surface under an “(Unattributed)” organization
-bucket so a mismatch is visible rather than silently inflating every org’s share.</p>
+data-alignment issue, not a model bug. When the object IDs do not reconcile, the credit-by-organization breakdown may be missing or misleading. The source recommends future hardening: emit a UPN when available, add a UPN fallback relationship, and surface unmatched rows under an ‘(Unmapped)’ bucket. Those are recommendations, not confirmed current behavior.</p>
 <h2 id="privacy-and-security">Privacy and security</h2>
 <p>Do not commit real tenant data, tenant domains, SharePoint URLs, or customer identifiers to a public
 repository — use synthetic values such as <code>user000@example.com</code> in any sample or screenshot. For
