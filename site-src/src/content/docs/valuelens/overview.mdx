@@ -1,17 +1,108 @@
 ---
 lens: valuelens
 title: "Overview & concepts"
-description: "Documentation for ValueLens is in build and coming soon."
-status: scaffold
-sourceFiles: []
+description: "What ValueLens measures for Microsoft Copilot and agents: hours saved, assisted value, adoption, and ROI, with the deployment paths and the compliance disclaimer."
+status: published
+sourceFiles:
+  - "lenses/ValueLens/VALUELENS.md"
+  - "lenses/ValueLens/docs/VALUELENS-STANDALONE-README.md"
 ---
 
 import ScreenshotPlaceholder from '../../../components/ScreenshotPlaceholder.astro';
 
-Full in-app documentation for ValueLens is in build and coming soon. In the meantime, the lens page has everything you need to download the template and get started.
+ValueLens is the FinOps view of Microsoft Copilot — cost versus value, ROI, and the time and
+tasks Copilot and its agents save. It turns raw Copilot activity into a defensible business
+narrative: how much time and how many tasks Copilot saved, what that is worth in money, and the
+return on investment once licence and consumption cost are factored in.
+
+## What ValueLens measures
+
+- **Quantified value** — hours saved and dollar-equivalent assisted value, grounded in
+  research-sourced time baselines.
+- **Frontier Firm maturity** — where you sit on the Pattern 1 (human + Copilot) to Pattern 2
+  (human + agent) to Pattern 3 (agents run workflows) journey.
+- **Value by function** — Sales, HR, IT, Legal, Finance, Marketing, and Customer Service, with
+  task-level attribution.
+- **User maturity** — Beginner to Developing to Proficient, from behavioural breadth and agent
+  adoption.
+- **Business case** — projected annual value, ROI multiple, and licence investment net.
+
+### How the value model works
+
+Every interaction is classified into an **AI Task**, mapped to a research-sourced **time
+baseline**, summed into **Hours Saved**, then multiplied by an hourly rate to produce
+**Assisted Value**:
+
+```text
+interaction  ->  AI Task  ->  research-sourced time baseline  ->  Hours Saved  ->  x hourly rate  =  Assisted Value
+```
+
+Realised value then trends over time and is broken down by function, team, and user maturity, so
+you can see not just the headline number but where the value is concentrated.
+
+## The report at a glance
+
+ValueLens ships as a single Power BI report whose **fullest build carries a 15-page portfolio** —
+adoption, value, maturity, governance, feedback, billing, and reference appendices. Not every page
+appears in every deployment: page availability varies by the path you choose (see the
+[Page reference](/lenses/valuelens/docs/page-reference) for the full portfolio and the per-path
+availability matrix).
 
 <ScreenshotPlaceholder
   id="VL-OVERVIEW-001"
   description="Capture the ValueLens report with the User Activation page selected, using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and headline activation metrics; exclude browser chrome, tenant names, and personal data."
   alt="ValueLens User Activation report page with anonymized sample data."
 />
+
+## Where the numbers come from
+
+ValueLens works from a small set of **core** sources out of the box, and lights up extra pages as
+you add **optional** sources:
+
+- **Core** — Copilot interactions (Purview audit logs), licensed users (Microsoft 365 Admin
+  Center), and org data (Microsoft Entra). These drive activity, adoption, value, and maturity.
+- **Optional** — Agents 365, Cowork / Work IQ consumption, Copilot Studio message-credit
+  consumption, product feedback, and Copilot Studio agent transcripts. Each is gated so the
+  dashboard works fine without it.
+
+The exact source, permission, and contract detail lives in
+[Data sources & requirements](/lenses/valuelens/docs/data-sources-requirements).
+
+## Research behind the value model
+
+The human-time baselines behind Hours Saved are drawn from **published research** — Microsoft
+Research, MIT / Science (Noy & Zhang 2023), NBER (Brynjolfsson et al. 2023), BCG / Harvard
+(Dell'Acqua et al. 2023), McKinsey, Forrester TEI, IDC, and others. The full per-task source list
+is in the report's own Metric Glossary page.
+
+## Choose how to deploy
+
+The dashboard produces the same pages and value model from three deployment paths — they differ
+only in how the data gets in and refreshes:
+
+- **SharePoint** — the simplest start on Power BI Pro, no Fabric capacity.
+- **Fabric** — the recommended path on Fabric capacity, with the best performance and the optional
+  billing and feedback pages.
+- **Fabric Extended (Fabric + Copilot Studio)** — everything in the Fabric path plus the deeper
+  Copilot Studio agent, topic, and evaluation pages.
+
+Start at [Choose your deployment path](/lenses/valuelens/docs/choose-deployment-path) for a full
+comparison and decision guidance.
+
+## Usage & compliance disclaimer
+
+<div class="vl-disclaimer">
+
+While this tool helps customers understand the business value of their AI usage data, Microsoft has
+**no visibility** into the data customers input, nor control over how the template is used. Customers
+are solely responsible for ensuring their use complies with all applicable laws and regulations
+(including data privacy and security). **Microsoft disclaims all liability** arising from use of this
+template.
+
+This is an **experimental** template with Purview audit logs as the primary source. Audit logs
+provide visibility into Copilot/agent interactions but are not intended as the sole source of truth
+for licensing or full‑fidelity reporting. Not supported through Microsoft support channels — please
+open an issue in this repo.
+
+
+</div>

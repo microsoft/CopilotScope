@@ -1,0 +1,155 @@
+---
+lens: valuelens
+title: "Fabric setup guide"
+description: "Stand up ValueLens on Fabric: create a Lakehouse, register an Entra app, run the three required core notebooks, connect the template, and schedule the refresh."
+status: published
+sourceFiles:
+  - "lenses/ValueLens/deployment/1. Fabric/README.md"
+  - "lenses/ValueLens/deployment/1. Fabric/notebooks/README.md"
+  - "lenses/ValueLens/deployment/1. Fabric/pipelines/README.md"
+  - "lenses/ValueLens/deployment/1. Fabric/docs/PERMISSIONS.md"
+  - "lenses/ValueLens/deployment/1. Fabric/docs/INGESTION-STRATEGY.md"
+  - "lenses/ValueLens/deployment/1. Fabric/docs/OPTIONAL-SOURCES.md"
+  - "lenses/ValueLens/deployment/1. Fabric/flows/COST-CONSUMPTION-SETUP.md"
+---
+
+import ScreenshotPlaceholder from '../../../../components/ScreenshotPlaceholder.astro';
+
+The recommended path. Notebooks pull your Copilot data from Microsoft Graph and write Delta tables
+straight into a Lakehouse; the Power BI template is a thin client over the Lakehouse SQL endpoint, so
+the heavy JSON parsing happens in Spark and the dataset stays small and fast. Three core notebooks
+land the required tables; the rest are optional.
+
+## 1. Create a Lakehouse
+
+In a Fabric workspace on a capacity (F2+ or trial): **+ New → Lakehouse**, name it, and note its
+**SQL endpoint** from Lakehouse settings — it looks like
+`<workspace-guid>.datawarehouse.fabric.microsoft.com`.
+
+## 2. Register an Entra app
+
+Create an app registration with these **Microsoft Graph application** permissions (admin consent
+required), then note the **Tenant ID**, **Client ID**, and a **Client secret value**. One app
+registration covers all three core sources.
+
+<div class="table-scroll">
+
+| Permission | Used by |
+|---|---|
+| `AuditLogsQuery.Read.All` | Audit log notebook |
+| `Reports.Read.All` | Licensed users notebook |
+| `User.Read.All` | Org data notebook |
+
+</div>
+
+<ScreenshotPlaceholder
+  id="VL-FABRIC-002"
+  description="Capture the Entra app registration API permissions page for the ValueLens Fabric path. Show the required Microsoft Graph application permissions with admin consent; exclude application names, tenant identifiers, client identifiers, and credentials."
+  alt="Required Microsoft Graph application permissions for ValueLens Fabric ingestion."
+/>
+
+## 3. Run the three required core notebooks
+
+Import each core notebook (**+ New → Import notebook**), attach it to your Lakehouse and pin it as
+default, then paste your three values into the `# === CONFIG ===` cell and run. These three are the
+dashboard's required backbone:
+
+<div class="table-scroll">
+
+| Notebook | Cadence | Output table |
+|---|---|---|
+| `Copilot_Audit_Log_Direct_Ingester.ipynb` | Daily (Graph caps audit queries to a 7-day window) | `dbo.Copilot_Interactions_Parsed` |
+| `Copilot_Licensed_Users_Direct_Ingester.ipynb` | Weekly / monthly | `dbo.copilot_licensed_users` |
+| `Copilot_Org_Data_Direct_Ingester.ipynb` | Weekly | `dbo.copilot_org_data` |
+
+</div>
+
+<ScreenshotPlaceholder
+  id="VL-FABRIC-001"
+  description="Capture the Fabric Lakehouse explorer after the three required ValueLens core notebooks have run. Show dbo.Copilot_Interactions_Parsed, dbo.copilot_licensed_users, and dbo.copilot_org_data; exclude workspace names, lakehouse names, tenant identifiers, and customer data."
+  alt="Fabric Lakehouse with the three required ValueLens core tables."
+/>
+
+## 4. Connect the template
+
+Open `ValueLens - Fabric.pbit` in Power BI Desktop and supply the parameters. The `Enable_*` controls
+are **list parameters** offering `Include` / `Exclude` (a dropdown in *Edit Parameters*) — set a
+source to `Include` only **after** you have configured and landed it, and `Exclude` when you are not
+using it. The optional-source fallback keeps the model refreshing whether or not a source is present.
+
+<div class="table-scroll">
+
+| Parameter | Required? | Value |
+|---|---|---|
+| **Fabric SQL Endpoint** | Yes | `<workspace-guid>.datawarehouse.fabric.microsoft.com` |
+| **Lakehouse Name** | Yes | Your Lakehouse name |
+| `Enable_ProductFeedback` | Optional | `Include` after landing `dbo.user_feedback`, else `Exclude` |
+| `Enable_Agent365` | Optional | `Include` after landing `dbo.agents_365`, else `Exclude` |
+| `Enable_CostConsumption` | Optional | `Include` after landing `copilot_cost_consumption`, else `Exclude` |
+| `Enable_Dataverse` | Optional | `Include` only on the Fabric Extended build (Copilot Studio agent tables), else `Exclude` |
+| `Enable_Consumption` | Optional | PPAC per-agent credit build — a Fabric Extended add-on; set `Exclude` on the base Fabric build |
+
+</div>
+
+Click **Load**, then **Publish** — ideally to a workspace on the **same Fabric capacity** so Direct
+Lake works without cross-capacity overhead.
+
+<ScreenshotPlaceholder
+  id="VL-FABRIC-003"
+  description="Capture the ValueLens Fabric template's Edit Parameters dialog using synthetic values. Include Fabric SQL Endpoint, Lakehouse Name, and the Enable_* list parameters; exclude real endpoints, workspace names, tenant identifiers, and credentials."
+  alt="ValueLens Fabric template parameters with synthetic Lakehouse values."
+/>
+
+## 5. Schedule the refresh
+
+Wire the three core notebooks into a single Fabric **data pipeline** and schedule it. The three
+tables are independent (joined later in the model), so their activities run in parallel. Because
+Microsoft Graph's audit API caps each query at a 7-day window, a **weekly** cadence (for example
+Sundays 02:00 UTC) matches that window cleanly with no overlap or gaps. Then, in the Service, open
+the dataset **Settings → Data source credentials**, sign in to the SQL endpoint, and enable
+**Scheduled refresh** on a cadence that matches your notebook schedule.
+
+<ScreenshotPlaceholder
+  id="VL-FABRIC-004"
+  description="Capture the Fabric pipeline or schedule view containing the three required ValueLens core notebooks. Show the audit, licensed-users, and org-data activities and their scheduling controls; exclude workspace names, notebook identifiers, tenant identifiers, and run data."
+  alt="Fabric pipeline scheduling the three required ValueLens core notebooks."
+/>
+
+## Optional sources
+
+Leave every `Enable_*` toggle on `Exclude` and the core dashboard still works — optional tables load
+empty. To switch one on, run its notebook and set the matching toggle to `Include`:
+
+- **Product feedback** *(optional)* — run `Copilot_ProductFeedback_Ingester.ipynb` (output
+  `dbo.user_feedback`), then set `Enable_ProductFeedback = Include`.
+- **Agents 365** *(optional)* — use `Copilot_Agent365_Registry_Ingester.ipynb` **by default** (Graph
+  API app-only, runs headless on a schedule; needs `CopilotPackages.Read.All` +
+  `Application.Read.All`). Fall back to `Copilot_Agent365_Lander.ipynb` (CSV drop) only if you cannot
+  grant those app-registration permissions. Both write the same `dbo.agents_365` table — pick one,
+  don't run both. Then set `Enable_Agent365 = Include`.
+- **Cowork / Work IQ consumption** *(optional)* — the Microsoft 365 Admin Center → Copilot → Cost
+  management export is export-only. Land the CSV in `Files/cost_consumption/`, run
+  `Copilot_Cost_Consumption_Ingester.ipynb` (output `copilot_cost_consumption`), then set
+  `Enable_CostConsumption = Include`.
+
+## Secrets and Key Vault
+
+For production, read the client secret from **Azure Key Vault** rather than a literal in the CONFIG
+cell — each CONFIG cell ships with a commented `notebookutils.credentials.getSecret(...)` example.
+
+## Load strategy and resiliency
+
+Pick a write mode per source: **event streams** (audit) append or merge; **current-state snapshots**
+(org, licensed users, agents registry) overwrite. The audit ingester uses a retrying HTTP session
+(`429/500/502/503/504` with exponential backoff) and windows each run into chunks, so transient
+gateway timeouts don't abort the run.
+
+For a stable production build, **pin your automation to a full commit revision SHA** of the
+repository rather than tracking the moving branch, so an upstream change can't break a running
+pipeline. Treat the Delta table contracts (table and column names) as the integration surface.
+
+## Troubleshooting
+
+Common Fabric symptoms — Graph `401`/`403`, an audit query that never finishes, `Login failed` /
+`cannot open database`, everyone showing "Unlicensed", and slow refresh — are consolidated in
+[Troubleshooting & FAQ](/lenses/valuelens/docs/troubleshooting-faq).

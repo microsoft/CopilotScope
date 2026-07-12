@@ -1,0 +1,163 @@
+---
+lens: valuelens
+title: "SharePoint setup guide"
+description: "Stand up ValueLens on Power BI Pro with the standard scheduled SharePoint workflow: register an app, extract and roll up the data, upload to SharePoint, and schedule the refresh."
+status: published
+sourceFiles:
+  - "lenses/ValueLens/deployment/2. SharePoint/README.md"
+  - "lenses/ValueLens/deployment/2. SharePoint/scripts/README.md"
+  - "lenses/ValueLens/docs/PREREQUISITES.md"
+  - "lenses/ValueLens/docs/VALUELENS-STANDALONE-README.md"
+  - "lenses/ValueLens/deployment/1. Fabric/docs/PERMISSIONS.md"
+---
+
+import ScreenshotPlaceholder from '../../../../components/ScreenshotPlaceholder.astro';
+
+Run ValueLens on **Power BI Pro** — no Fabric capacity, no gateway. This guide covers the standard,
+**scheduled** SharePoint workflow: a PowerShell extract rolls your Copilot data up into two CSVs,
+uploads them to a SharePoint library, and Power BI refreshes on a schedule.
+
+## What you will set up
+
+The standard workflow is three helper scripts run in order, then a scheduled Power BI refresh:
+
+```text
+Run-PAX-AIBV  (extract + roll up)  ->  Upload-Rollups-SharePoint  (upload)  ->  Register-TaskScheduler  (schedule)  ->  SharePoint template + scheduled refresh
+```
+
+Both steps produce the same two fixed-name rollups the template reads —
+`copilot_interactions_rollup.csv` and `copilot_users_rollup.csv`.
+
+## Prerequisites and permissions
+
+**On the machine that runs the extract:**
+
+- **PowerShell 7+** (`pwsh`) — run the scripts with `pwsh`, not Windows PowerShell.
+- **Python 3.10+** (the extract script bootstraps it internally for the rollup).
+- Internet access to GitHub Releases (the script downloads the current extract tool automatically).
+
+**In your tenant** — one Entra app registration with these admin-consented **Microsoft Graph
+application** permissions:
+
+<div class="table-scroll">
+
+| Permission | Used for |
+|---|---|
+| `AuditLogsQuery.Read.All` | Copilot interactions (audit logs) |
+| `Reports.Read.All` | Licensed users |
+| `User.Read.All` | Org data |
+| `Organization.Read.All` | Licence lookup fallback |
+| `Sites.Selected` | Per-library SharePoint write (least privilege) |
+| `CopilotPackages.Read.All`, `Application.Read.All` | *Optional* — only if you pull the Agents 365 catalogue |
+
+</div>
+
+You also need a **SharePoint document library** to hold the two CSVs and a **Power BI Pro** (or
+Premium / PPU) workspace to publish into. Note the **Tenant ID**, **Client ID**, and **Client
+Secret** before you start.
+
+## 1. Grant the app write access to your SharePoint site
+
+Run `ProvisionSiteAccess-SP-AppReg.ps1` once per site to grant the app `Sites.Selected` write access.
+It prints the **SiteId** and **DriveId** the upload step needs — save both.
+
+```powershell
+.\ProvisionSiteAccess-SP-AppReg.ps1 `
+    -TenantId "<tenant-id>" -SiteHost "<tenant>.sharepoint.com" `
+    -AppClientId "<client-id>" -AppDisplayName "<app-name>"
+```
+
+## 2. Seed the first rollup (back-fill)
+
+The Purview interactions data is a growing time series, so run the **first** extract as a back-fill
+to create the file, then let scheduled runs append short windows. Seed with no `-AppendFile`:
+
+```powershell
+.\Run-PAX-AIBV.ps1 -TenantId <tenant-id> -ClientId <client-id> -Days 30
+```
+
+This produces `.\processed\*_Interactions_*.csv`, `.\processed\*_Users_*.csv`, and
+`rollup-manifest.json`. The append de-duplicates on each interaction's stable message identity, so
+overlapping days reconcile — nothing dropped or double-counted. The Users / org and Agents 365
+outputs are snapshots, overwritten each run. Add `-IncludeAgent365Info` for the optional Agents 365
+catalogue (needs `CopilotPackages.Read.All` + `Application.Read.All` and an Agent 365 licence — a
+missing licence returns `403`).
+
+## 3. Upload the rollups to SharePoint
+
+```powershell
+.\Upload-Rollups-SharePoint.ps1 `
+    -Manifest .\processed\rollup-manifest.json `
+    -TenantId <tenant-id> -ClientId <client-id> `
+    -SiteId '<host>,<siteguid>,<webguid>' -DriveId 'b!...' -FolderPath '/AIBV'
+```
+
+The files land as the fixed names `copilot_interactions_rollup.csv` and
+`copilot_users_rollup.csv`, overwriting the previous run.
+
+## 4. Schedule the daily refresh
+
+After the one-time seed, register the daily task with `-AppendFile` so each run appends only the
+latest window:
+
+```powershell
+.\Register-TaskScheduler.ps1 `
+    -TenantId <tenant-id> -ClientId <client-id> `
+    -SiteId '<host>,<siteguid>,<webguid>' -DriveId 'b!...' `
+    -FolderPath '/AIBV' -Days 2 -AppendFile Purview_CopilotInteraction_Rollup.csv -RunAt '02:00'
+```
+
+Add `-RunAsUser DOMAIN\svc_aibv` for a service account. The client secret is **not** stored in the
+task — it is resolved at runtime.
+
+## 5. Connect the template
+
+Open **`ValueLens - SharePoint.pbit`** in Power BI Desktop, then **Transform data → Edit
+parameters** and point the parameters at your SharePoint rollup URLs:
+
+<div class="table-scroll">
+
+| Parameter | Value |
+|---|---|
+| Copilot Interactions File | `https://<tenant>.sharepoint.com/.../copilot_interactions_rollup.csv` |
+| Org Data File | `https://<tenant>.sharepoint.com/.../copilot_users_rollup.csv` |
+| Agent 365 *(optional)* | blank, or a SharePoint URL to your Agents 365 export |
+
+</div>
+
+<ScreenshotPlaceholder
+  id="VL-SHAREPOINT-001"
+  description="Capture the ValueLens SharePoint template's Edit Parameters dialog using synthetic SharePoint file URLs. Include Copilot Interactions File, Org Data File, and the optional Agent 365 parameter; exclude tenant host names, account names, and credentials."
+  alt="ValueLens SharePoint template parameters with synthetic file URLs."
+/>
+
+## 6. Publish and schedule the refresh in Power BI Service
+
+1. **Load**, then **Publish** to a Power BI workspace.
+2. In the Service: dataset **Settings → Data source credentials** → sign in to SharePoint, set
+   **Privacy: None**.
+3. Enable **Scheduled refresh** and set it to run after your extract (for example, extract at 02:00,
+   refresh at 04:00).
+
+<ScreenshotPlaceholder
+  id="VL-SHAREPOINT-002"
+  description="Capture the Power BI Service scheduled refresh settings for the configured ValueLens SharePoint semantic model. Show refresh enabled and a schedule after the extract job; exclude workspace names, tenant names, accounts, gateways, and credentials."
+  alt="Scheduled refresh settings for a ValueLens SharePoint semantic model."
+/>
+
+## Security guidance
+
+- Use **`Sites.Selected`** for SharePoint write — per-library least privilege rather than tenant-wide.
+- Keep the client secret out of source: stash it in Windows Credential Manager
+  (`cmdkey /generic:PAX-AIBV-<tenant-id> /user:app /pass:<secret>`) or a certificate to avoid
+  rotation. The scheduled task never stores it.
+- For privacy-restricted tenants, run the extract with `-UserInfoFile` (bring your own directory,
+  no live Entra pull) paired with `-Deidentify` to mask user identities in the output.
+- Never commit real tenant data, domains, SharePoint URLs, or customer identifiers — use synthetic
+  values such as `user000@example.com` in any sample or screenshot.
+
+## Troubleshooting
+
+Common SharePoint symptoms — missing audit consent, masked UPNs, `403`/`404` on upload, and the
+1 GB / 2-hour Pro refresh cap — are consolidated in
+[Troubleshooting & FAQ](/lenses/valuelens/docs/troubleshooting-faq).

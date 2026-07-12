@@ -1,0 +1,95 @@
+---
+lens: valuelens
+title: "Fabric Extended setup guide"
+description: "Add the Copilot Studio agent layer to a Fabric ValueLens build: run the core notebooks, parse Copilot Studio transcripts, optionally land PPAC credits, and connect the extended template."
+status: published
+sourceFiles:
+  - "lenses/ValueLens/deployment/3. Fabric Extended/README.md"
+  - "lenses/ValueLens/deployment/3. Fabric Extended/Fabric + Copilot Studio/README.md"
+  - "lenses/ValueLens/deployment/3. Fabric Extended/Fabric + Copilot Studio/CREDIT-CONSUMPTION-SETUP.md"
+  - "lenses/ValueLens/deployment/1. Fabric/docs/PERMISSIONS.md"
+---
+
+import ScreenshotPlaceholder from '../../../../components/ScreenshotPlaceholder.astro';
+
+**Fabric + Copilot Studio** is an optional extension of the standard Fabric dashboard for tenants
+running **Copilot Studio agents**. It is a superset of the base Fabric build — it reads the same core
+tables plus the agent tables — so it works only once the core ingesters are producing data.
+
+## Before you start
+
+- **Stand up the Fabric path first.** This add-on builds on the standard Fabric build; get it
+  producing data before you add this layer.
+- **The folder is self-contained.** The core ingesters are mirrored into the add-on's
+  `notebooks/_core/` folder, so everything you need runs from inside it — no cross-folder downloads.
+- Provision your **Fabric Lakehouse** and **Entra app registration** exactly as for the base Fabric
+  path (same parameters, RBAC roles, and Graph permissions).
+
+## 1. Run the core notebooks
+
+Run the notebooks in **`notebooks/_core/`** in order — audit logs → licensed users → org data →
+product feedback → cost consumption → **Agents 365 registry**. For Agents 365 use
+`Copilot_Agent365_Registry_Ingester.ipynb` **by default** (Graph API app-only). Fall back to
+`Copilot_Agent365_Lander.ipynb` (CSV drop) only if you cannot grant the ingester's app-registration
+permissions. Both target the same `dbo.agents_365` table — pick one, don't run both.
+
+## 2. Parse Copilot Studio transcripts
+
+Run **`notebooks/Copilot_Agent_Transcript_Parser.ipynb`** to land the Copilot Studio transcript
+tables (`agent_sessions`, `agent_turns`, `agent_errors`, `agent_subagents`, `agent_catalogue`,
+`agent_performance`) from Dataverse.
+
+**Permissions:** Fabric's `notebookutils.getToken` cannot mint a Dataverse token, so the notebook
+must use an **app-registration service principal** added as an **Application User** in each Dataverse
+environment, with a security role granting **Read** on the **Conversation Transcript** table (for
+example System Customizer, or a custom read-only role). Authentication is client-credentials to
+`{env}/.default` — no extra Graph permission is needed for this step.
+
+## 3. Light up agent credit consumption (optional)
+
+Microsoft's per-agent Copilot Studio **message-credit** numbers come out of the **Power Platform
+Admin Center** as three CSV exports (per environment, per agent, per user). There is no API, so the
+flow is export → land in the Lakehouse → ingest:
+
+1. In the **Power Platform Admin Center → Billing**, download the three
+   `EntitlementConsumption…MCSMessages…` reports.
+2. In your Lakehouse **Files** area, create a folder named **`credit_consumption`** (lower-case) and
+   drop the three CSVs in — or automate the landing with the provided Power Automate flow.
+3. Import and **Run all** on `notebooks/Copilot_Credit_Consumption_Ingester.ipynb`. It builds the
+   `credit_consumption_tenant`, `credit_consumption_agent`, and `credit_consumption_user` tables.
+
+<ScreenshotPlaceholder
+  id="VL-EXTENDED-002"
+  description="Capture the Power Platform Admin Center credit-consumption export setup used by the ValueLens Fabric Extended path. Show the relevant export controls and reporting period; exclude tenant names, environment names, billing identifiers, and customer data."
+  alt="Copilot Studio credit-consumption export controls for ValueLens Fabric Extended."
+/>
+
+## 4. Connect the extended template
+
+Open **`ValueLens - Fabric (+ Studio Agent Deepdive).pbit`** in Power BI Desktop and supply the same
+Lakehouse parameters as the base template, then set the toggles explicitly:
+
+- Set **`Enable_Dataverse = Include`** to light up the Copilot Studio agent pages (required for this
+  build).
+- Set **`Enable_Consumption = Include`** only if you completed step 3 (PPAC credit consumption);
+  otherwise leave it `Exclude`.
+
+<ScreenshotPlaceholder
+  id="VL-EXTENDED-001"
+  description="Capture the ValueLens Fabric Extended template's Edit Parameters dialog using synthetic values. Show Enable_Dataverse set to Include and the optional consumption controls; exclude real endpoints, lakehouse names, tenant identifiers, and credentials."
+  alt="ValueLens Fabric Extended parameters with Copilot Studio data enabled."
+/>
+
+## Limitations and troubleshooting
+
+- **Cross-environment / cross-tenant identity.** The Dataverse agent tables key on the user's AAD
+  objectId, while org data is Entra from *this* tenant. They reconcile only when the transcripts and
+  the Entra directory describe the same users in the same tenant. If agents are published in a
+  different environment or tenant (common in demos), those users won't exist in the org table and the
+  credit-by-organization breakdown won't attribute cleanly — this is a data-alignment limitation, not
+  a model bug.
+- **Billing settling.** After the ingester runs, Fabric's SQL endpoint needs a moment to see the new
+  tables — if a refresh is empty immediately after, wait about a minute and refresh again.
+
+More symptoms and fixes — including the extended Dataverse and credit-consumption issues — are in
+[Troubleshooting & FAQ](/lenses/valuelens/docs/troubleshooting-faq).

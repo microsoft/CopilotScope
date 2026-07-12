@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "count": 2,
+  "count": 25,
   "placeholders": [
     {
       "id": "SL-OVERVIEW-001",
@@ -11,11 +11,195 @@
       "status": "needed"
     },
     {
+      "id": "VL-EXTENDED-001",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/setup/fabric-extended/",
+      "description": "Capture the ValueLens Fabric Extended template's Edit Parameters dialog using synthetic values. Show Enable_Dataverse set to Include and the optional consumption controls; exclude real endpoints, lakehouse names, tenant identifiers, and credentials.",
+      "proposedAlt": "ValueLens Fabric Extended parameters with Copilot Studio data enabled.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-EXTENDED-002",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/setup/fabric-extended/",
+      "description": "Capture the Power Platform Admin Center credit-consumption export setup used by the ValueLens Fabric Extended path. Show the relevant export controls and reporting period; exclude tenant names, environment names, billing identifiers, and customer data.",
+      "proposedAlt": "Copilot Studio credit-consumption export controls for ValueLens Fabric Extended.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-FABRIC-001",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/setup/fabric/",
+      "description": "Capture the Fabric Lakehouse explorer after the three required ValueLens core notebooks have run. Show dbo.Copilot_Interactions_Parsed, dbo.copilot_licensed_users, and dbo.copilot_org_data; exclude workspace names, lakehouse names, tenant identifiers, and customer data.",
+      "proposedAlt": "Fabric Lakehouse with the three required ValueLens core tables.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-FABRIC-002",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/setup/fabric/",
+      "description": "Capture the Entra app registration API permissions page for the ValueLens Fabric path. Show the required Microsoft Graph application permissions with admin consent; exclude application names, tenant identifiers, client identifiers, and credentials.",
+      "proposedAlt": "Required Microsoft Graph application permissions for ValueLens Fabric ingestion.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-FABRIC-003",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/setup/fabric/",
+      "description": "Capture the ValueLens Fabric template's Edit Parameters dialog using synthetic values. Include Fabric SQL Endpoint, Lakehouse Name, and the Enable_* list parameters; exclude real endpoints, workspace names, tenant identifiers, and credentials.",
+      "proposedAlt": "ValueLens Fabric template parameters with synthetic Lakehouse values.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-FABRIC-004",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/setup/fabric/",
+      "description": "Capture the Fabric pipeline or schedule view containing the three required ValueLens core notebooks. Show the audit, licensed-users, and org-data activities and their scheduling controls; exclude workspace names, notebook identifiers, tenant identifiers, and run data.",
+      "proposedAlt": "Fabric pipeline scheduling the three required ValueLens core notebooks.",
+      "status": "needed"
+    },
+    {
       "id": "VL-OVERVIEW-001",
       "lens": "valuelens",
       "pageUrl": "/lenses/valuelens/docs/",
       "description": "Capture the ValueLens report with the User Activation page selected, using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and headline activation metrics; exclude browser chrome, tenant names, and personal data.",
       "proposedAlt": "ValueLens User Activation report page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-PAGE-001",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/page-reference/",
+      "description": "Capture the ValueLens User Activation report page using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and licensed versus unlicensed and active versus inactive headline metrics; exclude browser chrome, tenant names, user names, verbatim comments, and personal data.",
+      "proposedAlt": "ValueLens User Activation report page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-PAGE-002",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/page-reference/",
+      "description": "Capture the ValueLens Adoption & Reach report page using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and user counts, coverage, and licensed-versus-unlicensed reach; exclude browser chrome, tenant names, user names, verbatim comments, and personal data.",
+      "proposedAlt": "ValueLens Adoption & Reach report page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-PAGE-003",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/page-reference/",
+      "description": "Capture the ValueLens Activity & Value report page using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and Copilot and agent usage, tasks, hours saved, and assisted value; exclude browser chrome, tenant names, user names, verbatim comments, and personal data.",
+      "proposedAlt": "ValueLens Activity & Value report page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-PAGE-004",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/page-reference/",
+      "description": "Capture the ValueLens Usage Maturity report page using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and the Asking, Finding, Consuming, Producing, and Delegating maturity progression; exclude browser chrome, tenant names, user names, verbatim comments, and personal data.",
+      "proposedAlt": "ValueLens Usage Maturity report page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-PAGE-005",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/page-reference/",
+      "description": "Capture the ValueLens Leaderboards report page using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and top users, agents, and functions using anonymized labels; exclude browser chrome, tenant names, user names, verbatim comments, and personal data.",
+      "proposedAlt": "ValueLens Leaderboards report page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-PAGE-006",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/page-reference/",
+      "description": "Capture the ValueLens Agent Governance report page using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and deployment-pattern, creator, and governance indicators using anonymized data; exclude browser chrome, tenant names, user names, verbatim comments, and personal data.",
+      "proposedAlt": "ValueLens Agent Governance report page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-PAGE-007",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/page-reference/",
+      "description": "Capture the ValueLens User Feedback report page using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and feedback sentiment and theme summaries without visible verbatim user comments; exclude browser chrome, tenant names, user names, verbatim comments, and personal data.",
+      "proposedAlt": "ValueLens User Feedback report page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-PAGE-008",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/page-reference/",
+      "description": "Capture the ValueLens License Readiness report page using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and anonymized upgrade-priority rankings and readiness indicators; exclude browser chrome, tenant names, user names, verbatim comments, and personal data.",
+      "proposedAlt": "ValueLens License Readiness report page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-PAGE-009",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/page-reference/",
+      "description": "Capture the ValueLens Heatmap Trend report page using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and the activity heatmap across the reporting period; exclude browser chrome, tenant names, user names, verbatim comments, and personal data.",
+      "proposedAlt": "ValueLens Heatmap Trend report page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-PAGE-010",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/page-reference/",
+      "description": "Capture the ValueLens Credits Consumed report page using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and Copilot Studio agent credit-consumption and billing summaries; exclude browser chrome, tenant names, user names, verbatim comments, and personal data.",
+      "proposedAlt": "ValueLens Credits Consumed report page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-PAGE-011",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/page-reference/",
+      "description": "Capture the ValueLens Agent Evaluation report page using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and resolution, abandonment, escalation, and response-time indicators; exclude browser chrome, tenant names, user names, verbatim comments, and personal data.",
+      "proposedAlt": "ValueLens Agent Evaluation report page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-PAGE-012",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/page-reference/",
+      "description": "Capture the ValueLens Topic Analysis report page using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and anonymized topic, resolution, and abandonment summaries by agent; exclude browser chrome, tenant names, user names, verbatim comments, and personal data.",
+      "proposedAlt": "ValueLens Topic Analysis report page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-PAGE-013",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/page-reference/",
+      "description": "Capture the ValueLens Key Concepts report page using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and the methodology and key-concept reference content; exclude browser chrome, tenant names, user names, verbatim comments, and personal data.",
+      "proposedAlt": "ValueLens Key Concepts report page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-PAGE-014",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/page-reference/",
+      "description": "Capture the ValueLens Glossary report page using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and metric definitions and research-source reference content; exclude browser chrome, tenant names, user names, verbatim comments, and personal data.",
+      "proposedAlt": "ValueLens Glossary report page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-PAGE-015",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/page-reference/",
+      "description": "Capture the ValueLens Signal Table report page using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and the raw-signal-to-value audit trail; exclude browser chrome, tenant names, user names, verbatim comments, and personal data.",
+      "proposedAlt": "ValueLens Signal Table report page with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-SHAREPOINT-001",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/setup/sharepoint/",
+      "description": "Capture the ValueLens SharePoint template's Edit Parameters dialog using synthetic SharePoint file URLs. Include Copilot Interactions File, Org Data File, and the optional Agent 365 parameter; exclude tenant host names, account names, and credentials.",
+      "proposedAlt": "ValueLens SharePoint template parameters with synthetic file URLs.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-SHAREPOINT-002",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/setup/sharepoint/",
+      "description": "Capture the Power BI Service scheduled refresh settings for the configured ValueLens SharePoint semantic model. Show refresh enabled and a schedule after the extract job; exclude workspace names, tenant names, accounts, gateways, and credentials.",
+      "proposedAlt": "Scheduled refresh settings for a ValueLens SharePoint semantic model.",
       "status": "needed"
     }
   ]
