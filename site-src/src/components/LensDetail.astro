@@ -12,15 +12,15 @@ const entry = await getEntry('lenses', id);
 if (!entry) {
   throw new Error(`LensDetail: no lens entry found for id "${id}"`);
 }
-const { name, status, color, category, detail, version, releaseDate } = entry.data;
-if (!detail) {
-  throw new Error(`LensDetail: lens "${id}" has no detail copy`);
-}
+const { name, status, color, category, detail, version, releaseDate, summary, overviewDescription } = entry.data;
 
 const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
 const statusLabel = STATUS_LABEL[status];
 const isInstalled = status === 'installed';
 const isComingSoon = status === 'coming-soon';
+if (!isComingSoon && !detail) {
+  throw new Error(`LensDetail: lens "${id}" has no detail copy`);
+}
 
 const heroLight = `${base}/lens-hero-${id}-light.png`;
 const heroDark = `${base}/lens-hero-${id}-dark.png`;
@@ -28,25 +28,31 @@ const heroDark = `${base}/lens-hero-${id}-dark.png`;
 const RAW = 'https://raw.githubusercontent.com/microsoft/CopilotScope/main/';
 const encodePath = (p: string) => p.split('/').map(encodeURIComponent).join('/');
 const tierAccents = ['ta', 'tb', 'tc'];
-const tiers = detail.tiers.map((t, i) => ({ ...t, rawUrl: RAW + encodePath(t.pbit), accent: tierAccents[i % tierAccents.length] }));
+const tiers = detail ? detail.tiers.map((t, i) => ({ ...t, rawUrl: RAW + encodePath(t.pbit), accent: tierAccents[i % tierAccents.length] })) : [];
 
-const { stats, whatItShowsLead, features, valueFlow, valueFlowNote, whatsInsideLead, pageGroups, buildCards, dataSources, dataNote, getNote } = detail;
+const { stats, whatItShowsLead, features, valueFlow, valueFlowNote, whatsInsideLead, pageGroups, buildCards, dataSources, dataNote, getNote } = detail ?? {};
+const bridgeCopy = "This lens is on the roadmap. Much of what it will measure is available today inside ValueLens — the flagship lens covers adoption, readiness, maturity, leaderboards, behaviour signals, and governance across the full Copilot estate.";
 
-const navItems = [
-  { href: '#ld-top', label: 'Intro' },
-  { href: '#what-it-shows', label: 'What it shows' },
-  { href: '#whats-inside', label: "What's inside" },
-  { href: '#data-requirements', label: 'Data requirements' },
-  ...(isComingSoon ? [] : [{ href: '#get-this-lens', label: 'Get this lens' }]),
-];
+const navItems = isComingSoon
+  ? [
+      { href: '#ld-top', label: 'Intro' },
+      { href: '#what-it-shows', label: 'What it shows' },
+      { href: '#explore-valuelens', label: 'Explore ValueLens' },
+    ]
+  : [
+      { href: '#ld-top', label: 'Intro' },
+      { href: '#what-it-shows', label: 'What it shows' },
+      { href: '#whats-inside', label: "What's inside" },
+      { href: '#data-requirements', label: 'Data requirements' },
+      { href: '#get-this-lens', label: 'Get this lens' },
+    ];
 
 const modalTitleId = `fb-title-${id}`;
 const modalDescId = `fb-desc-${id}`;
 ---
 
 <article class="lens-detail" data-lens={id} data-status={status}>
-  {!isComingSoon && (
-    <div class="ld-strip" data-ld-strip hidden={isInstalled}>
+  <div class="ld-strip" data-ld-strip hidden={isInstalled}>
       <span class="ld-strip-id">
         <span class="tile-icon ld-strip-icon" style={`--tile-c: var(--${color}); background: var(--tile-c)`} aria-hidden="true"></span>
         <span class="ld-strip-name">{name}</span>
@@ -62,7 +68,6 @@ const modalDescId = `fb-desc-${id}`;
         )}
       </span>
     </div>
-  )}
 
   {isInstalled && (
     <div class="ld-dashboard" data-ld-dashboard hidden>
@@ -97,6 +102,29 @@ const modalDescId = `fb-desc-${id}`;
             </header>
           </div>
         </div>
+        {isComingSoon ? (
+          <Fragment>
+            <p class="ld-intro">{overviewDescription}</p>
+
+            <section class="ld-card" id="what-it-shows">
+              <div class="ld-card-head">
+                <span class="ld-card-icon ld-icon-shows" aria-hidden="true"><Icon name="eye" size={18} /></span>
+                <h2>What it shows</h2>
+              </div>
+              <p class="ld-prose">{summary}</p>
+            </section>
+
+            <section class="ld-card" id="explore-valuelens">
+              <div class="ld-card-head">
+                <span class="ld-card-icon ld-icon-bridge" aria-hidden="true"><Icon name="rocket" size={18} /></span>
+                <h2>Explore ValueLens</h2>
+              </div>
+              <p class="ld-prose">{bridgeCopy}</p>
+              <a class="ld-dl-btn ld-bridge-btn" href={`${base}/lenses/valuelens`}>{'Explore ValueLens ->'}</a>
+            </section>
+          </Fragment>
+        ) : (
+          <Fragment>
         <p class="ld-intro">{detail.heroIntro}</p>
 
         {stats && (
@@ -269,6 +297,8 @@ const modalDescId = `fb-desc-${id}`;
         )}
 
         <p class="ld-disclaimer">{detail.disclaimer}</p>
+          </Fragment>
+        )}
       </div>
 
       <aside class="ld-rail" aria-label="Page information">
@@ -284,10 +314,12 @@ const modalDescId = `fb-desc-${id}`;
         <div class="ld-rail-card ld-status-card">
           <p class="ld-rail-title">Product status</p>
           <p class="ld-status-line"><span class:list={['pill', `pill--${status}`]}>{statusLabel}</span></p>
-          <dl class="ld-meta">
-            <div><dt>Version</dt><dd>{version}</dd></div>
-            <div><dt>Released</dt><dd>{releaseDate}</dd></div>
-          </dl>
+          {!isComingSoon && (
+            <dl class="ld-meta">
+              <div><dt>Version</dt><dd>{version}</dd></div>
+              <div><dt>Released</dt><dd>{releaseDate}</dd></div>
+            </dl>
+          )}
         </div>
 
         <div class="ld-rail-card ld-fb-card">
@@ -618,6 +650,8 @@ const modalDescId = `fb-desc-${id}`;
   .ld-icon-inside { color: var(--accent); background: var(--accent-subtle); }
   .ld-icon-data { color: var(--lens-green); background: color-mix(in srgb, var(--lens-green) 15%, var(--surface-card)); }
   .ld-icon-get { color: var(--lens-orange); background: color-mix(in srgb, var(--lens-orange) 15%, var(--surface-card)); }
+  .ld-icon-bridge { color: var(--lens-green); background: color-mix(in srgb, var(--lens-green) 15%, var(--surface-card)); }
+  .ld-bridge-btn { margin-top: var(--sp-3); }
 
   /* ---------- Stat strip ---------- */
   .ld-stats { display: flex; align-items: stretch; margin: 0 0 var(--sp-5); padding: var(--sp-4) var(--sp-5); background: var(--surface-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-1); }
