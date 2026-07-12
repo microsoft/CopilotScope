@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
 import { getOrderedLenses, LENS_ICON } from '../lib/lenses';
+import { railActive } from '../lib/docs';
 import Icon from '../components/Icon.astro';
 
 interface Props {
@@ -63,7 +64,7 @@ const nav: NavEntry[] = [
   { label: 'GitHub', href: repoUrl, icon: 'github', external: true, utility: true },
 ];
 
-const isActive = (item: NavLink): boolean => !item.external && strip(item.href) === current;
+const isActive = (item: NavLink): boolean => !item.external && railActive(item.href, current);
 ---
 
 <!doctype html>
@@ -219,6 +220,8 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
     </div>
 
     <script>
+      import { railActive } from '../lib/docs';
+
       const KEY = 'csTheme';
 
       function currentTheme(): 'light' | 'dark' {
@@ -272,7 +275,7 @@ const isActive = (item: NavLink): boolean => !item.external && strip(item.href) 
       function updateActive(): void {
         const cur = location.pathname.replace(/\/+$/, '') || '/';
         document.querySelectorAll<HTMLAnchorElement>('.rail-link[data-path]').forEach((a) => {
-          const active = a.getAttribute('data-path') === cur;
+          const active = railActive(a.getAttribute('data-path') || '', cur);
           a.classList.toggle('active', active);
           if (active) a.setAttribute('aria-current', 'page');
           else a.removeAttribute('aria-current');

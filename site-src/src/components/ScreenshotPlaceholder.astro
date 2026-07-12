@@ -1,0 +1,102 @@
+---
+// A deliberate documentation capture block: not a fake image and not a broken
+// <img>. It renders the proposed capture as a labelled figure and carries the
+// data-* attributes the build-time screenshot manifest scans with parse5. The
+// whole block is excluded from the Pagefind index.
+interface Props {
+  id: string;
+  description: string;
+  alt: string;
+}
+const { id, description, alt } = Astro.props;
+---
+
+<figure
+  class="shot-ph"
+  data-screenshot-id={id}
+  data-capture-description={description}
+  data-proposed-alt={alt}
+  data-pagefind-ignore="all"
+>
+  <div class="shot-ph-frame" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="14" rx="2" />
+      <circle cx="8.5" cy="9" r="1.5" />
+      <path d="m21 15-5-5L5 18" />
+    </svg>
+    <span class="shot-ph-badge">Screenshot planned</span>
+  </div>
+  <figcaption class="shot-ph-body">
+    <p class="shot-ph-id"><span class="shot-ph-k">ID</span><code>{id}</code></p>
+    <p class="shot-ph-desc"><span class="shot-ph-k">Capture</span>{description}</p>
+    <p class="shot-ph-alt"><span class="shot-ph-k">Proposed alt</span>{alt}</p>
+  </figcaption>
+</figure>
+
+<style>
+  .shot-ph {
+    margin: var(--sp-5) 0;
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface-subtle, var(--surface-card));
+    overflow: hidden;
+  }
+  .shot-ph-frame {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-4);
+    color: var(--muted);
+    background: color-mix(in srgb, var(--muted) 8%, var(--surface-card));
+    border-bottom: 1px dashed var(--border);
+  }
+  .shot-ph-frame svg {
+    width: 28px;
+    height: 28px;
+    flex: 0 0 auto;
+  }
+  .shot-ph-badge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .shot-ph-body {
+    display: grid;
+    gap: var(--sp-2);
+    padding: var(--sp-4);
+  }
+  .shot-ph-body p {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+  .shot-ph-k {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 2px;
+  }
+  .shot-ph-id code {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .shot-ph-desc,
+  .shot-ph-alt {
+    color: var(--muted);
+  }
+  @media (max-width: 420px) {
+    .shot-ph-frame {
+      padding: var(--sp-3);
+    }
+    .shot-ph-body {
+      padding: var(--sp-3);
+    }
+  }
+</style>

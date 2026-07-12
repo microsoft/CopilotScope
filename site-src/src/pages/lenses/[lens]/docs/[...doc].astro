@@ -1,0 +1,48 @@
+---
+import { getCollection, render } from 'astro:content';
+import DocsLayout from '../../../../layouts/DocsLayout.astro';
+import { DOCS_ROUTES } from '../../../../lib/docs';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('docs');
+  const collIds = new Set(entries.map((e) => e.id));
+  const modelIds = new Set(DOCS_ROUTES.map((r) => r.entryId));
+
+  // Exact-set validation: the canonical route model and the docs collection
+  // must be identical sets. Any missing, extra, duplicate, or count mismatch
+  // fails the build.
+  const missing = [...modelIds].filter((id) => !collIds.has(id));
+  const extra = [...collIds].filter((id) => !modelIds.has(id));
+  const dup = collIds.size !== entries.length;
+  if (
+    entries.length !== DOCS_ROUTES.length ||
+    missing.length > 0 ||
+    extra.length > 0 ||
+    dup
+  ) {
+    throw new Error(
+      `Docs route/collection set mismatch. modelCount=${DOCS_ROUTES.length} collectionCount=${entries.length} duplicate=${dup} missing=[${[...missing].join(', ')}] extra=[${[...extra].join(', ')}]`,
+    );
+  }
+
+  const byId = new Map(entries.map((e) => [e.id, e]));
+  return DOCS_ROUTES.map((route) => ({
+    params: { lens: route.lens, doc: route.doc },
+    props: { route, entry: byId.get(route.entryId)! },
+  }));
+}
+
+const { route, entry } = Astro.props;
+const { Content, headings } = await render(entry);
+---
+
+<DocsLayout
+  lens={route.lens}
+  lensName={route.lensName}
+  entryId={route.entryId}
+  title={route.title}
+  status={entry.data.status}
+  headings={headings}
+>
+  <Content />
+</DocsLayout>

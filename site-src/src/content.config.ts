@@ -95,4 +95,16 @@ const lenses = defineCollection({
   }),
 });
 
-export const collections = { lenses };
+const docs = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/docs' }),
+  schema: z.object({
+    lens: z.enum(['valuelens', 'studiolens']),
+    title: z.string(),
+    description: z.string(),
+    status: z.enum(['scaffold', 'published']),
+    sourceFiles: z.array(z.string()),
+  }),
+});
+
+export const collections = { lenses, docs };
+

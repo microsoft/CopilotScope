@@ -1,0 +1,425 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import DocsSearch from '../components/DocsSearch.astro';
+import {
+  DOCS_ROUTES,
+  getDocsNav,
+  getPrevNext,
+  type DocsLensSlug,
+} from '../lib/docs';
+
+interface Props {
+  lens: DocsLensSlug;
+  lensName: string;
+  entryId: string;
+  title: string;
+  status: 'scaffold' | 'published';
+  headings: { depth: number; slug: string; text: string }[];
+}
+const { lens, lensName, entryId, title, status, headings } = Astro.props;
+
+const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
+const route = DOCS_ROUTES.find((r) => r.entryId === entryId)!;
+const landingPath = `/lenses/${lens}/docs`;
+const isLanding = route.doc === undefined;
+
+const nav = getDocsNav(lens);
+const { prev, next } = getPrevNext(route);
+const groupLabel = route.navGroup ?? route.navLabel;
+
+const onThis = headings.filter((h) => h.depth === 2 || h.depth === 3);
+
+const crumbs = [
+  { label: 'Lenses', href: `${base}/lenses` },
+  { label: lensName, href: `${base}/lenses/${lens}` },
+  { label: 'Documentation', href: `${base}${landingPath}` },
+];
+if (!isLanding) crumbs.push({ label: title, href: '' });
+---
+
+<BaseLayout title={`${title} \u00b7 ${lensName} \u00b7 CopilotScope`}>
+  <div class="docs">
+    <nav class="docs-crumbs" aria-label="Breadcrumb" data-pagefind-ignore="all">
+      <ol>
+        {
+          crumbs.map((c, i) => (
+            <li>
+              {c.href ? (
+                <a href={c.href}>{c.label}</a>
+              ) : (
+                <span aria-current="page">{c.label}</span>
+              )}
+              {i < crumbs.length - 1 && <span class="sep" aria-hidden="true">/</span>}
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+
+    <header class="docs-head">
+      <p class="docs-eyebrow">{lensName} documentation</p>
+      {status === 'scaffold' && <span class="docs-status pill pill--coming-soon">Coming soon</span>}
+    </header>
+
+    <div class="docs-searchbar" data-pagefind-ignore="all">
+      <DocsSearch lens={lens} lensName={lensName} />
+    </div>
+
+    <div class="docs-grid">
+      <aside class="docs-side" data-pagefind-ignore="all">
+        <details class="docs-nav-disc" open>
+          <summary class="docs-nav-summary">
+            <span>Documentation</span>
+            <span class="docs-nav-chevron" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+            </span>
+          </summary>
+          <nav class="docs-nav" aria-label={`${lensName} documentation`}>
+            <ul>
+              {
+                nav.map((node) =>
+                  node.type === 'link' ? (
+                    <li>
+                      <a
+                        href={`${base}${node.path}`}
+                        class:list={['docs-nav-link', { active: node.entryId === entryId }]}
+                        aria-current={node.entryId === entryId ? 'page' : undefined}
+                      >
+                        {node.label}
+                      </a>
+                    </li>
+                  ) : (
+                    <li class="docs-nav-group">
+                      <p class="docs-nav-grouplabel" id={`dng-${lens}`}>{node.label}</p>
+                      <ul aria-labelledby={`dng-${lens}`}>
+                        {node.children.map((child) => (
+                          <li>
+                            <a
+                              href={`${base}${child.path}`}
+                              class:list={['docs-nav-link', 'child', { active: child.entryId === entryId }]}
+                              aria-current={child.entryId === entryId ? 'page' : undefined}
+                            >
+                              {child.label}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  )
+                )
+              }
+            </ul>
+          </nav>
+        </details>
+      </aside>
+
+      <article
+        class="docs-article"
+        data-pagefind-body
+        data-pagefind-filter={`lens:${lens}`}
+        data-pagefind-meta={`lens_name:${lensName}`}
+      >
+        <span hidden data-pagefind-meta={`group:${groupLabel}`}></span>
+        <h1 class="docs-title">{title}</h1>
+        <div class="docs-prose">
+          <slot />
+        </div>
+      </article>
+
+      {
+        onThis.length > 0 && (
+          <aside class="docs-onthis" aria-label="On this page" data-pagefind-ignore="all">
+            <p class="docs-onthis-label">On this page</p>
+            <ul>
+              {onThis.map((h) => (
+                <li class:list={[{ sub: h.depth === 3 }]}>
+                  <a href={`#${h.slug}`}>{h.text}</a>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        )
+      }
+    </div>
+
+    <nav class="docs-prevnext" aria-label="Pagination" data-pagefind-ignore="all">
+      {
+        prev ? (
+          <a class="pn pn-prev" href={`${base}${prev.path}`}>
+            <span class="pn-dir">Previous</span>
+            <span class="pn-label">{prev.navLabel}</span>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      {
+        next ? (
+          <a class="pn pn-next" href={`${base}${next.path}`}>
+            <span class="pn-dir">Next</span>
+            <span class="pn-label">{next.navLabel}</span>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+    </nav>
+  </div>
+</BaseLayout>
+
+<style>
+  .docs {
+    max-width: 1180px;
+  }
+  .docs-crumbs ol {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 var(--sp-4);
+    padding: 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .docs-crumbs li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .docs-crumbs a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .docs-crumbs a:hover {
+    text-decoration: underline;
+  }
+  .docs-crumbs .sep {
+    color: var(--border-strong);
+  }
+  .docs-head {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--sp-4);
+  }
+  .docs-eyebrow {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .docs-searchbar {
+    margin-bottom: var(--sp-5);
+    max-width: 640px;
+  }
+  .docs-grid {
+    display: grid;
+    grid-template-columns: 232px minmax(0, 1fr) 200px;
+    gap: var(--sp-6);
+    align-items: start;
+  }
+  .docs-side {
+    position: sticky;
+    top: 72px;
+  }
+  .docs-nav-disc {
+    border: none;
+  }
+  .docs-nav-summary {
+    display: none;
+  }
+  .docs-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 2px;
+  }
+  .docs-nav-group > ul {
+    margin-top: 2px;
+  }
+  .docs-nav-grouplabel {
+    margin: var(--sp-3) 0 2px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .docs-nav-link {
+    display: block;
+    padding: 6px var(--sp-3);
+    border-radius: var(--radius-sm);
+    font-size: 0.92rem;
+    color: var(--ink);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+  }
+  .docs-nav-link.child {
+    padding-left: var(--sp-4);
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .docs-nav-link:hover {
+    background: color-mix(in srgb, var(--muted) 10%, transparent);
+  }
+  .docs-nav-link.active {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    border-left-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .docs-nav-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .docs-article {
+    min-width: 0;
+  }
+  .docs-title {
+    font-size: 2rem;
+    font-weight: 650;
+    line-height: 1.2;
+    margin: 0 0 var(--sp-4);
+  }
+  .docs-prose {
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: var(--ink);
+  }
+  .docs-prose :global(p) {
+    margin: 0 0 var(--sp-4);
+    color: var(--muted);
+  }
+  .docs-prose :global(h2) {
+    font-size: 1.4rem;
+    margin: var(--sp-6) 0 var(--sp-3);
+  }
+  .docs-prose :global(h3) {
+    font-size: 1.15rem;
+    margin: var(--sp-5) 0 var(--sp-2);
+  }
+  .docs-onthis {
+    position: sticky;
+    top: 72px;
+    font-size: 0.85rem;
+  }
+  .docs-onthis-label {
+    margin: 0 0 var(--sp-2);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .docs-onthis ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+  }
+  .docs-onthis li.sub {
+    padding-left: var(--sp-3);
+  }
+  .docs-onthis a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .docs-onthis a:hover {
+    color: var(--accent);
+  }
+  .docs-prevnext {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    margin-top: var(--sp-7);
+    padding-top: var(--sp-4);
+    border-top: 1px solid var(--border);
+  }
+  .pn {
+    display: grid;
+    gap: 2px;
+    padding: var(--sp-3) var(--sp-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    max-width: 48%;
+  }
+  .pn-next {
+    text-align: right;
+  }
+  .pn:hover {
+    border-color: var(--accent);
+  }
+  .pn-dir {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .pn-label {
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  @media (max-width: 1080px) {
+    .docs-grid {
+      grid-template-columns: 232px minmax(0, 1fr);
+    }
+    .docs-onthis {
+      display: none;
+    }
+  }
+  @media (max-width: 760px) {
+    .docs-grid {
+      grid-template-columns: 1fr;
+      gap: var(--sp-4);
+    }
+    .docs-side {
+      position: static;
+    }
+    .docs-nav-disc {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 0 var(--sp-3);
+    }
+    .docs-nav-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--sp-2);
+      padding: var(--sp-3) 0;
+      font-weight: 600;
+      cursor: pointer;
+      list-style: none;
+    }
+    .docs-nav-summary::-webkit-details-marker {
+      display: none;
+    }
+    .docs-nav-chevron svg {
+      width: 18px;
+      height: 18px;
+      transition: transform var(--dur, 0.2s) var(--ease, ease);
+    }
+    .docs-nav-disc[open] .docs-nav-chevron svg {
+      transform: rotate(180deg);
+    }
+    .docs-nav {
+      padding-bottom: var(--sp-3);
+    }
+    .docs-nav-summary:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
+    }
+    .pn {
+      max-width: 49%;
+    }
+  }
+</style>

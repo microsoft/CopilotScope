@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "count": 2,
+  "placeholders": [
+    {
+      "id": "SL-OVERVIEW-001",
+      "lens": "studiolens",
+      "pageUrl": "/lenses/studiolens/docs/",
+      "description": "Capture the StudioLens report overview using anonymized sample data. Include the full Power BI report canvas with agent performance summary metrics and visible page navigation; exclude browser chrome, environment names, transcripts, and personal data.",
+      "proposedAlt": "StudioLens agent performance overview with anonymized sample data.",
+      "status": "needed"
+    },
+    {
+      "id": "VL-OVERVIEW-001",
+      "lens": "valuelens",
+      "pageUrl": "/lenses/valuelens/docs/",
+      "description": "Capture the ValueLens report with the User Activation page selected, using anonymized sample data. Include the full Power BI report canvas, visible page navigation, and headline activation metrics; exclude browser chrome, tenant names, and personal data.",
+      "proposedAlt": "ValueLens User Activation report page with anonymized sample data.",
+      "status": "needed"
+    }
+  ]
+}

@@ -7,14 +7,20 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build:astro": "astro build",
+    "build:screenshot-manifest": "node scripts/build-screenshot-manifest.mjs",
+    "build:search": "pagefind --site dist",
+    "build": "npm run build:astro && npm run build:screenshot-manifest && npm run build:search",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/mdx": "^7.0.2",
     "astro": "^7.0.7"
   },
   "devDependencies": {
+    "pagefind": "^1.5.2",
+    "parse5": "^8.0.1",
     "playwright": "^1.61.1"
   }
 }
