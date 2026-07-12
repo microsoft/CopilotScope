@@ -38,11 +38,58 @@ const lenses = defineCollection({
         tiers: z.array(
           z.object({
             name: z.string(),
-            description: z.string(),
+            description: z.string().optional(),
             pbit: z.string(),
+            icon: z.string().optional(),
+            badge: z.string().optional(),
+            accent: z.string().optional(),
+            checks: z.array(z.string()).optional(),
           }),
         ),
         disclaimer: z.string(),
+        stats: z
+          .array(z.object({ value: z.string(), label: z.string() }))
+          .optional(),
+        whatItShowsLead: z.string().optional(),
+        features: z
+          .array(z.object({ icon: z.string(), title: z.string(), desc: z.string() }))
+          .optional(),
+        valueFlow: z.array(z.string()).optional(),
+        valueFlowNote: z.string().optional(),
+        whatsInsideLead: z.string().optional(),
+        pageGroups: z
+          .array(
+            z.object({
+              label: z.string().optional(),
+              note: z.string().optional(),
+              items: z.array(z.object({ icon: z.string(), name: z.string() })),
+            }),
+          )
+          .optional(),
+        buildCards: z
+          .array(
+            z.object({
+              icon: z.string().optional(),
+              name: z.string(),
+              badge: z.string().optional(),
+              checks: z.array(z.string()),
+            }),
+          )
+          .optional(),
+        whatsInsideNote: z.string().optional(),
+        dataRequirementsLead: z.string().optional(),
+        dataSources: z
+          .array(
+            z.object({
+              icon: z.string(),
+              source: z.string(),
+              description: z.string(),
+              requirement: z.string(),
+            }),
+          )
+          .optional(),
+        dataNote: z.string().optional(),
+        getNote: z.string().optional(),
       })
       .optional(),
   }),

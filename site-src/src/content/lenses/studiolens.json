@@ -18,17 +18,123 @@
     "getIntro": "Two paths, same analytics:",
     "tiers": [
       {
-        "name": "Dataverse (Direct) (simplest — start here)",
-        "description": "the lowest-footprint build; transcripts parsed live in-model, one or many Dataverse environments, no infrastructure.",
-        "pbit": "lenses/StudioLens/deployment/1. Dataverse (Direct)/StudioLens - Dataverse.pbit"
+        "name": "Dataverse (Direct)",
+        "description": "The simplest, lowest-footprint build.",
+        "pbit": "lenses/StudioLens/deployment/1. Dataverse (Direct)/StudioLens - Dataverse.pbit",
+        "icon": "database",
+        "badge": "Start here",
+        "accent": "ta",
+        "checks": [
+          "Transcripts parsed live in-model",
+          "One or many Dataverse environments",
+          "No infrastructure to stand up"
+        ]
       },
       {
         "name": "Fabric",
-        "description": "scheduled Spark ingestion for scale, history, and the message-credit pages.",
-        "pbit": "lenses/StudioLens/deployment/2. Fabric/StudioLens - Fabric.pbit"
+        "description": "Scheduled ingestion for scale and history.",
+        "pbit": "lenses/StudioLens/deployment/2. Fabric/StudioLens - Fabric.pbit",
+        "icon": "layers",
+        "accent": "tb",
+        "checks": [
+          "Scheduled Spark ingestion",
+          "Larger volumes and longer history",
+          "Adds the message-credit pages"
+        ]
       }
     ],
-    "disclaimer": "Experimental template reading Copilot Studio transcripts from Dataverse. Not an official Microsoft-supported product — questions and issues via the GitHub repo."
+    "disclaimer": "Experimental template reading Copilot Studio transcripts from Dataverse. Not an official Microsoft-supported product — questions and issues via the GitHub repo.",
+    "stats": [
+      {
+        "value": "2",
+        "label": "builds of one template"
+      },
+      {
+        "value": "3",
+        "label": "parameters to start (Dataverse path)"
+      },
+      {
+        "value": "6",
+        "label": "evaluation dimensions"
+      }
+    ],
+    "whatItShowsLead": "StudioLens reads your agents' conversation transcripts and turns them into answers.",
+    "features": [
+      {
+        "icon": "chat",
+        "title": "Sessions & turns",
+        "desc": "Agent sessions, turns, errors, and sub-agent calls."
+      },
+      {
+        "icon": "gauge",
+        "title": "Quality & performance",
+        "desc": "Resolution, containment, abandonment, and escalation."
+      },
+      {
+        "icon": "tag",
+        "title": "Topic analysis",
+        "desc": "What users actually ask, and where conversations succeed or break down."
+      },
+      {
+        "icon": "book",
+        "title": "Knowledge usage",
+        "desc": "Which knowledge files agents actually draw on."
+      },
+      {
+        "icon": "thumb",
+        "title": "User feedback",
+        "desc": "Signal from the people talking to your agents."
+      },
+      {
+        "icon": "coins",
+        "title": "Message credits",
+        "desc": "Copilot Studio credit consumption, for the cost side of the story."
+      }
+    ],
+    "whatsInsideLead": "Two builds of one template — same analytics, different data plumbing.",
+    "buildCards": [
+      {
+        "icon": "database",
+        "name": "Dataverse (Direct)",
+        "badge": "Start here",
+        "checks": [
+          "Parses transcripts live in the Power BI model",
+          "Open the template, set three parameters, done",
+          "One or many Dataverse environments, zero infrastructure"
+        ]
+      },
+      {
+        "icon": "layers",
+        "name": "Fabric",
+        "checks": [
+          "Transcripts and credits land as Delta tables in a Lakehouse",
+          "Scheduled ingestion for larger volumes and longer history",
+          "Unlocks the PPAC message-credit pages"
+        ]
+      }
+    ],
+    "dataSources": [
+      {
+        "icon": "database",
+        "source": "Dataverse environment",
+        "description": "Where Copilot Studio logs conversation transcripts.",
+        "requirement": "Required"
+      },
+      {
+        "icon": "people",
+        "source": "Org data CSV",
+        "description": "User and department context for the reports.",
+        "requirement": "Required"
+      },
+      {
+        "icon": "layers",
+        "source": "Fabric capacity + Lakehouse",
+        "description": "Storage and compute for the Fabric build.",
+        "requirement": "Fabric path only"
+      }
+    ],
+    "dataNote": "Note Dataverse's ~30-day transcript retention — the Fabric path is the answer for historical analysis at scale.",
+    "getNote": "Both paths include documentation and setup guidance."
   },
   "version": "v1.0",
   "releaseDate": "July 12, 2026"

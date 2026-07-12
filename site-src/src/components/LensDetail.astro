@@ -30,7 +30,7 @@ const encodePath = (p: string) => p.split('/').map(encodeURIComponent).join('/')
 const tierAccents = ['ta', 'tb', 'tc'];
 const tiers = detail.tiers.map((t, i) => ({ ...t, rawUrl: RAW + encodePath(t.pbit), accent: tierAccents[i % tierAccents.length] }));
 
-const groups = detail.whatsInsideGroups;
+const { stats, whatItShowsLead, features, valueFlow, valueFlowNote, whatsInsideLead, pageGroups, buildCards, dataSources, dataNote, getNote } = detail;
 
 const navItems = [
   { href: '#ld-top', label: 'Intro' },
@@ -67,19 +67,14 @@ const modalDescId = `fb-desc-${id}`;
   {isInstalled && (
     <div class="ld-dashboard" data-ld-dashboard hidden>
       <div class="ld-empty">
-        <span class="ld-empty-icon" style={`--tile-c: var(--${color})`} aria-hidden="true">
-          <Icon name="scatter" size={40} />
+        <span class="ld-empty-art" style={`--tile-c: var(--${color})`} aria-hidden="true">
+          <Icon name="bar-chart" size={60} />
         </span>
         <h2 class="ld-empty-title">Your embedded dashboard will live here</h2>
-        <p class="ld-empty-text">The live, in-page {name} report is coming soon. When it ships, this pane will host your interactive dashboard directly in CopilotScope.</p>
-        <div class="ld-empty-actions">
-          <span class="star-row" data-lens={id}>
-            <button class="star-btn" type="button" data-lens={id} data-name={name} aria-label={`Star ${name}`} aria-pressed="false"><span class="star-glyph" aria-hidden="true">&#9734;</span></button>
-            <span class="star-count" data-lens={id} aria-live="polite">&#8212;</span>
-          </span>
-          <button class="ld-fb-btn ld-fb-btn--quiet" type="button" data-fb-open>Send feedback</button>
-          <span class="ld-fb-status" data-fb-status hidden></span>
-        </div>
+        <p class="ld-empty-text">The live, in-page {name} report is on its way. When it ships, your interactive dashboard will appear right here in CopilotScope.</p>
+        <a class="ld-empty-link" href="#ld-top" data-ld-about>
+          <Icon name="help" size={16} /> Learn more about this lens
+        </a>
       </div>
     </div>
   )}
@@ -104,27 +99,89 @@ const modalDescId = `fb-desc-${id}`;
         </div>
         <p class="ld-intro">{detail.heroIntro}</p>
 
+        {stats && (
+          <div class="ld-stats">
+            {stats.map((s) => (
+              <div class="ld-stat">
+                <span class="ld-stat-value">{s.value}</span>
+                <span class="ld-stat-label">{s.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
         <section class="ld-card" id="what-it-shows">
           <div class="ld-card-head">
-            <span class="ld-card-icon" aria-hidden="true"><Icon name="eye" size={18} /></span>
+            <span class="ld-card-icon ld-icon-shows" aria-hidden="true"><Icon name="eye" size={18} /></span>
             <h2>What it shows</h2>
           </div>
-          <p class="ld-prose">{detail.whatItShows}</p>
+          {whatItShowsLead && <p class="ld-lead">{whatItShowsLead}</p>}
+          {features ? (
+            <ul class="ld-feature-grid">
+              {features.map((f) => (
+                <li class="ld-feature">
+                  <span class="ld-feature-icon" aria-hidden="true"><Icon name={f.icon} size={18} /></span>
+                  <div class="ld-feature-body">
+                    <p class="ld-feature-title">{f.title}</p>
+                    <p class="ld-feature-desc">{f.desc}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="ld-prose">{detail.whatItShows}</p>
+          )}
+          {valueFlow && (
+            <div class="ld-flow-wrap">
+              <p class="ld-flow-title">How the value model works</p>
+              <ol class="ld-flow">
+                {valueFlow.map((step, i) => (
+                  <li class="ld-flow-step">
+                    <span class="ld-flow-node">{step}</span>
+                    {i < valueFlow.length - 1 && <span class="ld-flow-arrow" aria-hidden="true"><Icon name="chevron" size={14} /></span>}
+                  </li>
+                ))}
+              </ol>
+              {valueFlowNote && <p class="ld-note"><Icon name="info" size={15} /> {valueFlowNote}</p>}
+            </div>
+          )}
         </section>
 
         <section class="ld-card" id="whats-inside">
           <div class="ld-card-head">
-            <span class="ld-card-icon" aria-hidden="true"><Icon name="grid" size={18} /></span>
+            <span class="ld-card-icon ld-icon-inside" aria-hidden="true"><Icon name="grid" size={18} /></span>
             <h2>What&#39;s inside</h2>
           </div>
-          {groups ? (
-            <div class="ld-wi">
-              {groups.map((g) => (
-                <div class="ld-wi-group">
-                  <p class="ld-wi-label">{g.label}</p>
-                  <ul class="ld-wi-grid">
+          {whatsInsideLead && <p class="ld-lead">{whatsInsideLead}</p>}
+          {pageGroups ? (
+            <div class="ld-pages">
+              {pageGroups.map((g) => (
+                <div class="ld-page-group">
+                  {g.label && <p class="ld-group-label">{g.label}</p>}
+                  <ul class="ld-page-grid">
                     {g.items.map((it) => (
-                      <li class="ld-wi-item">{it}</li>
+                      <li class="ld-page-item">
+                        <span class="ld-page-icon" aria-hidden="true"><Icon name={it.icon} size={16} /></span>
+                        <span class="ld-page-name">{it.name}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {g.note && <p class="ld-note"><Icon name="info" size={15} /> {g.note}</p>}
+                </div>
+              ))}
+            </div>
+          ) : buildCards ? (
+            <div class="ld-build-cards">
+              {buildCards.map((b) => (
+                <div class="ld-build-card">
+                  <div class="ld-build-head">
+                    {b.icon && <span class="ld-build-icon" aria-hidden="true"><Icon name={b.icon} size={18} /></span>}
+                    <p class="ld-build-name">{b.name}</p>
+                    {b.badge && <span class="ld-badge">{b.badge}</span>}
+                  </div>
+                  <ul class="ld-checks">
+                    {b.checks.map((c) => (
+                      <li class="ld-check"><span class="ld-check-icon" aria-hidden="true"><Icon name="check" size={15} /></span>{c}</li>
                     ))}
                   </ul>
                 </div>
@@ -137,32 +194,67 @@ const modalDescId = `fb-desc-${id}`;
 
         <section class="ld-card" id="data-requirements">
           <div class="ld-card-head">
-            <span class="ld-card-icon" aria-hidden="true"><Icon name="database" size={18} /></span>
+            <span class="ld-card-icon ld-icon-data" aria-hidden="true"><Icon name="database" size={18} /></span>
             <h2>Data requirements</h2>
           </div>
-          <p class="ld-prose">{detail.dataRequirements}</p>
+          {dataSources ? (
+            <div class="ld-table">
+              <div class="ld-tr ld-tr-head">
+                <span class="ld-th ld-th-source">Source</span>
+                <span class="ld-th ld-th-desc">Description</span>
+                <span class="ld-th ld-th-req">Required</span>
+              </div>
+              {dataSources.map((s) => (
+                <div class="ld-tr">
+                  <span class="ld-td ld-td-source">
+                    <span class="ld-src-icon" aria-hidden="true"><Icon name={s.icon} size={16} /></span>
+                    <span class="ld-src-name">{s.source}</span>
+                  </span>
+                  <span class="ld-td ld-td-desc">{s.description}</span>
+                  <span class="ld-td ld-td-req"><span class:list={['ld-req-pill', s.requirement === 'Required' ? 'ld-req-required' : 'ld-req-optional']}>{s.requirement}</span></span>
+                </div>
+              ))}
+              {dataNote && (
+                <div class="ld-tr ld-tr-note">
+                  <span class="ld-td-note"><Icon name="info" size={15} /> {dataNote}</span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p class="ld-prose">{detail.dataRequirements}</p>
+          )}
         </section>
 
         {!isComingSoon && (
           <section class="ld-card" id="get-this-lens">
             <div class="ld-card-head">
-              <span class="ld-card-icon" aria-hidden="true"><Icon name="download" size={18} /></span>
+              <span class="ld-card-icon ld-icon-get" aria-hidden="true"><Icon name="download" size={18} /></span>
               <h2>Get this lens</h2>
             </div>
-            <p class="ld-prose ld-get-intro">{detail.getIntro}</p>
+            <p class="ld-lead ld-get-intro">{detail.getIntro}</p>
             <ul class="ld-tiers">
               {tiers.map((tier) => (
                 <li class:list={['ld-tier', `ld-tier--${tier.accent}`]}>
-                  <div class="ld-tier-body">
+                  <div class="ld-tier-head">
+                    {tier.icon && <span class="ld-tier-icon" aria-hidden="true"><Icon name={tier.icon} size={20} /></span>}
                     <p class="ld-tier-name">{tier.name}</p>
-                    <p class="ld-tier-desc">{tier.description}</p>
+                    {tier.badge && <span class="ld-badge">{tier.badge}</span>}
                   </div>
+                  {tier.description && <p class="ld-tier-desc">{tier.description}</p>}
+                  {tier.checks && (
+                    <ul class="ld-checks">
+                      {tier.checks.map((c) => (
+                        <li class="ld-check"><span class="ld-check-icon" aria-hidden="true"><Icon name="check" size={15} /></span>{c}</li>
+                      ))}
+                    </ul>
+                  )}
                   <a class="ld-dl-btn" href={tier.rawUrl} download>
                     <Icon name="download" size={16} /> Download template
                   </a>
                 </li>
               ))}
             </ul>
+            {getNote && <p class="ld-note ld-get-note"><Icon name="info" size={15} /> {getNote}</p>}
           </section>
         )}
 
@@ -297,6 +389,19 @@ const modalDescId = `fb-desc-${id}`;
   .ld-empty-title { font-size: 1.4rem; font-weight: 650; margin: 0; color: var(--ink); }
   .ld-empty-text { font-size: 1rem; line-height: 1.55; color: var(--muted); margin: 0; max-width: 52ch; }
   .ld-empty-actions { display: inline-flex; align-items: center; gap: var(--sp-4); flex-wrap: wrap; justify-content: center; margin-top: var(--sp-3); }
+  .ld-empty-art {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 132px; height: 132px; border-radius: 999px;
+    color: var(--tile-c);
+    background: color-mix(in srgb, var(--tile-c) 12%, var(--surface-card));
+    border: 1px solid color-mix(in srgb, var(--tile-c) 22%, transparent);
+    margin-bottom: var(--sp-3);
+  }
+  .ld-empty-link {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: var(--sp-3);
+    font-size: 0.92rem; font-weight: 600; color: var(--accent); text-decoration: none; cursor: pointer;
+  }
+  .ld-empty-link:hover { text-decoration: underline; }
 
   /* ---------- Hero ---------- */
   .ld-header-row {
@@ -367,19 +472,24 @@ const modalDescId = `fb-desc-${id}`;
   }
 
   /* ---------- Get this lens tiers ---------- */
-  .ld-tiers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-3); }
+  .ld-tiers { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: var(--sp-4); }
   .ld-tier {
-    display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); flex-wrap: wrap;
+    display: flex; flex-direction: column; gap: var(--sp-3);
     padding: var(--sp-4); background: var(--surface-page);
-    border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border: 1px solid var(--border); border-top: 3px solid var(--accent);
     border-radius: var(--radius);
   }
-  .ld-tier--ta { border-left-color: var(--lens-green); }
-  .ld-tier--tb { border-left-color: var(--accent); }
-  .ld-tier--tc { border-left-color: var(--lens-purple); }
-  .ld-tier-body { min-width: 0; flex: 1 1 340px; }
-  .ld-tier-name { font-size: 1rem; font-weight: 650; color: var(--ink); margin: 0 0 4px; }
-  .ld-tier-desc { font-size: 0.92rem; line-height: 1.5; color: var(--muted); margin: 0; }
+  .ld-tier--ta { border-top-color: var(--lens-green); }
+  .ld-tier--tb { border-top-color: var(--accent); }
+  .ld-tier--tc { border-top-color: var(--lens-purple); }
+  .ld-tier-head { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+  .ld-tier-icon { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; flex: 0 0 auto; border-radius: 8px; color: var(--accent); background: var(--accent-subtle); }
+  .ld-tier--ta .ld-tier-icon { color: var(--lens-green); background: color-mix(in srgb, var(--lens-green) 14%, var(--surface-card)); }
+  .ld-tier--tc .ld-tier-icon { color: var(--lens-purple); background: color-mix(in srgb, var(--lens-purple) 14%, var(--surface-card)); }
+  .ld-tier-name { font-size: 1rem; font-weight: 650; color: var(--ink); margin: 0; }
+  .ld-tier-desc { font-size: 0.9rem; line-height: 1.45; color: var(--muted); margin: 0; }
+  .ld-tier .ld-checks { flex: 1 1 auto; }
+  .ld-tier .ld-dl-btn { margin-top: auto; width: 100%; justify-content: center; }
   .ld-dl-btn {
     display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto;
     padding: 8px 16px; font-size: 0.88rem; font-weight: 600;
@@ -492,6 +602,92 @@ const modalDescId = `fb-desc-${id}`;
     background: var(--accent); border: 1px solid var(--accent); border-radius: 8px; cursor: pointer;
   }
   .fb-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ---------- Section icon tints (fix6) ---------- */
+  .ld-icon-shows { color: var(--lens-purple); background: color-mix(in srgb, var(--lens-purple) 14%, var(--surface-card)); }
+  .ld-icon-inside { color: var(--accent); background: var(--accent-subtle); }
+  .ld-icon-data { color: var(--lens-green); background: color-mix(in srgb, var(--lens-green) 15%, var(--surface-card)); }
+  .ld-icon-get { color: var(--lens-orange); background: color-mix(in srgb, var(--lens-orange) 15%, var(--surface-card)); }
+
+  /* ---------- Stat strip ---------- */
+  .ld-stats { display: flex; align-items: stretch; margin: 0 0 var(--sp-5); padding: var(--sp-4) var(--sp-5); background: var(--surface-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-1); }
+  .ld-stat { flex: 1 1 0; display: flex; flex-direction: column; gap: 3px; padding: 0 var(--sp-4); border-left: 1px solid var(--border); min-width: 0; }
+  .ld-stat:first-child { border-left: none; padding-left: 0; }
+  .ld-stat:last-child { padding-right: 0; }
+  .ld-stat-value { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); line-height: 1.1; }
+  .ld-stat-label { font-size: 0.82rem; line-height: 1.35; color: var(--muted); }
+
+  /* ---------- Section lead + note ---------- */
+  .ld-lead { font-size: 1rem; line-height: 1.55; color: var(--muted); margin: 0 0 var(--sp-4); }
+  .ld-note { display: flex; align-items: flex-start; gap: 6px; font-size: 0.85rem; line-height: 1.45; color: var(--subtle); margin: var(--sp-3) 0 0; }
+  .ld-note :global(svg) { flex: 0 0 auto; margin-top: 1px; }
+
+  /* ---------- Feature grid ---------- */
+  .ld-feature-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: var(--sp-3); }
+  .ld-feature { display: flex; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); border: 1px solid var(--border); border-radius: 10px; background: var(--surface-page); }
+  .ld-feature-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; flex: 0 0 auto; border-radius: 8px; color: var(--accent); background: var(--accent-subtle); }
+  .ld-feature-body { min-width: 0; }
+  .ld-feature-title { font-size: 0.95rem; font-weight: 650; color: var(--ink); margin: 0 0 2px; }
+  .ld-feature-desc { font-size: 0.85rem; line-height: 1.45; color: var(--muted); margin: 0; }
+
+  /* ---------- Value flow ---------- */
+  .ld-flow-wrap { margin-top: var(--sp-4); padding-top: var(--sp-4); border-top: 1px solid var(--border); }
+  .ld-flow-title { font-size: 0.9rem; font-weight: 650; color: var(--ink); margin: 0 0 var(--sp-3); }
+  .ld-flow { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
+  .ld-flow-step { display: inline-flex; align-items: center; gap: var(--sp-2); }
+  .ld-flow-node { display: inline-flex; align-items: center; padding: 6px 12px; font-size: 0.82rem; font-weight: 600; color: var(--ink); background: var(--surface-page); border: 1px solid var(--border-strong); border-radius: 999px; white-space: nowrap; }
+  .ld-flow-arrow { display: inline-flex; color: var(--subtle); }
+
+  /* ---------- What's inside page grid ---------- */
+  .ld-pages { display: flex; flex-direction: column; gap: var(--sp-4); }
+  .ld-group-label { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--subtle); margin: 0 0 var(--sp-2); }
+  .ld-page-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--sp-2); }
+  .ld-page-item { display: flex; align-items: center; gap: var(--sp-2); padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-page); }
+  .ld-page-icon { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; color: var(--accent); }
+  .ld-page-name { font-size: 0.88rem; color: var(--ink); min-width: 0; }
+
+  /* ---------- Build cards ---------- */
+  .ld-build-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--sp-4); }
+  .ld-build-card { padding: var(--sp-4); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-page); }
+  .ld-build-head { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-3); flex-wrap: wrap; }
+  .ld-build-icon { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; flex: 0 0 auto; border-radius: 8px; color: var(--accent); background: var(--accent-subtle); }
+  .ld-build-name { font-size: 1rem; font-weight: 650; color: var(--ink); margin: 0; }
+
+  /* ---------- Badge ---------- */
+  .ld-badge { display: inline-flex; align-items: center; padding: 2px 9px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; color: var(--accent); background: var(--accent-subtle); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 999px; }
+
+  /* ---------- Checkmark lists ---------- */
+  .ld-checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+  .ld-check { display: flex; align-items: flex-start; gap: var(--sp-2); font-size: 0.88rem; line-height: 1.4; color: var(--muted); }
+  .ld-check-icon { display: inline-flex; flex: 0 0 auto; color: var(--lens-green); margin-top: 1px; }
+
+  /* ---------- Data requirements table ---------- */
+  .ld-table { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .ld-tr { display: grid; grid-template-columns: minmax(140px, 1.2fr) minmax(0, 2fr) auto; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); border-top: 1px solid var(--border); }
+  .ld-tr:first-child { border-top: none; }
+  .ld-tr-head { background: var(--surface-page); }
+  .ld-th { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--subtle); }
+  .ld-th-req, .ld-td-req { text-align: right; justify-self: end; }
+  .ld-td { font-size: 0.88rem; color: var(--muted); line-height: 1.4; min-width: 0; }
+  .ld-td-source { display: flex; align-items: center; gap: var(--sp-2); }
+  .ld-src-icon { display: inline-flex; flex: 0 0 auto; color: var(--accent); }
+  .ld-src-name { font-weight: 600; color: var(--ink); }
+  .ld-req-pill { display: inline-flex; align-items: center; padding: 3px 10px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em; border-radius: 999px; white-space: nowrap; }
+  .ld-req-required { color: var(--lens-green); background: color-mix(in srgb, var(--lens-green) 14%, var(--surface-card)); border: 1px solid color-mix(in srgb, var(--lens-green) 35%, transparent); }
+  .ld-req-optional { color: var(--subtle); background: var(--surface-page); border: 1px solid var(--border-strong); }
+  .ld-tr-note { background: var(--surface-page); }
+  .ld-td-note { grid-column: 1 / -1; display: flex; align-items: flex-start; gap: 6px; font-size: 0.82rem; line-height: 1.4; color: var(--subtle); }
+  .ld-td-note :global(svg) { flex: 0 0 auto; margin-top: 1px; }
+
+  /* ---------- fix6 responsive ---------- */
+  @media (max-width: 560px) {
+    .ld-stats { flex-direction: column; }
+    .ld-stat { border-left: none; padding: var(--sp-3) 0 0; border-top: 1px solid var(--border); }
+    .ld-stat:first-child { border-top: none; padding-top: 0; }
+    .ld-tr { grid-template-columns: 1fr; gap: 6px; }
+    .ld-tr-head { display: none; }
+    .ld-th-req, .ld-td-req { justify-self: start; text-align: left; }
+  }
 
   /* ---------- Responsive: rail reflows below content ---------- */
   @media (max-width: 900px) {

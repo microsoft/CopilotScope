@@ -40,6 +40,18 @@ function initDetail(): void {
       else showAbout();
     });
   }
+
+  const aboutLink = article.querySelector<HTMLElement>('[data-ld-about]');
+  if (aboutLink) {
+    const a = aboutLink as HTMLElement & { __ldBound?: boolean };
+    if (!a.__ldBound) {
+      a.__ldBound = true;
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        showAbout();
+      });
+    }
+  }
 }
 
 declare global {

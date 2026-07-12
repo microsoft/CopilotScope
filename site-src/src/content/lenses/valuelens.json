@@ -18,19 +18,41 @@
     "getIntro": "ValueLens ships in three deployment paths — same pages, same value model, different data plumbing. Pick the one that matches your setup:",
     "tiers": [
       {
-        "name": "SharePoint (simplest)",
-        "description": "the fastest start on Power BI Pro alone; no Fabric or Premium required.",
-        "pbit": "lenses/ValueLens/deployment/2. SharePoint/ValueLens - SharePoint.pbit"
+        "name": "SharePoint",
+        "description": "The fastest start on Power BI Pro alone.",
+        "pbit": "lenses/ValueLens/deployment/2. SharePoint/ValueLens - SharePoint.pbit",
+        "icon": "grid",
+        "accent": "ta",
+        "checks": [
+          "Power BI Pro only",
+          "No Fabric or Premium required",
+          "Fastest start"
+        ]
       },
       {
-        "name": "Fabric (recommended)",
-        "description": "scheduled Spark ingestion into a Lakehouse for the best performance, plus the optional billing and feedback pages; the same build runs on Databricks, Synapse, or Azure SQL.",
-        "pbit": "lenses/ValueLens/deployment/1. Fabric/ValueLens - Fabric.pbit"
+        "name": "Fabric",
+        "description": "Scheduled ingestion into a Lakehouse for scale.",
+        "pbit": "lenses/ValueLens/deployment/1. Fabric/ValueLens - Fabric.pbit",
+        "icon": "layers",
+        "badge": "Recommended",
+        "accent": "tb",
+        "checks": [
+          "Scheduled Spark ingestion",
+          "Best performance at scale",
+          "Optional billing & feedback pages"
+        ]
       },
       {
-        "name": "Fabric Extended (advanced)",
-        "description": "everything in the Fabric path plus the deeper Copilot Studio agent, topic, and CSAT pages; stand up Fabric first, then add this.",
-        "pbit": "lenses/ValueLens/deployment/3. Fabric Extended/Fabric + Copilot Studio/ValueLens - Fabric (+ Studio Agent Deepdive).pbit"
+        "name": "Fabric Extended",
+        "description": "Adds the Copilot Studio agent layer.",
+        "pbit": "lenses/ValueLens/deployment/3. Fabric Extended/Fabric + Copilot Studio/ValueLens - Fabric (+ Studio Agent Deepdive).pbit",
+        "icon": "sparkle",
+        "accent": "tc",
+        "checks": [
+          "Everything in Fabric",
+          "Copilot Studio agent, topic & CSAT pages",
+          "Add after Fabric is running"
+        ]
       }
     ],
     "disclaimer": "Experimental template using Purview audit logs as the primary source. Not an official Microsoft-supported product — questions and issues via the GitHub repo.",
@@ -74,7 +96,187 @@
         "oxford": true,
         "post": ")."
       }
-    ]
+    ],
+    "stats": [
+      {
+        "value": "15",
+        "label": "report pages"
+      },
+      {
+        "value": "3",
+        "label": "deployment paths"
+      },
+      {
+        "value": "8+",
+        "label": "research sources behind the value model"
+      }
+    ],
+    "whatItShowsLead": "Every Copilot interaction is classified into an AI Task, mapped to a research-sourced time baseline, and turned into hours saved and assisted value.",
+    "features": [
+      {
+        "icon": "coins",
+        "title": "Quantified value",
+        "desc": "Hours saved and assisted dollar value across your whole Copilot estate."
+      },
+      {
+        "icon": "rocket",
+        "title": "Frontier Firm journey",
+        "desc": "Your position on the path from human + Copilot, to human + agent, to agent-run workflows."
+      },
+      {
+        "icon": "layers",
+        "title": "Value by function",
+        "desc": "Sales, HR, IT, Legal, Finance, Marketing, and Customer Service, with task-level attribution."
+      },
+      {
+        "icon": "trending-up",
+        "title": "User maturity",
+        "desc": "Every user placed on the curve from Beginner through Proficient."
+      },
+      {
+        "icon": "briefcase",
+        "title": "Business case",
+        "desc": "Projected annual value, ROI multiple, and license investment net."
+      }
+    ],
+    "valueFlow": [
+      "Interaction",
+      "AI Task",
+      "Time baseline",
+      "Hours saved",
+      "× Rate = Assisted value"
+    ],
+    "valueFlowNote": "Grounded in published research from Microsoft Research, MIT, NBER, BCG/Harvard, McKinsey, Forrester, IDC and others.",
+    "whatsInsideLead": "Fifteen report pages covering the full story.",
+    "pageGroups": [
+      {
+        "items": [
+          {
+            "icon": "people",
+            "name": "User Activation"
+          },
+          {
+            "icon": "trending-up",
+            "name": "Adoption & Reach"
+          },
+          {
+            "icon": "bar-chart",
+            "name": "Activity & Value"
+          },
+          {
+            "icon": "target",
+            "name": "Usage Maturity"
+          },
+          {
+            "icon": "trophy",
+            "name": "Leaderboards"
+          },
+          {
+            "icon": "shield",
+            "name": "Agent Governance"
+          },
+          {
+            "icon": "thumb",
+            "name": "User Feedback"
+          },
+          {
+            "icon": "clipboard-check",
+            "name": "License Readiness"
+          },
+          {
+            "icon": "grid",
+            "name": "Heatmap Trend"
+          }
+        ]
+      },
+      {
+        "label": "Extended build adds",
+        "items": [
+          {
+            "icon": "coins",
+            "name": "Credits Consumed"
+          },
+          {
+            "icon": "bot",
+            "name": "Agent Evaluation"
+          },
+          {
+            "icon": "tag",
+            "name": "Topic Analysis"
+          }
+        ]
+      },
+      {
+        "label": "Appendices",
+        "note": "The Signal Table traces raw signals through to value as an audit trail.",
+        "items": [
+          {
+            "icon": "book",
+            "name": "Key Concepts"
+          },
+          {
+            "icon": "list",
+            "name": "Glossary"
+          },
+          {
+            "icon": "scatter",
+            "name": "Signal Table"
+          }
+        ]
+      }
+    ],
+    "dataSources": [
+      {
+        "icon": "shield",
+        "source": "Purview audit logs",
+        "description": "Copilot interaction events — the core activity signal.",
+        "requirement": "Required"
+      },
+      {
+        "icon": "clipboard-check",
+        "source": "Licensed users",
+        "description": "Copilot license assignments from the Microsoft 365 Admin Center.",
+        "requirement": "Required"
+      },
+      {
+        "icon": "people",
+        "source": "Org data",
+        "description": "Users, departments, and reporting structure from Microsoft Entra.",
+        "requirement": "Required"
+      },
+      {
+        "icon": "bot",
+        "source": "Agent 365 exports",
+        "description": "Agent inventory and activity for the governance pages.",
+        "requirement": "Optional"
+      },
+      {
+        "icon": "sparkle",
+        "source": "Cowork / Work IQ",
+        "description": "Consumption signals for the newest Copilot surfaces.",
+        "requirement": "Optional"
+      },
+      {
+        "icon": "coins",
+        "source": "Credit billing",
+        "description": "Message-credit spend for the cost pages.",
+        "requirement": "Optional"
+      },
+      {
+        "icon": "thumb",
+        "source": "Product feedback",
+        "description": "Thumbs signals for the User Feedback page.",
+        "requirement": "Optional"
+      },
+      {
+        "icon": "chat",
+        "source": "Copilot Studio transcripts",
+        "description": "Conversation data for the extended build's agent pages.",
+        "requirement": "Optional"
+      }
+    ],
+    "dataNote": "Optional sources light up additional pages via toggles — the dashboard works fully without them.",
+    "getNote": "All paths include documentation and setup guidance."
   },
   "version": "v1.0",
   "releaseDate": "July 12, 2026"
