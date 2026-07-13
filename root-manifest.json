@@ -4,6 +4,7 @@
     "_astro/BaseLayout.CsTcniOW.css",
     "_astro/ClientRouter.astro_astro_type_script_index_0_lang.XvdBj9Ef.js",
     "_astro/index.DptM3XWq.css",
+    "_astro/lens-finder.DnHSnp0_.css",
     "_astro/LensDetail.5GP49Wg6.css",
     "_astro/LensDetail.astro_astro_type_script_index_0_lang.C0DjGAT7.js",
     "_astro/lenses.astro_astro_type_script_index_0_lang.BL_pFre9.js",
@@ -72,7 +73,7 @@
     "logo-mark.png",
     "ms-opensource-dark.png",
     "ms-opensource-light.png",
-    "pagefind/filter/en_361a92b.pf_filter",
+    "pagefind/filter/en_5f67b2d.pf_filter",
     "pagefind/fragment/en_1f7b9df.pf_fragment",
     "pagefind/fragment/en_1fce503.pf_fragment",
     "pagefind/fragment/en_30c84bc.pf_fragment",
@@ -98,12 +99,12 @@
     "pagefind/pagefind-ui.css",
     "pagefind/pagefind-ui.js",
     "pagefind/pagefind-worker.js",
-    "pagefind/pagefind.en_e052e8cc2d.pf_meta",
+    "pagefind/pagefind.en_7f1b8d01e2.pf_meta",
     "pagefind/pagefind.js",
     "pagefind/wasm.en.pagefind",
     "pagefind/wasm.unknown.pagefind",
     "whats-new/index.html",
     "work-in-progress-stamp.png"
   ],
-  "count": 104
+  "count": 105
 }

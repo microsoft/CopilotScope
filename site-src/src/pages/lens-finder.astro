@@ -1,8 +1,400 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageStub from '../components/PageStub.astro';
+import Icon from '../components/Icon.astro';
+import { getOrderedLenses, LENS_ICON, STATUS_LABEL } from '../lib/lenses';
+
+const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
+
+// Category name -> hash slug (the three canonical categories, verbatim; the
+// same mapping the Lenses Overview uses).
+const CAT_SLUG: Record<string, string> = {
+  'Value & ROI': 'value-roi',
+  'Agents & Studio': 'agents-studio',
+  'Adoption & Readiness': 'adoption-readiness',
+};
+
+// All eight lenses from the shared collection, in canonical status-first order.
+// No lens fact is duplicated here — everything derives from the collection.
+const lenses = (await getOrderedLenses()).map((data) => ({
+  id: data.id,
+  name: data.name,
+  tagline: data.tagline,
+  category: data.category,
+  categorySlug: CAT_SLUG[data.category] ?? '',
+  status: data.status,
+  statusLabel: STATUS_LABEL[data.status],
+  color: data.color,
+  icon: LENS_ICON[data.id],
+  href: `${base}/lenses/${data.id}`,
+}));
+
+const categories = [
+  { slug: 'value-roi', name: 'Value & ROI' },
+  { slug: 'agents-studio', name: 'Agents & Studio' },
+  { slug: 'adoption-readiness', name: 'Adoption & Readiness' },
+];
+const statuses = [
+  { slug: 'installed', name: 'Installed' },
+  { slug: 'available', name: 'Available' },
+  { slug: 'coming-soon', name: 'Coming Soon' },
+];
 ---
 
 <BaseLayout title="Lens Finder · CopilotScope">
-  <PageStub heading="Lens Finder" />
+  <div class="lens-finder" data-lf>
+    <header class="lf-head">
+      <h1>Lens Finder</h1>
+      <p class="lf-sub">Eight Power BI lenses, one scope. Filter by category and availability to find the ones built for what you want to measure.</p>
+    </header>
+
+    <div class="lf-toolbar" data-lf-toolbar hidden>
+      <div class="lf-group" role="group" aria-labelledby="lf-cat-label">
+        <span class="lf-group-label" id="lf-cat-label">Category</span>
+        <div class="lf-seg">
+          <button type="button" class="lf-seg-btn is-selected" data-lf-cat="all" aria-pressed="true">All lenses</button>
+          {categories.map((c) => (
+            <button type="button" class="lf-seg-btn" data-lf-cat={c.slug} aria-pressed="false">{c.name}</button>
+          ))}
+        </div>
+      </div>
+
+      <div class="lf-group" role="group" aria-labelledby="lf-status-label">
+        <span class="lf-group-label" id="lf-status-label">Availability</span>
+        <div class="lf-seg">
+          <button type="button" class="lf-seg-btn is-selected" data-lf-status-btn="all" aria-pressed="true">All statuses</button>
+          {statuses.map((s) => (
+            <button type="button" class="lf-seg-btn" data-lf-status-btn={s.slug} aria-pressed="false">{s.name}</button>
+          ))}
+        </div>
+      </div>
+
+      <button type="button" class="lf-clear" data-lf-clear hidden>Clear filters</button>
+    </div>
+
+    <p class="lf-results-status" data-lf-status role="status" aria-live="polite">All lenses</p>
+
+    <ul class="lf-results" data-lf-results>
+      {lenses.map((lens) => (
+        <li class="lf-item" data-lf-item data-category={lens.categorySlug} data-status={lens.status}>
+          <a class="lf-card" href={lens.href}>
+            <span class="lf-card-top">
+              <span class="tile-icon" style={`--tile-c: var(--${lens.color}); background: var(--tile-c)`}>
+                <Icon name={lens.icon} size={16} />
+              </span>
+              <span class:list={['pill', `pill--${lens.status}`]}>{lens.statusLabel}</span>
+            </span>
+            <span class="lf-card-name">{lens.name}</span>
+            <span class="lf-card-cat">{lens.category}</span>
+            <span class="lf-card-tag">{lens.tagline}</span>
+            <span class="lf-card-view">View lens <span aria-hidden="true">&#8594;</span></span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <p class="lf-empty" data-lf-empty hidden>No lenses match these filters. Clear a filter to see more.</p>
+  </div>
 </BaseLayout>
+
+<script>
+  const CAT = { 'value-roi': 'Value & ROI', 'agents-studio': 'Agents & Studio', 'adoption-readiness': 'Adoption & Readiness' };
+  const STATUS = { installed: 'Installed', available: 'Available', 'coming-soon': 'Coming Soon' };
+  const CATS = Object.keys(CAT);
+  const STATUSES = Object.keys(STATUS);
+
+  function readState() {
+    const h = (location.hash || '').replace('#', '');
+    const cat = CATS.indexOf(h) !== -1 ? h : 'all';
+    let status = 'all';
+    try {
+      const q = new URLSearchParams(location.search).get('status');
+      if (q && STATUSES.indexOf(q) !== -1) status = q;
+    } catch (e) {}
+    return { cat, status };
+  }
+
+  function initLensFinder() {
+    const root = document.querySelector('[data-lf]');
+    if (!root) return;
+    const toolbar = root.querySelector('[data-lf-toolbar]');
+    const results = root.querySelector('[data-lf-results]');
+    const statusEl = root.querySelector('[data-lf-status]');
+    const empty = root.querySelector('[data-lf-empty]');
+    const clearBtn = root.querySelector('[data-lf-clear]');
+    if (!toolbar || !results || !statusEl) return;
+    const catBtns = Array.from(root.querySelectorAll('[data-lf-cat]'));
+    const statusBtns = Array.from(root.querySelectorAll('[data-lf-status-btn]'));
+    const items = Array.from(results.querySelectorAll('[data-lf-item]'));
+
+    toolbar.hidden = false; // progressive enhancement: controls appear only with JS
+
+    const apply = (cat, status) => {
+      catBtns.forEach((b) => {
+        const on = (b.getAttribute('data-lf-cat') || 'all') === cat;
+        b.classList.toggle('is-selected', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      statusBtns.forEach((b) => {
+        const on = (b.getAttribute('data-lf-status-btn') || 'all') === status;
+        b.classList.toggle('is-selected', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      if (cat === 'all') results.removeAttribute('data-cat');
+      else results.setAttribute('data-cat', cat);
+      if (status === 'all') results.removeAttribute('data-status');
+      else results.setAttribute('data-status', status);
+      let n = 0;
+      items.forEach((it) => {
+        const okc = cat === 'all' || it.getAttribute('data-category') === cat;
+        const oks = status === 'all' || it.getAttribute('data-status') === status;
+        if (okc && oks) n += 1;
+      });
+      const parts = [];
+      if (cat !== 'all') parts.push(CAT[cat]);
+      if (status !== 'all') parts.push(STATUS[status]);
+      const noun = n === 1 ? 'lens' : 'lenses';
+      statusEl.textContent =
+        cat === 'all' && status === 'all' ? 'All lenses' : parts.join(' \u00b7 ') + ' \u00b7 ' + n + ' ' + noun;
+      if (empty) empty.hidden = n !== 0;
+      if (clearBtn) clearBtn.hidden = cat === 'all' && status === 'all';
+    };
+
+    const write = (cat, status) => {
+      let url = location.pathname;
+      if (status !== 'all') url += '?status=' + status;
+      if (cat !== 'all') url += '#' + cat;
+      try {
+        history.replaceState(null, '', url);
+      } catch (e) {}
+    };
+
+    catBtns.forEach((b) =>
+      b.addEventListener('click', () => {
+        const cat = b.getAttribute('data-lf-cat') || 'all';
+        const status = readState().status;
+        write(cat, status);
+        apply(cat, status);
+      }),
+    );
+    statusBtns.forEach((b) =>
+      b.addEventListener('click', () => {
+        const status = b.getAttribute('data-lf-status-btn') || 'all';
+        const cat = readState().cat;
+        write(cat, status);
+        apply(cat, status);
+      }),
+    );
+    if (clearBtn)
+      clearBtn.addEventListener('click', () => {
+        write('all', 'all');
+        apply('all', 'all');
+      });
+
+    const s = readState();
+    apply(s.cat, s.status);
+  }
+
+  if (!window.__csLensFinderBound) {
+    window.__csLensFinderBound = true;
+    document.addEventListener('astro:page-load', initLensFinder);
+  }
+</script>
+
+<style>
+  .lens-finder {
+    max-width: 1100px;
+  }
+  .lf-head {
+    margin-bottom: var(--sp-5);
+  }
+  .lf-head h1 {
+    font-size: 2rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    margin: 0 0 var(--sp-2);
+  }
+  .lf-sub {
+    font-size: 1.05rem;
+    line-height: 1.5;
+    color: var(--muted);
+    margin: 0;
+    max-width: 70ch;
+  }
+
+  .lf-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--sp-5);
+    margin-bottom: var(--sp-4);
+  }
+  .lf-toolbar[hidden] {
+    display: none;
+  }
+  .lf-group {
+    display: grid;
+    gap: 6px;
+  }
+  .lf-group-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .lf-seg {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .lf-seg-btn {
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 6px var(--sp-3);
+    color: var(--ink);
+    background: var(--surface-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+  }
+  .lf-seg-btn:hover {
+    border-color: var(--accent);
+  }
+  .lf-seg-btn.is-selected {
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .lf-seg-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .lf-clear {
+    font: inherit;
+    font-size: 0.88rem;
+    padding: 6px var(--sp-3);
+    color: var(--accent);
+    background: none;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .lf-clear[hidden] {
+    display: none;
+  }
+  .lf-clear:hover {
+    text-decoration: underline;
+  }
+  .lf-clear:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .lf-results-status {
+    margin: 0 0 var(--sp-4);
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .lf-results {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--sp-4);
+  }
+  .lf-item {
+    display: block;
+    min-width: 0;
+  }
+  .lf-card {
+    display: grid;
+    gap: var(--sp-2);
+    align-content: start;
+    height: 100%;
+    padding: var(--sp-4);
+    color: var(--ink);
+    text-decoration: none;
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1);
+    transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  }
+  .lf-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-2);
+    border-color: var(--border-strong);
+  }
+  .lf-card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .lf-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-2);
+  }
+  .lf-card-name {
+    font-size: 1.1rem;
+    font-weight: 650;
+    line-height: 1.25;
+  }
+  .lf-card-cat {
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .lf-card-tag {
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+  .lf-card-view {
+    margin-top: var(--sp-1);
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .lf-empty {
+    margin: var(--sp-3) 0 0;
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+  .lf-empty[hidden] {
+    display: none;
+  }
+
+  /* Intersection filtering: each active dimension hides non-matching items. */
+  .lf-results[data-cat='value-roi'] .lf-item:not([data-category='value-roi']),
+  .lf-results[data-cat='agents-studio'] .lf-item:not([data-category='agents-studio']),
+  .lf-results[data-cat='adoption-readiness'] .lf-item:not([data-category='adoption-readiness']),
+  .lf-results[data-status='installed'] .lf-item:not([data-status='installed']),
+  .lf-results[data-status='available'] .lf-item:not([data-status='available']),
+  .lf-results[data-status='coming-soon'] .lf-item:not([data-status='coming-soon']) {
+    display: none;
+  }
+
+  @media (max-width: 560px) {
+    .lf-toolbar {
+      gap: var(--sp-4);
+    }
+    .lf-results {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lf-card {
+      transition: none;
+    }
+  }
+</style>
