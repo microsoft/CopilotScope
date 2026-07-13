@@ -1,8 +1,125 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageStub from '../components/PageStub.astro';
+import { getOrderedLenses } from '../lib/lenses';
+
+const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
+
+// Only ValueLens and StudioLens have published Data sources & requirements docs.
+// The remaining lenses are derived from the shared collection (canonical order)
+// and shown only as not-yet-documented — no inferred sources or requirements.
+const documentedIds = ['valuelens', 'studiolens'];
+const undocumented = (await getOrderedLenses())
+  .filter((lens) => !documentedIds.includes(lens.id))
+  .map((lens) => lens.name);
 ---
 
 <BaseLayout title="Data Sources · CopilotScope">
-  <PageStub heading="Data Sources" />
+  <section class="ds">
+    <h1 class="ds-title">Data Sources</h1>
+    <p class="ds-lede">
+      Detailed data-source requirements are currently documented for ValueLens and
+      StudioLens. Each lens's guide covers its sources, permissions, and setup
+      requirements.
+    </p>
+
+    <section class="ds-lens" aria-labelledby="ds-valuelens">
+      <h2 id="ds-valuelens">ValueLens</h2>
+      <p>
+        ValueLens uses one data model and one refresh. Its core (required) sources are
+        Copilot interactions (Purview audit logs), licensed users (Microsoft 365 Admin
+        Center), and org data (Microsoft Entra). Optional sources — such as Agents 365,
+        credit and cost consumption, product feedback, and Copilot Studio transcripts —
+        can be present or absent without ever breaking a refresh.
+      </p>
+      <a class="ds-link" href={`${base}/lenses/valuelens/docs/data-sources-requirements/`}>
+        Open the ValueLens Data sources &amp; requirements guide
+        <span aria-hidden="true">&#8594;</span>
+      </a>
+    </section>
+
+    <section class="ds-lens" aria-labelledby="ds-studiolens">
+      <h2 id="ds-studiolens">StudioLens</h2>
+      <p>
+        StudioLens requirements are path-scoped. The Dataverse (Direct) build reads
+        Copilot Studio conversation transcripts live over the Dataverse Web API and needs
+        an org-data CSV; the Fabric build reads Delta tables from a Lakehouse. Dataverse
+        retains transcripts for about 30 days, so the Fabric build is the path for
+        historical analysis beyond that window.
+      </p>
+      <a class="ds-link" href={`${base}/lenses/studiolens/docs/data-sources-requirements/`}>
+        Open the StudioLens Data sources &amp; requirements guide
+        <span aria-hidden="true">&#8594;</span>
+      </a>
+    </section>
+
+    <section class="ds-pending" aria-labelledby="ds-pending-heading">
+      <h2 id="ds-pending-heading">Not yet documented</h2>
+      <p>Detailed data-source documentation for the remaining lenses is not yet published:</p>
+      <ul class="ds-pending-list">
+        {undocumented.map((name) => <li>{name}</li>)}
+      </ul>
+    </section>
+  </section>
 </BaseLayout>
+
+<style>
+  .ds {
+    max-width: 720px;
+  }
+  .ds-title {
+    font-size: 2rem;
+    font-weight: 650;
+    line-height: 1.2;
+    margin: 0 0 var(--sp-4);
+  }
+  .ds-lede {
+    font-size: 1.05rem;
+    line-height: 1.55;
+    color: var(--muted);
+    margin: 0 0 var(--sp-6);
+    max-width: 62ch;
+  }
+  .ds-lens,
+  .ds-pending {
+    margin-top: var(--sp-5);
+    padding-top: var(--sp-5);
+    border-top: 1px solid var(--border);
+  }
+  .ds-lens h2,
+  .ds-pending h2 {
+    font-size: 1.25rem;
+    font-weight: 650;
+    margin: 0 0 var(--sp-3);
+    color: var(--ink);
+  }
+  .ds-lens p,
+  .ds-pending p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--muted);
+    margin: 0 0 var(--sp-4);
+    max-width: 64ch;
+  }
+  .ds-pending p {
+    margin-bottom: var(--sp-3);
+  }
+  .ds-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-weight: 600;
+  }
+  .ds-link span {
+    transition: transform var(--dur) var(--ease);
+  }
+  .ds-link:hover span {
+    transform: translateX(3px);
+  }
+  .ds-pending-list {
+    margin: 0;
+    padding-left: var(--sp-5);
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+</style>
