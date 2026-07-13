@@ -68,6 +68,7 @@ function renderResults(
   statusEl: HTMLElement,
   resultsEl: HTMLElement,
   query: string,
+  showLensContext: boolean,
 ): void {
   resultsEl.replaceChildren();
   if (results.length === 0) {
@@ -96,6 +97,20 @@ function renderResults(
 
     a.appendChild(title);
     li.appendChild(a);
+
+    // Global (no-lens) search returns results from both lenses and duplicate
+    // titles exist across lenses, so surface the lens name as plain-text
+    // context. Metadata is raw/unprocessed per the Pagefind docs — textContent.
+    if (showLensContext) {
+      const lensName = r.meta && r.meta.lens_name ? r.meta.lens_name : '';
+      if (lensName) {
+        const context = document.createElement('span');
+        context.className = 'ds-result-lens';
+        context.textContent = lensName;
+        li.appendChild(context);
+      }
+    }
+
     li.appendChild(excerpt);
     resultsEl.appendChild(li);
   }
@@ -112,6 +127,9 @@ function bindSearch(container: HTMLElement): void {
 
   const lens = container.getAttribute('data-lens') || '';
   const filterOpts: Record<string, unknown> = lens ? { filters: { lens } } : {};
+  // No data-lens means the global FAQ & Support search: no filter, and each
+  // result carries visible lens context because duplicate titles span lenses.
+  const showLensContext = !lens;
 
   const run = async (): Promise<void> => {
     const query = input.value.trim();
@@ -132,7 +150,7 @@ function bindSearch(container: HTMLElement): void {
     if (search === null) return; // a newer query superseded this one
     const data = await Promise.all(search.results.map((r) => r.data()));
     if (input.value.trim() !== query) return; // input changed while awaiting
-    renderResults(data, statusEl, resultsEl, query);
+    renderResults(data, statusEl, resultsEl, query, showLensContext);
   };
 
   input.addEventListener('input', () => {

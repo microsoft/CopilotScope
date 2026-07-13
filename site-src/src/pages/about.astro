@@ -1,18 +1,37 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageStub from '../components/PageStub.astro';
+import DocsSearch from '../components/DocsSearch.astro';
 ---
 
 <BaseLayout title="FAQ & Support · CopilotScope">
-  <PageStub heading="FAQ & Support">
+  <section class="support">
+    <h1 class="support-title">FAQ &amp; Support</h1>
+
+    <div class="support-search">
+      <DocsSearch />
+    </div>
+
     <section class="support-access">
       <h2>Access &amp; support</h2>
       <p>If your organization's network blocks copilotscope.ai, use aka.ms/CopilotScope as an alternate address.</p>
     </section>
-  </PageStub>
+  </section>
 </BaseLayout>
 
 <style>
+  .support {
+    max-width: 720px;
+  }
+  .support-title {
+    font-size: 2rem;
+    font-weight: 650;
+    line-height: 1.2;
+    margin: 0 0 var(--sp-5);
+  }
+  .support-search {
+    max-width: 640px;
+    margin-bottom: var(--sp-6);
+  }
   .support-access {
     margin-top: var(--sp-5);
     padding-top: var(--sp-4);
