@@ -1,8 +1,156 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageStub from '../components/PageStub.astro';
+
+const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
+
+// Bounded orientation steps (Option A). Each links to an existing verified route.
+// No new setup, installation, deployment, permission, licensing, configuration,
+// timing, or compatibility claim is made here — technical detail stays in the
+// linked source pages.
+const steps = [
+  {
+    title: 'Explore the lenses',
+    body: 'Use the Lens Finder to browse all eight lenses and narrow them by category and availability.',
+    linkText: 'Open the Lens Finder',
+    href: `${base}/lens-finder/`,
+  },
+  {
+    title: 'Review data sources',
+    body: 'See the data-source requirements currently documented for ValueLens and StudioLens.',
+    linkText: 'Open Data Sources',
+    href: `${base}/data-sources/`,
+  },
+  {
+    title: 'Browse the Lenses overview',
+    body: 'Open the Lenses overview to browse the catalog and open any lens detail page.',
+    linkText: 'Open the Lenses overview',
+    href: `${base}/lenses/`,
+  },
+  {
+    title: 'Read the ValueLens documentation',
+    body: 'ValueLens has published technical documentation.',
+    linkText: 'Open the ValueLens documentation',
+    href: `${base}/lenses/valuelens/docs/`,
+  },
+  {
+    title: 'Read the StudioLens documentation',
+    body: 'StudioLens has published technical documentation.',
+    linkText: 'Open the StudioLens documentation',
+    href: `${base}/lenses/studiolens/docs/`,
+  },
+];
 ---
 
 <BaseLayout title="Getting Started · CopilotScope">
-  <PageStub heading="Getting Started" />
+  <section class="gs">
+    <h1 class="gs-title">Getting Started</h1>
+    <p class="gs-lede">
+      New to CopilotScope? This page is a short orientation to the parts of the experience
+      that already exist. Follow the steps in any order that fits what you need &#8212; each
+      one links to an existing page.
+    </p>
+
+    <ol class="gs-steps" role="list">
+      {steps.map((step) => (
+        <li class="gs-step">
+          <h2 class="gs-step-title">{step.title}</h2>
+          <p class="gs-step-body">{step.body}</p>
+          <a class="gs-step-link" href={step.href}>
+            {step.linkText}
+            <span aria-hidden="true">&#8594;</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+
+    <p class="gs-note">Detailed documentation for the remaining lenses will be added as it becomes available.</p>
+  </section>
 </BaseLayout>
+
+<style>
+  .gs {
+    max-width: 720px;
+  }
+  .gs-title {
+    font-size: 2rem;
+    font-weight: 650;
+    line-height: 1.2;
+    margin: 0 0 var(--sp-4);
+  }
+  .gs-lede {
+    font-size: 1.05rem;
+    line-height: 1.55;
+    color: var(--muted);
+    margin: 0 0 var(--sp-6);
+    max-width: 64ch;
+  }
+  .gs-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: gs;
+  }
+  .gs-step {
+    position: relative;
+    counter-increment: gs;
+    padding: var(--sp-5) 0 var(--sp-5) var(--sp-7);
+    border-top: 1px solid var(--border);
+  }
+  .gs-step:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+  .gs-step::before {
+    content: counter(gs);
+    position: absolute;
+    left: 0;
+    top: var(--sp-5);
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: var(--accent-subtle);
+    color: var(--accent);
+    font-weight: 650;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .gs-step:first-child::before {
+    top: 0;
+  }
+  .gs-step-title {
+    font-size: 1.15rem;
+    font-weight: 650;
+    margin: 0 0 var(--sp-2);
+    color: var(--ink);
+  }
+  .gs-step-body {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--muted);
+    margin: 0 0 var(--sp-3);
+    max-width: 62ch;
+  }
+  .gs-step-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-weight: 600;
+  }
+  .gs-step-link span {
+    transition: transform var(--dur) var(--ease);
+  }
+  .gs-step-link:hover span {
+    transform: translateX(3px);
+  }
+  .gs-note {
+    margin: var(--sp-6) 0 0;
+    padding-top: var(--sp-4);
+    border-top: 1px solid var(--border);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 62ch;
+  }
+</style>
