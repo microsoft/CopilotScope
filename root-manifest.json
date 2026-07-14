@@ -16,7 +16,6 @@
     "data-sources/index.html",
     "docs/screenshot-manifest.json",
     "docs/valuelens/fabric-architecture.png",
-    "faq/index.html",
     "favicon-mark.png",
     "favicon.ico",
     "favicon.svg",
@@ -106,5 +105,5 @@
     "whats-new/index.html",
     "work-in-progress-stamp.png"
   ],
-  "count": 105
+  "count": 104
 }
